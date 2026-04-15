@@ -18,8 +18,17 @@ async function startServer() {
 
         // Middleware
         const session = require('express-session');
+        const pgSession = require('connect-pg-simple')(session);
+        const db = require('./src/config/database');
         const authConfig = require('./src/config/authConfig');
+
+        app.set('trust proxy', 1);
+
         app.use(session({
+            store: new pgSession({
+                pool: db.pool,
+                tableName: 'session'
+            }),
             secret: authConfig.SESSION_SECRET,
             resave: false,
             saveUninitialized: false,

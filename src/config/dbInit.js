@@ -65,7 +65,13 @@ const TABLES = {
             password TEXT NOT NULL,
             role TEXT DEFAULT 'user',
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        )`,
+    session: `
+        CREATE TABLE IF NOT EXISTS "session" (
+            "sid" varchar NOT NULL PRIMARY KEY,
+            "sess" JSONB NOT NULL
         )`
+
 };
 
 async function initDb() {
