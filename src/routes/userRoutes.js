@@ -17,6 +17,14 @@ router.get('/', async (req, res) => {
     }
 });
 
+router.get('/download', async (req, res) => {
+    try {
+        res.render('download', { league: settings.LEAGUE_NAME, systemState: healthMonitor.getState() });
+    } catch (err) {
+        res.status(500).send(`Error: ${err.message}`);
+    }
+});
+
 router.get('/predictions', isAuthenticated, async (req, res) => {
     try {
         const { predictions, systemState } = await getPredictionsData();
