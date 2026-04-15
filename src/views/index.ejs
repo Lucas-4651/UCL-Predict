@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFL Predictions | Prédictions de Football par IA</title>
+    <meta name="description" content="Accédez aux meilleures prédictions de football gratuites basées sur l'intelligence artificielle et un moteur hybride adaptatif.">
+    <meta name="keywords" content="football, prédictions, IA, pronostics, gratuit, VFL">
+    <meta property="og:title" content="VFL Predictions | Prédictions de Football par IA">
+    <meta property="og:description" content="L'IA au service de vos pronostics football. Gratuit, précis et adaptatif.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://vfl-predict.com">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+    <!-- Toast Container -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center gap-8">
+                    <a href="/" class="flex items-center gap-2 group">
+                        <span class="text-2xl">🏆</span>
+                        <span class="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">VFL <span class="text-blue-600">Predict</span></span>
+                    </a>
+                    <div class="hidden md:flex items-center gap-6">
+                        <a href="/predictions" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Prédictions</a>
+                        <a href="/" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Accueil</a>
+                        <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Comment ça marche ?</a>
+                        <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Tarifs (Gratuit)</a>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <% if (user) { %>
+                        <div class="flex items-center gap-3">
+                            <span class="text-sm text-slate-500 hidden sm:inline"><%= user.email %></span>
+                            <% if (user.role === 'admin') { %>
+                                <a href="/admin" class="px-3 py-1.5 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition-colors">Admin</a>
+                            <% } %>
+                            <a href="/auth/logout" class="text-sm font-medium text-slate-600 hover:text-red-600 transition-colors">Déconnexion</a>
+                        </div>
+                    <% } else { %>
+                        <a href="/auth/login" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Connexion</a>
+                        <a href="/auth/register" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm">S'inscrire</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow">
+        <!-- Hero Section -->
+        <section class="bg-white border-b border-slate-200 py-16 px-4">
+            <div class="max-w-4xl mx-auto text-center space-y-6">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider border border-blue-100">
+                    <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
+                    Moteur Hybrid AI Actif
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight">
+                    L'intelligence artificielle au service de vos <span class="text-blue-600">prédictions football</span>
+                </h1>
+                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+                    VFL analyse les cotes du marché, la forme des équipes et les classements pour vous fournir des probabilités précises et gratuites.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4 pt-4">
+                    <a href="/predictions" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">Voir les prédictions</a>
+                    <a href="/auth/register" class="px-6 py-3 bg-white text-slate-700 border border-slate-200 font-bold rounded-xl hover:bg-slate-50 transition-all">Créer un compte gratuit</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Lucas46 Tech Studio Promotion -->
+        <section class="py-16 px-4 max-w-7xl mx-auto">
+            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl overflow-hidden relative">
+                <div class="relative z-10 flex flex-col md:flex-row items-center gap-12">
+                    <div class="flex-1 space-y-6">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-500/30">
+                            Expertise Tech
+                        </div>
+                        <h2 class="text-3xl md:text-5xl font-extrabold leading-tight">
+                            Propulsé par <span class="text-blue-400">Lucas46 Tech Studio</span>
+                        </h2>
+                        <p class="text-slate-300 text-lg leading-relaxed">
+                            VFL est une vitrine technologique conçue par Lucas46 Tech Studio. Nous créons des systèmes autonomes, des IA adaptatives et des infrastructures auto-réparatrices pour transformer vos idées en réalité numérique.
+                        </p>
+                        <div class="flex flex-wrap gap-4 pt-4">
+                            <a href="#" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/50">
+                                Nos Services
+                            </a>
+                            <a href="#" class="px-6 py-3 bg-slate-700 text-white font-bold rounded-xl hover:bg-slate-600 transition-all">
+                                Contact Studio
+                            </a>
+                        </div>
+                    </div>
+                    <div class="flex-1 grid grid-cols-2 gap-4">
+                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                            <span class="text-3xl mb-3 block">🚀</span>
+                            <h4 class="font-bold mb-2">IA Avancée</h4>
+                            <p class="text-xs text-slate-400">Modèles prédictifs et automatisation intelligente.</p>
+                        </div>
+                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                            <span class="text-3xl mb-3 block">🛠️</span>
+                            <h4 class="font-bold mb-2">DevOps</h4>
+                            <p class="text-xs text-slate-400">Infrastructures scalables et haute disponibilité.</p>
+                        </div>
+                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                            <span class="text-3xl mb-3 block">🎨</span>
+                            <h4 class="font-bold mb-2">UI/UX Design</h4>
+                            <p class="text-xs text-slate-400">Interfaces modernes et expériences fluides.</p>
+                        </div>
+                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
+                            <span class="text-3xl mb-3 block">🛡️</span>
+                            <h4 class="font-bold mb-2">Sécurité</h4>
+                            <p class="text-xs text-slate-400">Audit et protection des systèmes critiques.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- Decorative background element -->
+                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section class="py-20 bg-slate-100 px-4">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Pourquoi choisir VFL ?</h2>
+                    <p class="text-slate-600 max-w-2xl mx-auto">Notre approche hybride combine les probabilités du marché avec des heuristiques sportives pour une précision maximale.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6">🤖</div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Moteur Hybrid AI</h3>
+                        <p class="text-slate-600 leading-relaxed">Fusion de données en temps réel et de modèles statistiques avancés pour minimiser l'erreur de prédiction.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6">🛡️</div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Auto-Healing</h3>
+                        <p class="text-slate-600 leading-relaxed">Infrastructure capable de se réparer seule pour garantir une disponibilité et une fiabilité 24/7.</p>
+                    </div>
+                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
+                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-6">📈</div>
+                        <h3 class="text-xl font-bold text-slate-900 mb-3">Learning Loop</h3>
+                        <p class="text-slate-600 leading-relaxed">Le système apprend de chaque résultat réel pour ajuster ses poids et s'améliorer continuellement.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-slate-200 py-12 px-4">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-2">
+                <span class="text-2xl">🏆</span>
+                <span class="text-lg font-bold text-slate-900">VFL Predict</span>
+            </div>
+            <p class="text-slate-500 text-sm">
+                &copy; 2026 <span class="font-semibold">VFL Autonomous Platform</span>. Gratuit et Open Source.
+            </p>
+            <div class="flex items-center gap-6">
+                <a href="#" class="text-sm text-slate-600 hover:text-blue-600 transition-colors">Conditions</a>
+                <a href="#" class="text-sm text-slate-600 hover:text-blue-600 transition-colors">Confidentialité</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const icon = type === 'success' ? '✓' : '⚠️';
+
+            toast.className = `${bgColor} text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="font-medium">${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        window.onload = () => {
+            const params = new URLSearchParams(window.location.search);
+            if (params.has('success')) {
+                showToast(params.get('success'));
+            }
+        };
+    </script>
+</body>
+</html>

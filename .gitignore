@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env.*
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+database.sqlite
+
+# Logs
+*.log
+test_output.txt
+
+# Tooling
+.claude/
+.remember/
+.DS_Store

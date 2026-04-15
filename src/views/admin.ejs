@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFL Admin | Panel de Contrôle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex">
+
+    <!-- Sidebar -->
+    <aside class="w-64 bg-slate-900 text-white hidden lg:flex flex-col sticky top-0 h-screen">
+        <div class="p-6 flex items-center gap-2">
+            <span class="text-2xl">🏆</span>
+            <span class="text-xl font-bold tracking-tight">VFL <span class="text-blue-400">Admin</span></span>
+        </div>
+        <nav class="flex-grow px-4 space-y-2 mt-4">
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium transition-all">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>👥</span> Utilisateurs
+            </a>
+            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>⚙️</span> Configuration
+            </a>
+        </nav>
+        <div class="p-6 border-t border-slate-800">
+            <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-all text-sm font-medium">
+                <span>🏠</span> Retour au site
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-8 overflow-y-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Observabilité Système</h1>
+                <p class="text-slate-500">Monitoring en temps réel du moteur d'apprentissage</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="px-4 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold shadow-sm flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full <%= state === 'HEALTHY' ? 'bg-emerald-500' : 'bg-red-500' %>"></span>
+                    <span class="text-slate-600"><%= state %></span>
+                </div>
+                <a href="/auth/logout" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-red-600 transition-colors">Déconnexion</a>
+            </div>
+        </header>
+
+        <!-- System Stats -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">Précision</span>
+                <span class="text-2xl font-bold text-slate-900"><%= accuracy %></span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">RAM Heap</span>
+                <span class="text-2xl font-bold text-slate-900"><%= ram %></span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">RAM Système</span>
+                <span class="text-2xl font-bold text-slate-900"><%= systemRam %></span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">Uptime</span>
+                <span class="text-2xl font-bold text-slate-900"><%= uptime %></span>
+            </div>
+            <div class="bg-white p-6 rounded-2xl border border-blue-200 bg-blue-50 shadow-sm">
+                <span class="text-[10px] uppercase text-blue-500 font-bold block mb-2">Version</span>
+                <span class="text-2xl font-bold text-blue-700">v1.0.0</span>
+            </div>
+        </div>
+
+        <!-- Weights Table -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-8 border-b border-slate-200 flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900">Configuration des Poids</h2>
+                    <p class="text-slate-500 text-sm">Valeurs optimisées dynamiquement par la LearningLoop</p>
+                </div>
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                    Auto-Tuned
+                </span>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead class="bg-slate-50 border-b border-slate-200">
+                        <tr>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Facteur</th>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Valeur Actuelle</th>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Impact Relatif</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <% for (const [key, value] of Object.entries(weights)) { %>
+                            <tr class="hover:bg-slate-50 transition-colors">
+                                <td class="px-8 py-4 text-sm font-medium text-slate-700"><%= key %></td>
+                                <td class="px-8 py-4 text-sm font-mono font-bold text-blue-600"><%= value.toFixed(4) %></td>
+                                <td class="px-8 py-4">
+                                    <div class="h-2 w-full max-w-xs bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 rounded-full" style="width: <%= Math.min(Math.max(value * 100, 0), 100) %>%"></div>
+                                    </div>
+                                </td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

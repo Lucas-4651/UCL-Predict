@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: #eee; display: flex; justify-content: center; gap: 20px; padding: 40px; flex-wrap: wrap; }
+        .card { background: #1e1e1e; width: 320px; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); border-color: #4caf50; }
+        .header { background: #252525; padding: 20px; text-align: center; border-bottom: 1px solid #333; }
+        .teams { font-size: 18px; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+        .vs { font-size: 12px; color: #888; margin: 0 10px; }
+        .main-pred { padding: 20px; text-align: center; background: linear-gradient(180deg, #252525 0%, #1e1e1e 100%); }
+        .outcome-circle { width: 60px; height: 60px; background: #4caf50; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; margin: 0 auto 10px; box-shadow: 0 0 20px rgba(76,175,80,0.4); }
+        .odds-triplet { display: flex; justify-content: space-around; margin-top: 15px; font-family: monospace; background: #121212; padding: 10px; border-radius: 8px; }
+        .odd-item { text-align: center; }
+        .odd-val { display: block; color: #4caf50; font-weight: bold; }
+        .odd-label { font-size: 10px; color: #888; text-transform: uppercase; }
+        .sub-preds { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 20px; border-top: 1px solid #333; }
+        .sub-card { background: #2a2a2a; padding: 10px; border-radius: 8px; text-align: center; }
+        .sub-label { font-size: 11px; color: #aaa; display: block; margin-bottom: 5px; }
+        .sub-val { font-weight: bold; font-size: 16px; color: #fff; }
+        .conf { font-size: 12px; color: #888; margin-top: 5px; display: block; }
+        .conf-bar { height: 4px; background: #333; border-radius: 2px; margin-top: 5px; overflow: hidden; }
+        .conf-fill { height: 100%; background: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="header">
+            <div class="teams">
+                <span>Liverpool</span>
+                <span class="vs">VS</span>
+                <span>Real Madrid</span>
+            </div>
+        </div>
+        <div class="main-pred">
+            <div class="outcome-circle">1</div>
+            <div class="confidence">Confiance: 68%</div>
+            <div class="conf-bar"><div class="conf-fill" style="width: 68%"></div></div>
+            <div class="odds-triplet">
+                <div class="odd-item"><span class="odd-val">1.85</span><span class="odd-label">1</span></div>
+                <div class="odd-item"><span class="odd-val">3.40</span><span class="odd-label">X</span></div>
+                <div class="odd-item"><span class="odd-val">4.20</span><span class="odd-label">2</span></div>
+            </div>
+        </div>
+        <div class="sub-preds">
+            <div class="sub-card">
+                <span class="sub-label">BTTS</span>
+                <span class="sub-val">OUI</span>
+                <span class="conf">Conf: 72%</span>
+                <div class="conf-bar"><div class="conf-fill" style="width: 72%"></div></div>
+            </div>
+            <div class="sub-card">
+                <span class="sub-label">Buts (2.5)</span>
+                <span class="sub-val">OVER</span>
+                <span class="conf">Conf: 61%</span>
+                <div class="conf-bar"><div class="conf-fill" style="width: 61%"></div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="header">
+            <div class="teams">
+                <span>Milan AC</span>
+                <span class="vs">VS</span>
+                <span>Inter</span>
+            </div>
+        </div>
+        <div class="main-pred">
+            <div class="outcome-circle" style="background: #777;">X</div>
+            <div class="confidence">Confiance: 42%</div>
+            <div class="conf-bar"><div class="conf-fill" style="width: 42%"></div></div>
+            <div class="odds-triplet">
+                <div class="odd-item"><span class="odd-val">2.60</span><span class="odd-label">1</span></div>
+                <div class="odd-item"><span class="odd-val">3.10</span><span class="odd-label">X</span></div>
+                <div class="odd-item"><span class="odd-val">2.80</span><span class="odd-label">2</span></div>
+            </div>
+        </div>
+        <div class="sub-preds">
+            <div class="sub-card">
+                <span class="sub-label">BTTS</span>
+                <span class="sub-val">NON</span>
+                <span class="conf">Conf: 55%</span>
+                <div class="conf-bar"><div class="conf-fill" style="width: 55%"></div></div>
+            </div>
+            <div class="sub-card">
+                <span class="sub-label">Buts (2.5)</span>
+                <span class="sub-val">UNDER</span>
+                <span class="conf">Conf: 64%</span>
+                <div class="conf-bar"><div class="conf-fill" style="width: 64%"></div></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
