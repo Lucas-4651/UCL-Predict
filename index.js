@@ -27,7 +27,7 @@ async function startServer() {
         app.use(session({
             store: new pgSession({
                 pool: db.pool,
-                tableName: 'session'
+                tableName: 'sessions'
             }),
             secret: authConfig.SESSION_SECRET,
             resave: false,

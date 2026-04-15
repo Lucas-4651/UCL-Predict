@@ -67,9 +67,9 @@ const TABLES = {
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`,
     session: `
-        CREATE TABLE IF NOT EXISTS "session" (
-            "sid" varchar NOT NULL PRIMARY KEY,
-            "sess" JSONB NOT NULL
+        CREATE TABLE IF NOT EXISTS sessions (
+            sid varchar PRIMARY KEY,
+            sess text NOT NULL
         )`
 
 };
