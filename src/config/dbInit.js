@@ -67,9 +67,10 @@ const TABLES = {
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`,
     session: `
-        CREATE TABLE IF NOT EXISTS sessions (
+        CREATE TABLE IF NOT EXISTS sessions_v2 (
             sid varchar PRIMARY KEY,
-            sess text NOT NULL
+            sess text NOT NULL,
+            expire timestamp(6) with time zone
         )`
 
 };
