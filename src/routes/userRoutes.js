@@ -182,6 +182,33 @@ router.get('/api/chat/messages', async (req, res) => {
     }
 });
 
+router.post('/api/chat/react', isAuthenticated, async (req, res) => {
+    try {
+        const { messageId, reaction } = req.body;
+        if (!messageId || !reaction) {
+            return res.status(400).json({ error: 'messageId and reaction are required' });
+        }
+
+        const userId = req.session.user.id;
+
+        // Check if reaction already exists to toggle it
+        const existing = await db.query(
+            'SELECT id FROM message_reactions WHERE message_id = $1 AND user_id = $2 AND reaction = $3',
+            [messageId, userId, reaction]
+        );
+
+        if (existing.rows.length > 0) {
+            await chatService.removeReaction(messageId, userId, reaction);
+            res.json({ action: 'removed', messageId, reaction });
+        } else {
+            await chatService.addReaction(messageId, userId, reaction);
+            res.json({ action: 'added', messageId, reaction });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/api/chat/send', isAuthenticated, async (req, res) => {
     try {
         const { content } = req.body;

@@ -18,7 +18,7 @@ router.post('/login', async (req, res) => {
 
         req.session.userId = user.id;
         req.session.role = user.role;
-        req.session.user = { email: user.email, role: user.role };
+        req.session.user = { id: user.id, username: user.username, email: user.email, role: user.role };
 
         res.redirect('/?success=Connexion réussie ! Bienvenue sur VFL.');
     } catch (err) {

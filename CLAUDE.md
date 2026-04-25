@@ -16,7 +16,7 @@ npm test
 ```
 
 ### Database
-Uses SQLite (`vfl.db`). Schema is automatically initialized on startup via `src/config/dbInit.js`.
+Uses PostgreSQL. Connection is managed via `src/config/database.js` using a connection string from environment variables.
 
 ## 🏗️ Architecture
 
@@ -52,5 +52,5 @@ Weights are updated dynamically by the `LearningLoop`.
 
 ## ⚠️ Gotchas & Quirks
 - **API Spoofing**: The API requires specific headers (`User-Agent`, `App-Version`, `Origin`) to avoid blocks.
-- **SQLite WAL Mode**: Enabled to allow concurrent reads/writes between the web server and maintenance loops.
-- **Weight Migration**: When changing the weight schema, the `weights` table in `vfl.db` may need to be cleared to apply new defaults.
+- **Session Structure**: Ensure `req.session.user` includes both `id` and `username` to prevent fallback names (e.g., "Utilisateur") in the chat.
+- **Weight Migration**: When changing the weight schema, the `weights` table may need to be cleared to apply new defaults.

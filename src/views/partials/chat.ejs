@@ -41,6 +41,16 @@
                 </button>
             </form>
         </div>
+
+        <!-- Emoji Picker Menu -->
+        <div id="emoji-picker" class="absolute bottom-20 left-4 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl hidden p-2 grid grid-cols-3 gap-2 z-50 transition-all duration-200 opacity-0 translate-y-2">
+            <button data-emoji="👍" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">👍</button>
+            <button data-emoji="❤️" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">❤️</button>
+            <button data-emoji="😂" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">😂</button>
+            <button data-emoji="😮" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">😮</button>
+            <button data-emoji="😢" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">😢</button>
+            <button data-emoji="😡" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg text-lg transition-colors">😡</button>
+        </div>
     </div>
 </div>
 
@@ -54,8 +64,10 @@
     const chatForm = document.getElementById('chat-form');
     const chatInput = document.getElementById('chat-input');
     const chatBadge = document.getElementById('chat-badge');
+    const emojiPicker = document.getElementById('emoji-picker');
 
     let lastMessageId = null;
+    let activeMessageId = null;
 
     // Toggle Window
     toggleBtn.addEventListener('click', () => {
@@ -76,7 +88,59 @@
         }
     });
 
+    // Emoji Picker Logic
+    window.toggleReactionMenu = (messageId) => {
+        activeMessageId = messageId;
+        emojiPicker.classList.remove('hidden');
+        setTimeout(() => {
+            emojiPicker.classList.remove('opacity-0', 'translate-y-2');
+        }, 10);
+    };
+
+    const hideEmojiPicker = () => {
+        emojiPicker.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => emojiPicker.classList.add('hidden'), 200);
+        activeMessageId = null;
+    };
+
+    document.addEventListener('click', (e) => {
+        if (!emojiPicker.contains(e.target) && !e.target.closest('[onclick^="window.toggleReaction"]')) {
+            hideEmojiPicker();
+        }
+    });
+
+    emojiPicker.addEventListener('click', async (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+
+        const emoji = btn.dataset.emoji;
+        if (activeMessageId) {
+            await window.toggleReaction(activeMessageId, emoji);
+            hideEmojiPicker();
+        }
+    });
+
+    window.toggleReaction = async (messageId, emoji) => {
+        if (!emoji) {
+            window.toggleReactionMenu(messageId);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/chat/react', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messageId, reaction: emoji })
+            });
+            if (!res.ok) throw new Error('Erreur lors de la réaction');
+            await fetchMessages();
+        } catch (err) {
+            console.error('Reaction error:', err);
+        }
+    };
+
     async function fetchMessages() {
+
         try {
             const res = await fetch('/api/chat/messages');
             const messages = await res.json();
@@ -95,9 +159,13 @@
             messagesContainer.innerHTML = messages.map(m => {
                 const isBroadcast = m.type === 'broadcast';
                 const isPinned = m.is_pinned;
+                const reactions = m.reactions || {};
+                const reactionHtml = Object.entries(reactions)
+                    .map(([emoji, count]) => `<span class="flex items-center gap-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-full text-[10px] font-medium">${emoji} ${count}</span>`)
+                    .join('');
 
                 return `
-                    <div class="flex flex-col ${isBroadcast ? 'items-center' : 'items-start'}">
+                    <div class="flex flex-col ${isBroadcast ? 'items-center' : 'items-start'} group relative">
                         ${isPinned ? '<span class="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold mb-1 uppercase tracking-wider">📌 Épinglé</span>' : ''}
                         <div class="max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
                             isBroadcast
@@ -111,13 +179,22 @@
                             </div>
                             <p class="leading-relaxed">${m.content}</p>
                         </div>
+                        <div class="flex flex-wrap gap-1 mt-1 ml-2 ${isBroadcast ? 'justify-center w-full' : ''}">
+                            ${reactionHtml}
+                            ${!isBroadcast ? `<button onclick="window.toggleReaction(${m.id}, null)" class="text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                <span>😊</span> <span>Réagir</span>
+                            </button>` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
 
-            // Scroll to bottom if window is open
+            // Scroll to bottom only if user is already near the bottom
             if (!windowEl.classList.contains('hidden')) {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                const isNearBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop <= messagesContainer.clientHeight + 150;
+                if (isNearBottom) {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }
             }
         } catch (err) {
             console.error('Chat fetch error:', err);

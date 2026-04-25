@@ -10,7 +10,16 @@ class ChatService {
      */
     async getRecentMessages(limit = 50) {
         const query = `
-            SELECT m.*, u.username as user_name
+            SELECT m.*, u.username as user_name,
+            (
+                SELECT jsonb_object_agg(reaction, count)
+                FROM (
+                    SELECT reaction, count(*) as count
+                    FROM message_reactions
+                    WHERE message_id = m.id
+                    GROUP BY reaction
+                ) s
+            ) as reactions
             FROM messages m
             LEFT JOIN users u ON m.user_id = u.id
             WHERE m.is_deleted = false
@@ -63,6 +72,26 @@ class ChatService {
         `;
         values.push(messageId);
         const result = await db.query(query, values);
+        return result.rows[0];
+    }
+
+    async addReaction(messageId, userId, reaction) {
+        const sql = `
+            INSERT INTO message_reactions (message_id, user_id, reaction)
+            VALUES ($1, $2, $3)
+            RETURNING *
+        `;
+        const result = await db.query(sql, [messageId, userId, reaction]);
+        return result.rows[0];
+    }
+
+    async removeReaction(messageId, userId, reaction) {
+        const sql = `
+            DELETE FROM message_reactions
+            WHERE message_id = $1 AND user_id = $2 AND reaction = $3
+            RETURNING *
+        `;
+        const result = await db.query(sql, [messageId, userId, reaction]);
         return result.rows[0];
     }
 }
