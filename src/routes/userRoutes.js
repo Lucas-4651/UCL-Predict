@@ -8,6 +8,8 @@ const settings = require('../config/settings');
 const healthMonitor = require('../services/healing/HealthMonitor');
 const dbService = require('../services/dbService');
 const learningLoop = require('../services/predictor/LearningLoop');
+const chatService = require('../services/chatService');
+const db = require('../config/database');
 
 router.get('/', async (req, res) => {
     try {
@@ -112,7 +114,9 @@ async function getPredictionsData() {
         return {
             match: `${match.homeTeam.name} vs ${match.awayTeam.name}`,
             odds: odds,
-            ...pred
+            ...pred,
+            outcomeName: pred.outcome === '1' ? match.homeTeam.name :
+                         pred.outcome === '2' ? match.awayTeam.name : 'Nul'
         };
     });
 
@@ -165,6 +169,28 @@ router.post('/update-result', isAuthenticated, async (req, res) => {
         res.send(`Result updated. Brier Score: ${brierScore.toFixed(4)}, Outcome: ${actualOutcome}`);
     } catch (err) {
         res.status(500).send(`Error updating result: ${err.message}`);
+    }
+});
+
+// Chat API
+router.get('/api/chat/messages', async (req, res) => {
+    try {
+        const messages = await chatService.getRecentMessages();
+        res.json(messages);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+router.post('/api/chat/send', isAuthenticated, async (req, res) => {
+    try {
+        const { content } = req.body;
+        if (!content) return res.status(400).json({ error: 'Message content is required' });
+
+        const message = await chatService.sendMessage(req.session.user.id, content, 'chat');
+        res.json(message);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
     }
 });
 

@@ -1,19 +1,41 @@
 const weightManager = require('./WeightManager');
+const intelligenceService = require('../intelligence/LeagueIntelligenceService');
 
 class HeuristicEngine {
     async predict(match) {
-        // Ensure weights are loaded
-        const weightManager = require('./WeightManager');
-        if (!weightManager.initialized) {
-            await weightManager.init();
-        }
+        const { homeTeam, awayTeam } = match;
+        const homeName = homeTeam.name;
+        const awayName = awayTeam.name;
 
-        const lambdas = this.calculateExpectedGoals(match);
-        const matrix = this.generateProbabilityMatrix(lambdas.home, lambdas.away);
-        const probs = this.deriveMarketProbabilities(matrix);
+        // 1. BASE LAYER: Calculate Poisson Lambdas
+        let { home: homeLambda, away: awayLambda } = this.calculateExpectedGoals(match);
 
-        // Determine best outcomes
-        const outcome = Object.entries(probs.outcome).sort((a, b) => b[1] - a[1])[0][0];
+        // 2. MOMENTUM MODIFIER: Adjust lambdas based on Season Tweaks (Upgraded/Degraded)
+        const homeMomentum = intelligenceService.getMomentum(homeName);
+        const awayMomentum = intelligenceService.getMomentum(awayName);
+
+        // Apply delta as a multiplier to expected goals (e.g., -20% delta -> 0.8x goals)
+        const homeMult = 1 + (homeMomentum.delta / 100);
+        const awayMult = 1 + (awayMomentum.delta / 100);
+
+        homeLambda *= homeMult;
+        awayLambda *= awayMult;
+
+        // 3. PROBABILITY GENERATION: Generate base matrix from adjusted lambdas
+        const matrix = this.generateProbabilityMatrix(homeLambda, awayLambda);
+        let probs = this.deriveMarketProbabilities(matrix);
+
+        // 4. DNA MODIFIER: Adjust probabilities based on tactical profiles
+        probs = this._applyDNAModifiers(homeName, awayName, probs);
+
+        // 5. KRYPTONITE MODIFIER: Shift probabilities for natural predators
+        probs = this._applyKryptoniteModifiers(homeName, awayName, probs);
+
+        // 6. DRAW ENGINE: Correct for tactical symmetry and equilibrium
+        probs = this._applyDrawCorrection(homeName, awayName, probs);
+
+        // 7. FINAL DERIVATION
+        const outcome = this._determineBestOutcome(probs.outcome);
         const btts = probs.btts['Yes'] > 0.5 ? 'Yes' : 'No';
         const ou = probs.ou['Over'] > 0.5 ? 'Over' : 'Under';
 
@@ -25,10 +47,144 @@ class HeuristicEngine {
             ou: ou,
             ouConf: Math.max(probs.ou['Over'], probs.ou['Under']),
             probabilities: probs,
-            lambdas: lambdas,
+            lambdas: { home: homeLambda, away: awayLambda },
             matrix: matrix,
-            factors: this._calculateFactors(match)
+            factors: this._calculateFactors(match),
+            intelligence: {
+                homeMomentum: homeMomentum,
+                awayMomentum: awayMomentum,
+                homeDNA: intelligenceService.getTeamDNA(homeName),
+                awayDNA: intelligenceService.getTeamDNA(awayName)
+            }
         };
+    }
+
+    _applyDNAModifiers(homeName, awayName, probs) {
+        const homeDNA = intelligenceService.getTeamDNA(homeName);
+        const awayDNA = intelligenceService.getTeamDNA(awayName);
+        const newProbs = JSON.parse(JSON.stringify(probs));
+
+        if (!homeDNA || !awayDNA) return newProbs;
+
+        // Synergy: High Offensive vs Leaky Defense -> Boost Over 2.5 and Home Win
+        if (homeDNA.offensiveReliability === 'High Offensive' && awayDNA.defensiveReliability === 'Leaky Defense') {
+            newProbs.ou.Over += 0.10;
+            newProbs.ou.Under -= 0.10;
+            newProbs.outcome['1'] += 0.05;
+            newProbs.outcome['X'] -= 0.025;
+            newProbs.outcome['2'] -= 0.025;
+        }
+
+        // Synergy: Iron Wall vs Low Offensive -> Boost Under 2.5 and Clean Sheet (Home Win/Draw)
+        if (homeDNA.defensiveReliability === 'Iron Wall' && awayDNA.offensiveReliability === 'Low Offensive') {
+            newProbs.ou.Under += 0.15;
+            newProbs.ou.Over -= 0.15;
+            newProbs.outcome['1'] += 0.05;
+            newProbs.outcome['X'] += 0.05;
+            newProbs.outcome['2'] -= 0.10;
+        }
+
+        // BTTS Adjustment: Both High Offensive -> Boost BTTS
+        if (homeDNA.offensiveReliability === 'High Offensive' && awayDNA.offensiveReliability === 'High Offensive') {
+            newProbs.btts['Yes'] += 0.10;
+            newProbs.btts['No'] -= 0.10;
+        }
+
+        // Normalize probabilities to ensure they sum to 1
+        this._normalize(newProbs.outcome);
+        this._normalize(newProbs.btts);
+        this._normalize(newProbs.ou);
+
+        return newProbs;
+    }
+
+    _applyKryptoniteModifiers(homeName, awayName, probs) {
+        const newProbs = JSON.parse(JSON.stringify(probs));
+
+        // Check if Away is Kryptonite for Home
+        const awayIsKryptonite = intelligenceService.isKryptonite(homeName, awayName);
+        // Check if Home is Kryptonite for Away
+        const homeIsKryptonite = intelligenceService.isKryptonite(awayName, homeName);
+
+        if (awayIsKryptonite.isKryptonite) {
+            const shift = 0.10 + (awayIsKryptonite.strength * 0.02);
+            newProbs.outcome['2'] += shift;
+            newProbs.outcome['1'] -= shift / 2;
+            newProbs.outcome['X'] -= shift / 2;
+        }
+
+        if (homeIsKryptonite.isKryptonite) {
+            const shift = 0.10 + (homeIsKryptonite.strength * 0.02);
+            newProbs.outcome['1'] += shift;
+            newProbs.outcome['2'] -= shift / 2;
+            newProbs.outcome['X'] -= shift / 2;
+        }
+
+        this._normalize(newProbs.outcome);
+        return newProbs;
+    }
+
+    _applyDrawCorrection(homeName, awayName, probs) {
+        const newProbs = JSON.parse(JSON.stringify(probs));
+        const homeDNA = intelligenceService.getTeamDNA(homeName);
+        const awayDNA = intelligenceService.getTeamDNA(awayName);
+
+        let drawBoost = 0;
+
+        // 1. Iron Wall Synergy: Two defensive giants = High Draw Probability
+        if (homeDNA?.defensiveReliability === 'Iron Wall' && awayDNA?.defensiveReliability === 'Iron Wall') {
+            drawBoost += 0.20;
+        }
+
+        // 2. Low Offensive Synergy: Two struggling attacks = Low Score / Draw
+        if (homeDNA?.offensiveReliability === 'Low Offensive' && awayDNA?.offensiveReliability === 'Low Offensive') {
+            drawBoost += 0.15;
+        }
+
+        // 3. Equilibrium Detection: If 1 and 2 are very close, the match is a toss-up -> Draw likely
+        const diff = Math.abs(newProbs.outcome['1'] - newProbs.outcome['2']);
+        if (diff < 0.12) {
+            drawBoost += 0.10;
+        }
+
+        if (drawBoost > 0) {
+            newProbs.outcome['X'] += drawBoost;
+            // Distribute the reduction proportionally to 1 and 2
+            const reduction = drawBoost;
+            const currentSum12 = newProbs.outcome['1'] + newProbs.outcome['2'];
+            newProbs.outcome['1'] -= reduction * (newProbs.outcome['1'] / currentSum12);
+            newProbs.outcome['2'] -= reduction * (newProbs.outcome['2'] / currentSum12);
+        }
+
+        // Global inflation for draws to better match historical 28% average
+        const DRAW_INFLATION_FACTOR = 1.2;
+        newProbs.outcome['X'] *= DRAW_INFLATION_FACTOR;
+
+        this._normalize(newProbs.outcome);
+        return newProbs;
+    }
+
+    _determineBestOutcome(outcomeProbs) {
+        const sorted = Object.entries(outcomeProbs).sort((a, b) => b[1] - a[1]);
+        const [best, secondBest] = sorted;
+
+        // If 'X' is very close to the best, and the gap is small, prefer 'X'
+        // This handles the "Equilibrium" case where Poisson might put '1' at 34% and 'X' at 33%
+        if (best[0] !== 'X' && secondBest[0] === 'X') {
+            if (best[1] - secondBest[1] < 0.07) {
+                return 'X';
+            }
+        }
+
+        return best[0];
+    }
+
+    _normalize(obj) {
+
+        const sum = Object.values(obj).reduce((a, b) => a + b, 0);
+        for (let key in obj) {
+            obj[key] = obj[key] / sum;
+        }
     }
 
     deriveMarketProbabilities(matrix) {
@@ -39,15 +195,11 @@ class HeuristicEngine {
         for (let i = 0; i <= 6; i++) {
             for (let j = 0; j <= 6; j++) {
                 const p = matrix[i][j];
-                // Outcome
                 if (i > j) prob1 += p;
                 else if (i === j) probX += p;
                 else prob2 += p;
 
-                // BTTS
                 if (i >= 1 && j >= 1) probBTTS += p;
-
-                // Over 2.5
                 if (i + j > 2.5) probOver += p;
             }
         }
@@ -57,46 +209,6 @@ class HeuristicEngine {
             btts: { 'Yes': probBTTS, 'No': 1 - probBTTS },
             ou: { 'Over': probOver, 'Under': 1 - probOver }
         };
-    }
-
-    async predictOutcome(match) {
-        throw new Error('Deprecated: Use predict() which now handles all markets probabilistically');
-    }
-
-    async predictBTTS(match) {
-        throw new Error('Deprecated: Use predict() which now handles all markets probabilistically');
-    }
-
-    async predictOverUnder(match) {
-        throw new Error('Deprecated: Use predict() which now handles all markets probabilistically');
-    }
-
-    _calculateInternalOutcomeScore(match) {
-        const { homeTeam, awayTeam } = match;
-
-        const rankingDelta = (awayTeam.ranking - homeTeam.ranking) / 20;
-        const recentForm = homeTeam.form - awayTeam.form;
-        const homeBias = 1.0;
-
-        const internalScore = (weightManager.getWeight('outcome_ranking') * rankingDelta) +
-                              (weightManager.getWeight('outcome_form') * ((recentForm + 1) / 2)) +
-                              (weightManager.getWeight('outcome_bias') * homeBias);
-
-        return Math.min(Math.max(internalScore, 0), 1);
-    }
-
-    _calculateInternalBTTSScore(match) {
-        const { homeTeam, awayTeam } = match;
-        // Product of forms ensures both must be capable of scoring
-        return Math.min(Math.max(homeTeam.form * awayTeam.form * 2, 0), 1);
-    }
-
-    _calculateInternalOUScore(match) {
-        const { homeTeam, awayTeam } = match;
-        const combinedForm = (homeTeam.form + awayTeam.form) / 2;
-        const rankingDelta = Math.abs(homeTeam.ranking - awayTeam.ranking) / 20;
-        // Higher ranking delta often leads to more goals (dominance)
-        return Math.min(Math.max(combinedForm + (rankingDelta * 0.2), 0), 1);
     }
 
     _calculatePoisson(x, lambda) {
@@ -113,9 +225,7 @@ class HeuristicEngine {
 
     calculateExpectedGoals(match) {
         const { homeTeam, awayTeam } = match;
-        const weightManager = require('./WeightManager');
-
-        const baseRate = 0.8; // Baseline goals per team
+        const baseRate = 0.8;
 
         const homeRankDiff = (awayTeam.ranking - homeTeam.ranking) / 20;
         const awayRankDiff = (homeTeam.ranking - awayTeam.ranking) / 20;
@@ -123,14 +233,12 @@ class HeuristicEngine {
         const homeFormDiff = (homeTeam.form - awayTeam.form + 1) / 2;
         const awayFormDiff = (awayTeam.form - homeTeam.form + 1) / 2;
 
-        // Home lambda: base + individual form + relative form + rank + bias
         const homeLambda = baseRate +
             (homeTeam.form * 0.7) +
             (weightManager.getWeight('outcome_ranking') * homeRankDiff) +
             (weightManager.getWeight('outcome_form') * homeFormDiff) +
             (weightManager.getWeight('outcome_bias') * 0.3);
 
-        // Away lambda: base + individual form + relative form + rank
         const awayLambda = baseRate +
             (awayTeam.form * 0.7) +
             (weightManager.getWeight('outcome_ranking') * awayRankDiff) +
@@ -156,7 +264,6 @@ class HeuristicEngine {
             matrix.push(row);
         }
 
-        // Normalize to ensure sum is 1.0 given the 6-goal limit
         return matrix.map(row => row.map(val => val / totalSum));
     }
 
@@ -167,7 +274,7 @@ class HeuristicEngine {
             outcome_form: (homeTeam.form - awayTeam.form + 1) / 2,
             outcome_odds: 1 / (odds.home || 2.0),
             btts_form: homeTeam.form * awayTeam.form * 2,
-            ou_form: ((homeTeam.form + awayTeam.form) / 2) + (Math.abs(homeTeam.ranking - awayTeam.ranking) / 20 * 0.2)
+            ou_form: ((homeTeam.form + awayTeam.form) / 2) + (Math.abs(homeTeam.ranking - homeTeam.ranking) / 20 * 0.2)
         };
     }
 }

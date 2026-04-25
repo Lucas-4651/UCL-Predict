@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFL Admin | Explorateur d'Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        football: {
+                            primary: 'var(--fb-primary)',
+                            bg: 'var(--fb-bg)',
+                            surface: 'var(--fb-surface)',
+                            text: 'var(--fb-text)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #020617;
+            --fb-surface: #0f172a;
+            --fb-text: #f1f5f9;
+        }
+
+        body { font-family: 'Outfit', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-football-bg text-football-text min-h-screen flex">
+
+    <!-- Sidebar (Consistent with admin.ejs) -->
+    <aside class="w-64 bg-slate-950 text-white hidden lg:flex flex-col sticky top-0 h-screen border-r border-football-primary/10">
+        <div class="p-6 flex items-center gap-2">
+            <span class="text-2xl">🏆</span>
+            <span class="text-xl font-display font-bold tracking-tight">VFL <span class="text-football-primary">Admin</span></span>
+        </div>
+        <nav class="flex-grow px-4 space-y-2 mt-4">
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>👥</span> Utilisateurs
+            </a>
+            <a href="/admin/learn" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>🎓</span> Apprentissage IA
+            </a>
+            <a href="/admin/intelligence" class="flex items-center gap-3 px-4 py-3 bg-football-primary text-white rounded-xl font-medium transition-all">
+                <span>🧠</span> Intelligence
+            </a>
+        </nav>
+        <div class="p-6 border-t border-slate-800">
+            <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-all text-sm font-medium">
+                <span>🏠</span> Retour au site
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-8 overflow-y-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-football-text tracking-tight">Explorateur d'Intelligence</h1>
+                <p class="text-football-text/60">Analyse comportementale et mapping tactique du moteur VFL</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2 rounded-lg bg-football-surface border border-football-primary/20 text-football-text hover:border-football-primary transition-all shadow-sm">
+                    <span id="theme-toggle-icon" class="text-lg">🌙</span>
+                </button>
+                <a href="/auth/logout" class="px-4 py-2 text-sm font-semibold text-football-text/60 hover:text-red-600 transition-colors">Déconnexion</a>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+            <!-- Section 1: Team DNA & Profiles -->
+            <div class="lg:col-span-2 space-y-8">
+                <div class="bg-football-surface rounded-3xl border border-football-primary/10 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-football-primary/10 bg-football-bg">
+                        <h2 class="text-xl font-bold text-football-text flex items-center gap-2">
+                            <span>🧬</span> ADN des Équipes
+                        </h2>
+                        <p class="text-football-text/60 text-sm">Profils comportementaux et synergies tactiques</p>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-football-bg border-b border-football-primary/10">
+                                <tr>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">Équipe</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">DNA</th>
+                                    <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">Profil Dominant</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-football-primary/5">
+                                <% for (const [team, data] of Object.entries(report.teams)) { %>
+                                    <tr class="hover:bg-football-bg transition-colors">
+                                        <td class="px-6 py-4 text-sm font-bold text-football-text/80"><%= team %></td>
+                                        <td class="px-6 py-4 text-sm font-mono text-football-primary">
+                                            <%= JSON.stringify(data.dna || {}) %>
+                                        </td>
+                                        <td class="px-6 py-4 text-sm">
+                                            <span class="px-2 py-1 rounded-full text-[10px] font-bold uppercase bg-football-primary/10 text-football-primary border border-football-primary/20">
+                                                <%= data.profile || 'Standard' %>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: Kryptonite Matrix -->
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 bg-slate-50/50">
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <span>⚡</span> Matrice Kryptonite
+                        </h2>
+                        <p class="text-slate-500 text-sm">Relations Prédateur → Proie basées sur les surprises</p>
+                    </div>
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <% if (report.kryptonite.length === 0) { %>
+                                <p class="text-slate-400 text-sm italic col-span-full text-center py-8">Aucune relation de kryptonite détectée pour le moment.</p>
+                            <% } %>
+                            <% report.kryptonite.forEach(rel => { %>
+                                <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50 hover:border-blue-300 transition-all group">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-[10px] font-bold uppercase text-slate-400 tracking-widest">Prédateur</span>
+                                        <span class="text-xs font-bold text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">Force: <%= rel.strength %></span>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-4">
+                                        <span class="font-bold text-slate-800"><%= rel.winner %></span>
+                                        <span class="text-slate-400">→</span>
+                                        <span class="font-bold text-slate-600"><%= rel.loser %></span>
+                                    </div>
+                                </div>
+                            <% }) %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Momentum & Context -->
+            <div class="space-y-8">
+                <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
+                    <div class="p-6 border-b border-slate-200 bg-slate-50/50">
+                        <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                            <span>📈</span> Momentum Saisonnier</h2>
+                        </h2>
+                        <p class="text-slate-500 text-sm">Évolution dynamique des performances</p>
+                    </div>
+                    <div class="p-6 space-y-4">
+                        <% if (report.momentum.length === 0) { %>
+                            <p class="text-slate-400 text-sm italic text-center py-4">Aucun momentum détecté.</p>
+                        <% } %>
+                        <% report.momentum.forEach(m => { %>
+                            <div class="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
+                                <span class="text-sm font-bold text-slate-700"><%= m.team %></span>
+                                <div class="flex items-center gap-2">
+                                    <span class="<%= m.type === 'Upgraded' ? 'text-emerald-600' : 'text-red-600' %> text-xs font-bold font-mono">
+                                        <%= m.type === 'Upgraded' ? '↑' : '↓' %> <%= Math.abs(m.delta) %>%
+                                    </span>
+                                    <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded bg-slate-200 text-slate-600">
+                                        <%= m.type %>
+                                    </span>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                </div>
+
+                <div class="bg-blue-600 rounded-3xl border border-blue-700 shadow-lg p-6 text-white">
+                    <h2 class="text-lg font-bold flex items-center gap-2 mb-4">
+                        <span>🌍</span> Contexte Global</h2>
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-blue-200 block mb-1">Tendances Saisonnières</span>
+                            <div class="text-sm font-mono bg-blue-700/50 p-3 rounded-xl border border-blue-500/30">
+                                <%= JSON.stringify(report.context.trends, null, 2) %>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-blue-200 block mb-1">Gaps de Classement</span>
+                            <div class="text-sm font-mono bg-blue-700/50 p-3 rounded-xl border border-blue-500/30">
+                                <%= JSON.stringify(report.context.gaps, null, 2) %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

@@ -31,7 +31,7 @@ router.get('/register', (req, res) => {
 });
 
 router.post('/register', async (req, res) => {
-    const { email, password } = req.body;
+    const { username, email, password } = req.body;
     try {
         const existingUser = await dbService.findUserByEmail(email);
         if (existingUser) {
@@ -39,10 +39,13 @@ router.post('/register', async (req, res) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        await dbService.createUser(email, hashedPassword);
+        await dbService.createUser(username, email, hashedPassword);
 
         res.redirect('/auth/login?success=Compte créé avec succès ! Veuillez vous connecter.');
     } catch (err) {
+        if (err.message.includes('unique constraint')) {
+            return res.render('auth/register', { error: 'Ce pseudo est déjà utilisé' });
+        }
         res.status(500).send(`Erreur serveur: ${err.message}`);
     }
 });

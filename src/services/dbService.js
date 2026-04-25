@@ -38,15 +38,40 @@ class DbService {
         return res.rowCount;
     }
 
-    async createUser(email, hashedPassword, role = 'user') {
-        const sql = `INSERT INTO users (email, password, role) VALUES ($1, $2, $3) RETURNING id`;
-        const res = await db.query(sql, [email, hashedPassword, role]);
+    async createUser(username, email, hashedPassword, role = 'user') {
+        const sql = `INSERT INTO users (username, email, password, role) VALUES ($1, $2, $3, $4) RETURNING id`;
+        const res = await db.query(sql, [username, email, hashedPassword, role]);
         return res.rows[0].id;
     }
 
     async findUserByEmail(email) {
         const res = await db.query('SELECT * FROM users WHERE email = $1', [email]);
         return res.rows[0];
+    }
+
+    async findUserById(userId) {
+        const res = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+        return res.rows[0];
+    }
+
+    async getAllUsers() {
+        const res = await db.query('SELECT id, username, email, role, created_at FROM users ORDER BY created_at DESC');
+        return res.rows;
+    }
+
+    async getUserCount() {
+        const res = await db.query('SELECT COUNT(*) as count FROM users');
+        return parseInt(res.rows[0].count);
+    }
+
+    async deleteUser(userId) {
+        const res = await db.query('DELETE FROM users WHERE id = $1', [userId]);
+        return res.rowCount > 0;
+    }
+
+    async updateUserRole(userId, role) {
+        const res = await db.query('UPDATE users SET role = $1 WHERE id = $2', [role, userId]);
+        return res.rowCount > 0;
     }
 }
 

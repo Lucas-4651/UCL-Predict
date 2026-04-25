@@ -1,8 +1,10 @@
 const learningLoop = require('../services/predictor/LearningLoop');
+const learningService = require('../services/healing/LearningService');
 const sportyClient = require('../api/sportyClient');
 const settings = require('../config/settings');
 const predictor = require('../services/predictor/HeuristicEngine');
 const formService = require('../services/predictor/FormService');
+
 
 async function runLearningJob() {
     console.log('[LearningJob] Starting learning cycle...');
@@ -50,8 +52,20 @@ async function runLearningJob() {
                     // Generate real prediction
                     const pred = await predictor.predict(predictorMatch);
 
+                    // Behavioral Learning: Update DNA, Momentum, and Kryptonite
+                    const [homeScore, awayScore] = match.score.split(':').map(Number);
+                    await learningService.processMatchResult({
+                        homeTeam: match.homeTeam.name,
+                        awayTeam: match.awayTeam.name,
+                        homeScore,
+                        awayScore,
+                        homeRank: match.homeTeam.position,
+                        awayRank: match.awayTeam.position
+                    });
+
                     // Learn from Outcome
                     await learningLoop.adjustWeights(pred, actualOutcome, pred.factors, 'outcome', pred.outcomeConf);
+
 
                     // In a real system, we'd also have actuals for BTTS and OU
                     // For now, we simulate those actuals based on the score to test the loop

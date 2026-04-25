@@ -61,9 +61,27 @@ const TABLES = {
     users: `
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
+            username TEXT UNIQUE NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             role TEXT DEFAULT 'user',
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        )`,
+    admins: `
+        CREATE TABLE IF NOT EXISTS admins (
+            id SERIAL PRIMARY KEY,
+            email TEXT UNIQUE NOT NULL,
+            password TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        )`,
+    messages: `
+        CREATE TABLE IF NOT EXISTS messages (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            content TEXT NOT NULL,
+            type TEXT CHECK (type IN ('broadcast', 'chat')) DEFAULT 'chat',
+            is_pinned BOOLEAN DEFAULT false,
+            is_deleted BOOLEAN DEFAULT false,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`,
     session: `
@@ -79,6 +97,23 @@ async function initDb() {
     try {
         for (const [name, sql] of Object.entries(TABLES)) {
             await db.query(sql);
+        }
+
+        // Migration: Add username column to users table if it doesn't exist
+        const userCols = await db.query(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'username'"
+        );
+
+        if (userCols.rowCount === 0) {
+            console.log('Migrating users table: adding username column...');
+            // 1. Add column as nullable first
+            await db.query('ALTER TABLE users ADD COLUMN username TEXT');
+            // 2. Fill existing users with a pseudo based on their email
+            await db.query("UPDATE users SET username = split_part(email, '@', 1) WHERE username IS NULL");
+            // 3. Set to NOT NULL and UNIQUE now that it's populated
+            await db.query('ALTER TABLE users ALTER COLUMN username SET NOT NULL');
+            await db.query('ALTER TABLE users ADD CONSTRAINT users_username_unique UNIQUE (username)');
+            console.log('Migration completed successfully.');
         }
         console.log('PostgreSQL database schema initialized successfully');
     } catch (err) {

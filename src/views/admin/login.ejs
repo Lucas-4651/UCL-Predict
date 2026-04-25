@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFL Admin | Connexion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Fira Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-[#0F172A] text-white min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-[#1E40AF] rounded-2xl mb-4 shadow-lg shadow-blue-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-blue-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1v-2.34c0-1.63.4-3.23 1.12-4.56"/><path d="M14 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34c0-1.63-.4-3.23-1.12-4.56"/><path d="M12 14.66V12"/><path d="M12 10.34V5"/></svg>
+            </div>
+            <h1 class="text-3xl font-bold tracking-tight">VFL <span class="text-blue-400">Admin</span></h1>
+            <p class="text-slate-400 mt-2">Accès restreint au personnel autorisé</p>
+        </div>
+
+        <div class="bg-slate-800/50 backdrop-blur-sm p-8 rounded-3xl border border-slate-700 shadow-2xl">
+            <% if (error) { %>
+                <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm text-center font-medium">
+                    <%= error %>
+                </div>
+            <% } %>
+
+            <form action="/admin/login" method="POST" class="space-y-6">
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Email Administrateur</label>
+                    <input type="email" name="email" required
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                        placeholder="admin@vfl-predict.com">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase text-slate-500 mb-2 ml-1">Mot de passe</label>
+                    <input type="password" name="password" required
+                        class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200"
+                        placeholder="••••••••">
+                </div>
+                <button type="submit"
+                    class="w-full py-3 px-4 bg-[#1E40AF] hover:bg-blue-700 text-white font-bold rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20 active:scale-95">
+                    Se connecter
+                </button>
+            </form>
+        </div>
+
+        <p class="text-center mt-8 text-slate-500 text-xs">
+            &copy; 2026 VFL Autonomous Platform. Tous droits réservés.
+        </p>
+    </div>
+</body>
+</html>

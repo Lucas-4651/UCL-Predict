@@ -36,10 +36,12 @@ class ApiRecoveryService {
 
                 if (attempt >= maxRetries) throw err;
 
-                // Check if it's a block error (403 or 429)
+                // Check if it's a block error (403, 429) or a network timeout/unreachability
                 const isBlock = err.response && (err.response.status === 403 || err.response.status === 429);
-                if (isBlock) {
-                    console.log(`[ApiRecovery] Block detected (${err.response.status}). Rotating identity...`);
+                const isNetworkError = !err.response && (err.code === 'ETIMEDOUT' || err.code === 'ENETUNREACH');
+
+                if (isBlock || isNetworkError) {
+                    console.log(`[ApiRecovery] Block or Network issue detected (${err.code || err.response?.status}). Rotating identity...`);
                     this.rotateIdentity();
                 }
 

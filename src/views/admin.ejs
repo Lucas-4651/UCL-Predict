@@ -5,33 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VFL Admin | Panel de Contrôle</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        football: {
+                            primary: 'var(--fb-primary)',
+                            bg: 'var(--fb-bg)',
+                            surface: 'var(--fb-surface)',
+                            text: 'var(--fb-text)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #000000;
+            --fb-surface: #0a0a0a;
+            --fb-text: #f1f5f9;
+        }
+
+        body { font-family: 'Outfit', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex">
+<body class="bg-football-bg text-football-text min-h-screen flex">
 
     <!-- Sidebar -->
-    <aside class="w-64 bg-slate-900 text-white hidden lg:flex flex-col sticky top-0 h-screen">
+    <aside class="w-64 bg-slate-950 text-white hidden lg:flex flex-col sticky top-0 h-screen border-r border-football-primary/10">
         <div class="p-6 flex items-center gap-2">
-            <span class="text-2xl">🏆</span>
-            <span class="text-xl font-bold tracking-tight">VFL <span class="text-blue-400">Admin</span></span>
+            <i data-lucide="trophy" class="text-football-primary w-6 h-6"></i>
+            <span class="text-xl font-display font-bold tracking-tight">VFL <span class="text-football-primary">Admin</span></span>
         </div>
         <nav class="flex-grow px-4 space-y-2 mt-4">
-            <a href="/admin" class="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white rounded-xl font-medium transition-all">
-                <span>📊</span> Dashboard
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 bg-football-primary text-white rounded-xl font-medium transition-all">
+                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
+            </a>
+            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <i data-lucide="users" class="w-5 h-5"></i> Utilisateurs
+            </a>
+            <a href="/admin/learn" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <i data-lucide="graduation-cap" class="w-5 h-5"></i> Apprentissage IA
+            </a>
+            <a href="/admin/intelligence" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <i data-lucide="brain-circuit" class="w-5 h-5"></i> Intelligence
             </a>
             <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <span>👥</span> Utilisateurs
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <span>⚙️</span> Configuration
+                <i data-lucide="settings" class="w-5 h-5"></i> Configuration
             </a>
         </nav>
         <div class="p-6 border-t border-slate-800">
             <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-all text-sm font-medium">
-                <span>🏠</span> Retour au site
+                <i data-lucide="home" class="w-4 h-4"></i> Retour au site
             </a>
         </div>
     </aside>
@@ -40,70 +81,88 @@
     <main class="flex-grow p-4 md:p-8 overflow-y-auto">
         <header class="flex justify-between items-center mb-12">
             <div>
-                <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Observabilité Système</h1>
-                <p class="text-slate-500">Monitoring en temps réel du moteur d'apprentissage</p>
+                <h1 class="text-3xl font-display font-bold text-football-text tracking-tight">Observabilité Système</h1>
+                <p class="text-football-text/60">Monitoring en temps réel du moteur d'apprentissage</p>
             </div>
             <div class="flex items-center gap-4">
-                <div class="px-4 py-2 rounded-full bg-white border border-slate-200 text-xs font-bold shadow-sm flex items-center gap-2">
+                <button id="theme-toggle" class="p-2 rounded-lg bg-football-surface border border-football-primary/20 text-football-text hover:border-football-primary transition-all shadow-sm">
+                    <i id="theme-toggle-icon" data-lucide="moon" class="w-5 h-5"></i>
+                </button>
+                <div class="px-4 py-2 rounded-full bg-football-surface border border-football-primary/10 text-xs font-bold shadow-sm flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full <%= state === 'HEALTHY' ? 'bg-emerald-500' : 'bg-red-500' %>"></span>
-                    <span class="text-slate-600"><%= state %></span>
+                    <span class="text-football-text/60"><%= state %></span>
                 </div>
-                <a href="/auth/logout" class="px-4 py-2 text-sm font-semibold text-slate-600 hover:text-red-600 transition-colors">Déconnexion</a>
+                <a href="/auth/logout" class="px-4 py-2 text-sm font-semibold text-football-text/60 hover:text-red-600 transition-colors">Déconnexion</a>
             </div>
         </header>
 
         <!-- System Stats -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">Précision</span>
-                <span class="text-2xl font-bold text-slate-900"><%= accuracy %></span>
+            <div class="bg-football-surface p-6 rounded-2xl border border-football-primary/10 shadow-sm group hover:border-football-primary/30 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="target" class="w-3 h-3 text-football-text/40 group-hover:text-football-primary transition-colors"></i>
+                    <span class="text-[10px] uppercase text-football-text/40 font-bold tracking-wider">Précision</span>
+                </div>
+                <span class="text-2xl font-mono font-bold text-football-text"><%= accuracy %></span>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">RAM Heap</span>
-                <span class="text-2xl font-bold text-slate-900"><%= ram %></span>
+            <div class="bg-football-surface p-6 rounded-2xl border border-football-primary/10 shadow-sm group hover:border-football-primary/30 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="cpu" class="w-3 h-3 text-football-text/40 group-hover:text-football-primary transition-colors"></i>
+                    <span class="text-[10px] uppercase text-football-text/40 font-bold tracking-wider">RAM Heap</span>
+                </div>
+                <span class="text-2xl font-mono font-bold text-football-text"><%= ram %></span>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">RAM Système</span>
-                <span class="text-2xl font-bold text-slate-900"><%= systemRam %></span>
+            <div class="bg-football-surface p-6 rounded-2xl border border-football-primary/10 shadow-sm group hover:border-football-primary/30 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="hard-drive" class="w-3 h-3 text-football-text/40 group-hover:text-football-primary transition-colors"></i>
+                    <span class="text-[10px] uppercase text-football-text/40 font-bold tracking-wider">RAM Système</span>
+                </div>
+                <span class="text-2xl font-mono font-bold text-football-text"><%= systemRam %></span>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-                <span class="text-[10px] uppercase text-slate-400 font-bold block mb-2">Uptime</span>
-                <span class="text-2xl font-bold text-slate-900"><%= uptime %></span>
+            <div class="bg-football-surface p-6 rounded-2xl border border-football-primary/10 shadow-sm group hover:border-football-primary/30 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="clock" class="w-3 h-3 text-football-text/40 group-hover:text-football-primary transition-colors"></i>
+                    <span class="text-[10px] uppercase text-football-text/40 font-bold tracking-wider">Uptime</span>
+                </div>
+                <span class="text-2xl font-mono font-bold text-football-text"><%= uptime %></span>
             </div>
-            <div class="bg-white p-6 rounded-2xl border border-blue-200 bg-blue-50 shadow-sm">
-                <span class="text-[10px] uppercase text-blue-500 font-bold block mb-2">Version</span>
-                <span class="text-2xl font-bold text-blue-700">v1.0.0</span>
+            <div class="bg-football-primary/10 p-6 rounded-2xl border border-football-primary/20 shadow-sm group hover:border-football-primary/40 transition-all">
+                <div class="flex items-center gap-2 mb-2">
+                    <i data-lucide="shield-check" class="w-3 h-3 text-football-primary"></i>
+                    <span class="text-[10px] uppercase text-football-primary font-bold tracking-wider">Version</span>
+                </div>
+                <span class="text-2xl font-mono font-bold text-football-primary">v1.0.0</span>
             </div>
         </div>
 
         <!-- Weights Table -->
-        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="p-8 border-b border-slate-200 flex justify-between items-center">
+        <div class="bg-football-surface rounded-3xl border border-football-primary/10 shadow-sm overflow-hidden group">
+            <div class="p-8 border-b border-football-primary/10 flex justify-between items-center bg-football-surface/50">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Configuration des Poids</h2>
-                    <p class="text-slate-500 text-sm">Valeurs optimisées dynamiquement par la LearningLoop</p>
+                    <h2 class="text-xl font-bold text-football-text">Configuration des Poids</h2>
+                    <p class="text-football-text/60 text-sm">Valeurs optimisées dynamiquement par la LearningLoop</p>
                 </div>
-                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
+                <span class="text-[10px] font-bold uppercase px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                     Auto-Tuned
                 </span>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
-                    <thead class="bg-slate-50 border-b border-slate-200">
+                    <thead class="bg-football-bg border-b border-football-primary/10">
                         <tr>
-                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Facteur</th>
-                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Valeur Actuelle</th>
-                            <th class="px-8 py-4 text-xs font-bold uppercase text-slate-500">Impact Relatif</th>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-football-text/40">Facteur</th>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-football-text/40">Valeur Actuelle</th>
+                            <th class="px-8 py-4 text-xs font-bold uppercase text-football-text/40">Impact Relatif</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-football-primary/5">
                         <% for (const [key, value] of Object.entries(weights)) { %>
-                            <tr class="hover:bg-slate-50 transition-colors">
-                                <td class="px-8 py-4 text-sm font-medium text-slate-700"><%= key %></td>
-                                <td class="px-8 py-4 text-sm font-mono font-bold text-blue-600"><%= value.toFixed(4) %></td>
+                            <tr class="hover:bg-football-bg transition-colors group/row">
+                                <td class="px-8 py-4 text-sm font-medium text-football-text/80"><%= key %></td>
+                                <td class="px-8 py-4 text-sm font-mono font-bold text-football-primary"><%= value.toFixed(4) %></td>
                                 <td class="px-8 py-4">
-                                    <div class="h-2 w-full max-w-xs bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-blue-500 rounded-full" style="width: <%= Math.min(Math.max(value * 100, 0), 100) %>%"></div>
+                                    <div class="h-1.5 w-full max-w-xs bg-football-bg rounded-full overflow-hidden">
+                                        <div class="h-full bg-football-primary transition-all duration-500 ease-out rounded-full" style="width: <%= Math.min(Math.max(value * 100, 0), 100) %>%"></div>
                                     </div>
                                 </td>
                             </tr>
@@ -112,6 +171,163 @@
                 </table>
             </div>
         </div>
+
+        <!-- Chat Moderation -->
+        <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Send Broadcast -->
+            <div class="lg:col-span-1 bg-football-surface p-8 rounded-3xl border border-football-primary/10 shadow-sm">
+                <h2 class="text-xl font-bold text-football-text mb-6 flex items-center gap-2">
+                    <i data-lucide="megaphone" class="text-football-primary"></i> Diffusion Broadcast
+                </h2>
+                <form id="broadcast-form" class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold uppercase text-football-text/40 mb-2 block">Message aux utilisateurs</label>
+                        <textarea id="broadcast-content" rows="4"
+                                  class="w-full px-4 py-3 rounded-2xl border border-football-primary/10 bg-football-bg text-football-text focus:outline-none focus:ring-2 focus:ring-football-primary transition-all"
+                                  placeholder="Partagez un conseil, une astuce ou une annonce..."></textarea>
+                    </div>
+                    <button type="submit" class="w-full py-3 bg-football-primary text-white rounded-2xl font-bold hover:bg-emerald-600 transition-all shadow-lg shadow-emerald-500/20 flex items-center justify-center gap-2">
+                        <i data-lucide="send" class="w-4 h-4"></i> Diffuser le message
+                    </button>
+                </form>
+            </div>
+
+            <!-- Message Moderation List -->
+            <div class="lg:col-span-2 bg-football-surface rounded-3xl border border-football-primary/10 shadow-sm overflow-hidden">
+                <div class="p-6 border-b border-football-primary/10 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-football-text flex items-center gap-2">
+                        <i data-lucide="message-square" class="text-football-primary"></i> Modération du Chat
+                    </h2>
+                    <button id="refresh-chat" class="p-2 rounded-lg hover:bg-football-bg transition-colors text-football-text/60">
+                        <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-football-bg border-b border-football-primary/10">
+                            <tr>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">Utilisateur</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">Message</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40">Type</th>
+                                <th class="px-6 py-4 text-xs font-bold uppercase text-football-text/40 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-chat-list" class="divide-y divide-football-primary/5">
+                            <!-- Messages loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </main>
 </body>
+    <script>
+        // Theme Management
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+
+            // Update Lucide icon
+            if (themeToggleIcon) {
+                themeToggleIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+                lucide.createIcons();
+            }
+
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            updateTheme();
+        });
+
+        // Initialize Theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateTheme();
+
+        // Initialize Lucide icons on page load
+        lucide.createIcons();
+
+        // Chat Moderation Logic
+        const broadcastForm = document.getElementById('broadcast-form');
+        const broadcastContent = document.getElementById('broadcast-content');
+        const adminChatList = document.getElementById('admin-chat-list');
+        const refreshChatBtn = document.getElementById('refresh-chat');
+
+        async function loadAdminChat() {
+            try {
+                const res = await fetch('/api/chat/messages');
+                const messages = await res.json();
+
+                adminChatList.innerHTML = messages.map(m => `
+                    <tr class="hover:bg-football-bg transition-colors">
+                        <td class="px-6 py-4 text-sm font-medium text-football-text/80">${m.user_email || 'Système'}</td>
+                        <td class="px-6 py-4 text-sm text-football-text/60">${m.content}</td>
+                        <td class="px-6 py-4">
+                            <span class="text-[10px] font-bold px-2 py-1 rounded-full ${m.type === 'broadcast' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600'}">
+                                ${m.type}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right flex justify-end gap-2">
+                            <button onclick="moderateChat(${m.id}, 'pin', ${m.is_pinned})"
+                                    class="p-1.5 rounded-md transition-colors ${m.is_pinned ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-400 hover:bg-amber-100 hover:text-amber-600'}">
+                                <i data-lucide="pin" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="moderateChat(${m.id}, 'delete')"
+                                    class="p-1.5 rounded-md bg-slate-100 text-slate-400 hover:bg-red-100 hover:text-red-600 transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+                lucide.createIcons();
+            } catch (err) {
+                console.error('Error loading admin chat:', err);
+            }
+        }
+
+        window.moderateChat = async (id, action, currentlyPinned = false) => {
+            const finalAction = (action === 'pin' && currentlyPinned) ? 'unpin' : action;
+            try {
+                const res = await fetch(`/admin/api/chat/moderate/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: finalAction })
+                });
+                if (res.ok) loadAdminChat();
+                else alert('Erreur de modération');
+            } catch (err) {
+                console.error('Moderation error:', err);
+            }
+        };
+
+        broadcastForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const content = broadcastContent.value.trim();
+            if (!content) return;
+
+            try {
+                const res = await fetch('/admin/api/chat/broadcast', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+                if (res.ok) {
+                    broadcastContent.value = '';
+                    loadAdminChat();
+                } else {
+                    alert('Erreur lors de la diffusion');
+                }
+            } catch (err) {
+                console.error('Broadcast error:', err);
+            }
+        });
+
+        refreshChatBtn.addEventListener('click', loadAdminChat);
+        loadAdminChat();
+    </script>
 </html>

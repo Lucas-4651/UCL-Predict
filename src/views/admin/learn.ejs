@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VFL Admin | Apprentissage IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        football: {
+                            primary: 'var(--fb-primary)',
+                            bg: 'var(--fb-bg)',
+                            surface: 'var(--fb-surface)',
+                            text: 'var(--fb-text)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #020617;
+            --fb-surface: #0f172a;
+            --fb-text: #f1f5f9;
+        }
+
+        body { font-family: 'Outfit', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+    </style>
+</head>
+<body class="bg-football-bg text-football-text min-h-screen flex">
+
+    <!-- Sidebar (Consistent with admin.ejs) -->
+    <aside class="w-64 bg-slate-950 text-white hidden lg:flex flex-col sticky top-0 h-screen border-r border-football-primary/10">
+        <div class="p-6 flex items-center gap-2">
+            <span class="text-2xl">🏆</span>
+            <span class="text-xl font-display font-bold tracking-tight">VFL <span class="text-football-primary">Admin</span></span>
+        </div>
+        <nav class="flex-grow px-4 space-y-2 mt-4">
+            <a href="/admin" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>📊</span> Dashboard
+            </a>
+            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>👥</span> Utilisateurs
+            </a>
+            <a href="/admin/learn" class="flex items-center gap-3 px-4 py-3 bg-football-primary text-white rounded-xl font-medium transition-all">
+                <span>🎓</span> Apprentissage IA
+            </a>
+            <a href="/admin/intelligence" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
+                <span>🧠</span> Intelligence
+            </a>
+        </nav>
+        <div class="p-6 border-t border-slate-800">
+            <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-all text-sm font-medium">
+                <span>🏠</span> Retour au site
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow p-4 md:p-8 overflow-y-auto">
+        <header class="flex justify-between items-center mb-12">
+            <div>
+                <h1 class="text-3xl font-display font-bold text-football-text tracking-tight">Entraînement de l'IA</h1>
+                <p class="text-football-text/60">Injection manuelle de résultats pour affiner le moteur comportemental</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <button id="theme-toggle" class="p-2 rounded-lg bg-football-surface border border-football-primary/20 text-football-text hover:border-football-primary transition-all shadow-sm">
+                    <span id="theme-toggle-icon" class="text-lg">🌙</span>
+                </button>
+                <a href="/auth/logout" class="px-4 py-2 text-sm font-semibold text-football-text/60 hover:text-red-600 transition-colors">Déconnexion</a>
+            </div>
+        </header>
+
+        <div class="max-w-3xl mx-auto">
+            <div class="bg-football-surface rounded-3xl border border-football-primary/10 shadow-sm overflow-hidden">
+                <div class="p-8 border-b border-football-primary/10 bg-football-bg">
+                    <h2 class="text-xl font-bold text-football-text">Saisir un résultat de match</h2>
+                    <p class="text-football-text/60 text-sm">L'IA analysera si c'est une surprise et mettra à jour le Momentum et la Kryptonite.</p>
+                </div>
+
+                <div class="p-8">
+                    <form id="learnForm" class="space-y-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Home Team -->
+                            <div class="space-y-4">
+                                <label class="text-xs font-bold uppercase text-football-text/40 tracking-wider">Équipe Domicile</label>
+                                <div class="space-y-3">
+                                    <input type="text" name="homeTeam" placeholder="ex: Real Madrid" required
+                                           class="w-full px-4 py-3 rounded-xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all bg-football-bg text-football-text">
+                                    <input type="number" name="homeRank" placeholder="Classement (ex: 1)" required
+                                           class="w-full px-4 py-3 rounded-xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all bg-football-bg text-football-text">
+                                </div>
+                            </div>
+
+                            <!-- Away Team -->
+                            <div class="space-y-4">
+                                <label class="text-xs font-bold uppercase text-football-text/40 tracking-wider">Équipe Extérieur</label>
+                                <div class="space-y-3">
+                                    <input type="text" name="awayTeam" placeholder="ex: FC Barcelone" required
+                                           class="w-full px-4 py-3 rounded-xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all bg-football-bg text-football-text">
+                                    <input type="number" name="awayRank" placeholder="Classement (ex: 5)" required
+                                           class="w-full px-4 py-3 rounded-xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all bg-football-bg text-football-text">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Score Section -->
+                        <div class="space-y-4 py-6 border-y border-football-primary/10">
+                            <label class="text-xs font-bold uppercase text-football-text/40 tracking-wider block text-center">Score Final</label>
+                            <div class="flex items-center justify-center gap-4">
+                                <input type="number" name="homeScore" placeholder="0" required
+                                       class="w-24 text-center text-2xl font-bold px-4 py-4 rounded-2xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary outline-none transition-all bg-football-bg text-football-text">
+                                <span class="text-2xl font-bold text-football-text/20">:</span>
+                                <input type="number" name="awayScore" placeholder="0" required
+                                       class="w-24 text-center text-2xl font-bold px-4 py-4 rounded-2xl border border-football-primary/10 focus:ring-2 focus:ring-football-primary outline-none transition-all bg-football-bg text-football-text">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full py-4 bg-football-primary text-white font-bold rounded-2xl hover:opacity-90 transition-all shadow-lg shadow-football-primary/20 active:scale-[0.98]">
+                            Enregistrer et Entraîner l'IA
+                        </button>
+                    </form>
+                    <div id="responseMessage" class="mt-6 p-4 rounded-xl text-center font-medium hidden"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('learnForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const msgDiv = document.getElementById('responseMessage');
+            msgDiv.classList.remove('hidden', 'bg-emerald-100', 'text-emerald-700', 'bg-red-100', 'text-red-700');
+            msgDiv.innerText = 'Traitement en cours...';
+            msgDiv.classList.add('block', 'bg-slate-100', 'text-slate-600');
+
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+
+            data.homeRank = parseInt(data.homeRank);
+            data.awayRank = parseInt(data.awayRank);
+            data.homeScore = parseInt(data.homeScore);
+            data.awayScore = parseInt(data.awayScore);
+
+            try {
+                const res = await fetch('/admin/learn', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                    msgDiv.className = 'mt-6 p-4 rounded-xl text-center font-medium bg-emerald-100 text-emerald-700 block';
+                    msgDiv.innerText = result.details.wasSurprise ? '🚨 Surprise détectée et apprise ! L\'IA a évolué.' : '✅ Résultat intégré avec succès.';
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (err) {
+                msgDiv.className = 'mt-6 p-4 rounded-xl text-center font-medium bg-red-100 text-red-700 block';
+                msgDiv.innerText = 'Erreur : ' + err.message;
+            }
+        };
+
+        // Theme Management
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            themeToggleIcon.innerText = isDark ? '☀️' : '🌙';
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            updateTheme();
+        });
+
+        // Initialize Theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateTheme();
+    </script>
+</body>
+</html>

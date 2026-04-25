@@ -47,8 +47,28 @@ async function startServer() {
 
         // Routes
         app.use('/auth', require('./src/routes/authRoutes'));
-        app.use('/', userRoutes);
+        app.use('/admin', require('./src/routes/adminAuthRoutes'));
         app.use('/admin', adminRoutes);
+        app.use('/', userRoutes);
+
+        // Initialize Prediction Weights at startup to avoid lazy-loading timeouts during requests
+        const weightManager = require('./src/services/predictor/WeightManager');
+        try {
+            await weightManager.init();
+            console.log('✅ Prediction weights loaded successfully');
+        } catch (err) {
+            console.error('⚠️ Failed to load prediction weights:', err);
+            // We don't process.exit(1) here because the server can still run,
+            // though predictions will use defaults or fail.
+        }
+
+        // Initialize League Intelligence Service
+        const intelligenceService = require('./src/services/intelligence/LeagueIntelligenceService');
+        try {
+            await intelligenceService.init();
+        } catch (err) {
+            console.error('⚠️ Failed to load league intelligence:', err);
+        }
 
         // Health & Maintenance Loop
         setInterval(async () => {

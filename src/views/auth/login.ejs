@@ -5,64 +5,126 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connexion | VFL Predictions</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        football: {
+                            primary: 'var(--fb-primary)',
+                            bg: 'var(--fb-bg)',
+                            surface: 'var(--fb-surface)',
+                            text: 'var(--fb-text)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #000000;
+            --fb-surface: #0a0a0a;
+            --fb-text: #f1f5f9;
+        }
+
+        body { font-family: 'Outfit', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+
+        .pitch-lines {
+            background-image: linear-gradient(to right, rgba(16, 185, 129, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(16, 185, 129, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .scorecard {
+            background: var(--fb-surface);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .scorecard:hover {
+            border-color: var(--fb-primary);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.1);
+        }
+
+        .floodlight-glow {
+            background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.05), transparent 40%),
+                        radial-gradient(circle at top right, rgba(16, 185, 129, 0.05), transparent 40%);
+        }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center min-h-screen p-4">
+<body class="bg-football-bg text-football-text min-h-screen flex items-center justify-center p-4 pitch-lines floodlight-glow">
+    <button id="theme-toggle" class="fixed top-5 right-5 p-2 rounded-lg bg-football-surface border border-football-primary/20 text-football-text hover:border-football-primary transition-all shadow-sm z-50">
+        <i id="theme-toggle-icon" data-lucide="moon" class="w-5 h-5"></i>
+    </button>
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
 
     <div class="w-full max-w-md">
         <!-- Back to Home -->
         <div class="text-center mb-8">
-            <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors group">
-                <span class="text-lg group-hover:-translate-x-1 transition-transform">←</span> Retour à l'accueil
+            <a href="/" class="inline-flex items-center gap-2 text-sm font-medium text-football-text/60 hover:text-football-primary transition-colors group">
+                <i data-lucide="arrow-left" class="w-4 h-4 group-hover:-translate-x-1 transition-transform"></i> Retour à l'accueil
             </a>
         </div>
 
-        <div class="bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+        <div class="scorecard rounded-3xl overflow-hidden shadow-2xl">
             <!-- Header Decor -->
-            <div class="h-2 bg-blue-600"></div>
+            <div class="h-1.5 bg-football-primary shadow-[0_0_15px_rgba(16,185,129,0.6)]"></div>
 
             <div class="p-8 md:p-10 space-y-8">
                 <div class="text-center space-y-4">
-                    <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl text-3xl mb-2 shadow-inner">
-                        🏆
+                    <div class="inline-flex items-center justify-center w-16 h-16 bg-football-primary/10 text-football-primary rounded-2xl text-3xl mb-2 border border-football-primary/20 shadow-inner">
+                        <i data-lucide="trophy" class="w-8 h-8"></i>
                     </div>
                     <div class="space-y-1">
-                        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Bon retour !</h1>
-                        <p class="text-slate-500">Accédez à vos prédictions IA</p>
+                        <h1 class="text-3xl font-display font-extrabold text-football-text tracking-tight">Bon retour !</h1>
+                        <p class="text-football-text/60 font-medium">Authentification au Terminal VFL</p>
                     </div>
                 </div>
 
                 <% if (error) { %>
-                    <div class="p-4 text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl flex items-start gap-3">
-                        <span class="text-lg">⚠️</span>
+                    <div class="p-4 text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl flex items-start gap-3 font-medium">
+                        <i data-lucide="alert-circle" class="w-5 h-5 shrink-0"></i>
                         <p><%= error %></p>
                     </div>
                 <% } %>
 
                 <form action="/auth/login" method="POST" class="space-y-5">
                     <div class="space-y-2">
-                        <label class="block text-sm font-semibold text-slate-700 ml-1">Adresse Email</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-football-text/60 ml-1 font-mono">Adresse Email</label>
                         <div class="relative">
                             <input type="email" name="email" required
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400"
+                                class="w-full px-4 py-3 bg-football-bg/50 border border-football-primary/10 rounded-xl focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all text-football-text placeholder:text-football-text/30"
                                 placeholder="nom@exemple.com">
                         </div>
                     </div>
                     <div class="space-y-2">
                         <div class="flex justify-between items-center ml-1">
-                            <label class="block text-sm font-semibold text-slate-700">Mot de passe</label>
-                            <a href="#" class="text-xs font-medium text-blue-600 hover:underline">Oublié ?</a>
+                            <label class="block text-xs font-bold uppercase tracking-wider text-football-text/60 font-mono">Mot de passe</label>
+                            <a href="#" class="text-xs font-medium text-football-primary hover:text-football-primary/80 transition-colors">Oublié ?</a>
                         </div>
                         <div class="relative group">
                             <input type="password" id="password" name="password" required
-                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all placeholder:text-slate-400 pr-12"
+                                class="w-full px-4 py-3 bg-football-bg/50 border border-football-primary/10 rounded-xl focus:ring-2 focus:ring-football-primary focus:border-football-primary outline-none transition-all text-football-text placeholder:text-football-text/30 pr-12"
                                 placeholder="••••••••">
-                            <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-blue-600 transition-colors p-1">
+                            <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 text-football-text/40 hover:text-football-primary transition-colors p-1">
                                 <svg id="eye-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
@@ -70,28 +132,55 @@
                             </button>
                         </div>
                     </div>
-                    <button type="submit" class="w-full py-3.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all transform active:scale-[0.98] shadow-lg shadow-blue-200">
+                    <button type="submit" class="w-full py-3.5 px-4 bg-football-primary hover:opacity-90 text-white font-bold rounded-xl transition-all transform active:scale-[0.98]">
                         Se connecter
                     </button>
                 </form>
 
                 <div class="text-center pt-4">
-                    <p class="text-sm text-slate-500">
+                    <p class="text-sm text-football-text/60 font-medium">
                         Pas encore de compte ?
-                        <a href="/auth/register" class="text-blue-600 font-bold hover:text-blue-700 transition-colors">S'inscrire gratuitement</a>
+                        <a href="/auth/register" class="text-football-primary font-bold hover:text-football-primary/80 transition-colors">S'inscrire gratuitement</a>
                     </p>
                 </div>
             </div>
         </div>
 
         <div class="mt-8 text-center">
-            <p class="text-xs text-slate-400">
+            <p class="text-xs text-football-text/40 font-mono uppercase tracking-widest">
                 &copy; 2026 VFL Autonomous Platform. <br>
-                Design by <span class="font-semibold">Lucas46 Tech Studio</span>
+                Secured by <span class="text-football-text/60 font-bold">Lucas46 Tech Studio</span>
             </p>
         </div>
     </div>
     <script>
+        // Theme Management
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeToggleIcon = document.getElementById('theme-toggle-icon');
+
+        function updateTheme() {
+            const isDark = document.documentElement.classList.contains('dark');
+            if (themeToggleIcon) {
+                themeToggleIcon.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
+                lucide.createIcons();
+            }
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+        }
+
+        if (themeToggle) {
+            themeToggle.addEventListener('click', () => {
+                document.documentElement.classList.toggle('dark');
+                updateTheme();
+            });
+        }
+
+        // Initialize Theme
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        }
+        updateTheme();
+        lucide.createIcons();
+
         function togglePassword() {
             const passwordInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eye-icon');
@@ -107,7 +196,7 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
             const icon = type === 'success' ? '✓' : '⚠️';
 
             toast.className = `${bgColor} text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0`;

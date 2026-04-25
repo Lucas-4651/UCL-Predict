@@ -3,170 +3,305 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VFL Predictions | Prédictions de Football par IA</title>
+    <title>VFL Predictions | Cyber-Analytical Football IA</title>
     <meta name="description" content="Accédez aux meilleures prédictions de football gratuites basées sur l'intelligence artificielle et un moteur hybride adaptatif.">
-    <meta name="keywords" content="football, prédictions, IA, pronostics, gratuit, VFL">
-    <meta property="og:title" content="VFL Predictions | Prédictions de Football par IA">
-    <meta property="og:description" content="L'IA au service de vos pronostics football. Gratuit, précis et adaptatif.">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vfl-predict.com">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              colors: {
+                football: {
+                  primary: 'var(--fb-primary)',
+                  bg: 'var(--fb-bg)',
+                  surface: 'var(--fb-surface)',
+                  text: 'var(--fb-text)',
+                }
+              }
+            }
+          }
+        }
+
+        // Immediate theme application to prevent flash
+        (function() {
+            const theme = localStorage.getItem('theme') ||
+                          (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (theme === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+            --fb-text-muted: #64748b;
+            --fb-accent: #facc15;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #020617;
+            --fb-surface: #0f172a;
+            --fb-text: #f1f5f9;
+            --fb-text-muted: #94a3b8;
+            --fb-accent: #fbbf24;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--fb-bg);
+            color: var(--fb-text);
+            overflow-x: hidden;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        h1, h2, h3 { font-family: 'Syne', sans-serif; }
+
+        .pitch-lines {
+            background-image: linear-gradient(to right, rgba(59, 130, 246, 0.05) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(59, 130, 246, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .glass-nav {
+            background: rgba(var(--fb-bg), 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .floodlight-glow {
+            background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+        }
+
+        .scorecard {
+            background: var(--fb-surface);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .scorecard:hover {
+            border-color: var(--fb-primary);
+            background: rgba(16, 185, 129, 0.05);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.1);
+        }
+
+        .sport-underline {
+            position: relative;
+        }
+        .sport-underline::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 0; height: 3px;
+            background: var(--fb-primary);
+            transition: width 0.3s ease;
+        }
+        .sport-underline:hover::after { width: 100%; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .float-anim { animation: float 6s ease-in-out infinite; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
+    <!-- Noise Overlay -->
+    <div class="fixed inset-0 pointer-events-none opacity-[0.03] z-[100]" style="background-image: url('https://grainy-gradients.vercel.app/noise.svg');"></div>
+
     <!-- Toast Container -->
     <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3"></div>
 
     <!-- Navigation -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+    <nav class="glass-nav sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center gap-8">
-                    <a href="/" class="flex items-center gap-2 group">
-                        <span class="text-2xl">🏆</span>
-                        <span class="text-xl font-bold tracking-tight text-slate-900 group-hover:text-blue-600 transition-colors">VFL <span class="text-blue-600">Predict</span></span>
+            <div class="flex justify-between h-20">
+                <div class="flex items-center gap-12">
+                    <a href="/" class="flex items-center gap-3 group">
+                        <div class="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform duration-300 shadow-[0_0_15px_rgba(16,185,129,0.5)]">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1v-2.34c0-1.63.4-3.23 1.12-4.56"/><path d="M14 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34c0-1.63-.4-3.23-1.12-4.56"/><path d="M12 14.66V12"/><path d="M12 10.34V5"/></svg>
+                        </div>
+                        <span class="text-2xl font-extrabold tracking-tighter text-white">VFL <span class="text-emerald-500">Predict</span></span>
                     </a>
-                    <div class="hidden md:flex items-center gap-6">
-                        <a href="/predictions" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Prédictions</a>
-                        <a href="/" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Accueil</a>
-                        <a href="/download" class="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors font-bold">Télécharger l'App</a>
-                        <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Comment ça marche ?</a>
-                        <a href="#" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Tarifs (Gratuit)</a>
+                    <div class="hidden md:flex items-center gap-8">
+                        <a href="/predictions" class="text-sm font-medium text-slate-400 hover:text-white transition-colors sport-underline">Prédictions</a>
+                        <a href="/download" class="text-sm font-bold text-emerald-400 hover:text-emerald-300 transition-colors">Télécharger l'App</a>
+                        <a href="#" class="text-sm font-medium text-slate-400 hover:text-white transition-colors sport-underline">Méthodologie</a>
                     </div>
                 </div>
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-6">
+                    <button id="theme-toggle" class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:ring-2 ring-emerald-500 transition-all">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"></path></svg>
+                    </button>
                     <% if (user) { %>
-                        <div class="flex items-center gap-3">
-                            <span class="text-sm text-slate-500 hidden sm:inline"><%= user.email %></span>
+                        <div class="flex items-center gap-4">
+                            <span class="text-xs font-mono text-slate-500 hidden sm:inline"><%= user.email %></span>
                             <% if (user.role === 'admin') { %>
-                                <a href="/admin" class="px-3 py-1.5 text-xs font-bold bg-indigo-100 text-indigo-700 rounded-full hover:bg-indigo-200 transition-colors">Admin</a>
+                                <a href="/admin" class="px-3 py-1 text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full hover:bg-emerald-500/20 transition-all">ADMIN</a>
                             <% } %>
-                            <a href="/auth/logout" class="text-sm font-medium text-slate-600 hover:text-red-600 transition-colors">Déconnexion</a>
+                            <a href="/auth/logout" class="text-sm font-medium text-slate-400 hover:text-red-400 transition-colors">Déconnexion</a>
                         </div>
                     <% } else { %>
-                        <a href="/auth/login" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Connexion</a>
-                        <a href="/auth/register" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all shadow-sm">S'inscrire</a>
+                        <a href="/auth/login" class="text-sm font-medium text-slate-400 hover:text-white transition-colors">Connexion</a>
+                        <a href="/auth/register" class="px-5 py-2 text-sm font-bold text-white bg-emerald-600 rounded-full hover:bg-emerald-500 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)] active:scale-95">S'inscrire</a>
                     <% } %>
                 </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow">
+    <main class="flex-grow relative">
+        <div class="fixed inset-0 pitch-lines pointer-events-none"></div>
+        <div class="fixed inset-0 floodlight-glow pointer-events-none"></div>
+
         <!-- Hero Section -->
-        <section class="bg-white border-b border-slate-200 py-16 px-4">
-            <div class="max-w-4xl mx-auto text-center space-y-6">
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wider border border-blue-100">
-                    <span class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></span>
-                    Moteur Hybrid AI Actif
+        <section class="relative pt-24 pb-32 px-4 overflow-hidden">
+            <div class="max-w-5xl mx-auto text-center space-y-8 relative z-10">
+                <div class="inline-flex items-center gap-3 px-4 py-2 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest border border-emerald-500/20 backdrop-blur-md">
+                    <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
+                    Hybrid AI Engine v4.0 Online
                 </div>
-                <h1 class="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight">
-                    L'intelligence artificielle au service de vos <span class="text-blue-600">prédictions football</span>
+                <h1 class="text-5xl md:text-8xl font-extrabold text-white tracking-tighter leading-none">
+                    L'IA qui <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-yellow-400">décode</span> le football
                 </h1>
-                <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-                    VFL analyse les cotes du marché, la forme des équipes et les classements pour vous fournir des probabilités précises et gratuites.
+                <p class="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto font-light leading-relaxed">
+                    Fusion de données en temps réel et d'heuristiques adaptatives. VFL transforme le chaos des statistiques en probabilités mathématiques pures.
                 </p>
-                <div class="flex flex-wrap justify-center gap-4 pt-4">
-                    <a href="/predictions" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200">Voir les prédictions</a>
-                    <a href="/auth/register" class="px-6 py-3 bg-white text-slate-700 border border-slate-200 font-bold rounded-xl hover:bg-slate-50 transition-all">Créer un compte gratuit</a>
+                <div class="flex flex-wrap justify-center gap-6 pt-8">
+                    <a href="/predictions" class="group relative px-8 py-4 bg-emerald-600 text-white font-bold rounded-2xl overflow-hidden transition-all hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(16,185,129,0.4)]">
+                        <span class="relative z-10 flex items-center gap-2">
+                            Accéder aux Prédictions
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 group-hover:translate-x-1 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-emerald-700 to-emerald-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </a>
+                    <a href="/auth/register" class="px-8 py-4 bg-white/5 text-white font-bold rounded-2xl border border-white/10 hover:bg-white/10 transition-all backdrop-blur-md">
+                        Créer un compte gratuit
+                    </a>
                 </div>
             </div>
+            <!-- Floating Decorative Elements -->
+            <div class="absolute top-1/2 left-10 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl float-anim"></div>
+            <div class="absolute top-1/3 right-10 w-48 h-48 bg-yellow-500/10 rounded-full blur-3xl float-anim" style="animation-delay: -2s"></div>
         </section>
 
-        <!-- Lucas46 Tech Studio Promotion -->
-        <section class="py-16 px-4 max-w-7xl mx-auto">
-            <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-3xl p-8 md:p-12 text-white shadow-2xl overflow-hidden relative">
-                <div class="relative z-10 flex flex-col md:flex-row items-center gap-12">
-                    <div class="flex-1 space-y-6">
-                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-bold uppercase tracking-wider border border-blue-500/30">
-                            Expertise Tech
+        <!-- Lucas46 Tech Studio -->
+        <section class="py-24 px-4 relative z-10">
+            <div class="max-w-7xl mx-auto">
+                <div class="bg-gradient-to-br from-emerald-900/20 to-slate-900/40 rounded-[3rem] p-8 md:p-16 border border-white/10 backdrop-blur-xl relative overflow-hidden">
+                    <div class="relative z-10 flex flex-col lg:flex-row items-center gap-16">
+                        <div class="flex-1 space-y-8">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-xs font-bold uppercase tracking-widest border border-emerald-500/20">
+                                Engineering Excellence
+                            </div>
+                            <h2 class="text-4xl md:text-6xl font-extrabold leading-tight text-white">
+                                Forge technologique <br/><span class="text-emerald-400">Lucas46 Studio</span>
+                            </h2>
+                            <p class="text-slate-400 text-lg leading-relaxed max-w-xl">
+                                VFL est l'aboutissement d'une recherche sur les systèmes autonomes. Nous concevons des infrastructures auto-réparatrices et des IA qui n'attendent pas d'instructions, mais apprennent du monde réel.
+                            </p>
+                            <div class="flex flex-wrap gap-4 pt-4">
+                                <a href="#" class="px-6 py-3 bg-white text-slate-900 font-bold rounded-xl hover:bg-emerald-50 transition-all shadow-lg">
+                                    Découvrir le Studio
+                                </a>
+                                <a href="#" class="px-6 py-3 bg-transparent text-white font-bold rounded-xl border border-white/20 hover:bg-white/5 transition-all">
+                                    Contactez-nous
+                                </a>
+                            </div>
                         </div>
-                        <h2 class="text-3xl md:text-5xl font-extrabold leading-tight">
-                            Propulsé par <span class="text-blue-400">Lucas46 Tech Studio</span>
-                        </h2>
-                        <p class="text-slate-300 text-lg leading-relaxed">
-                            VFL est une vitrine technologique conçue par Lucas46 Tech Studio. Nous créons des systèmes autonomes, des IA adaptatives et des infrastructures auto-réparatrices pour transformer vos idées en réalité numérique.
-                        </p>
-                        <div class="flex flex-wrap gap-4 pt-4">
-                            <a href="#" class="px-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-900/50">
-                                Nos Services
-                            </a>
-                            <a href="#" class="px-6 py-3 bg-slate-700 text-white font-bold rounded-xl hover:bg-slate-600 transition-all">
-                                Contact Studio
-                            </a>
+                        <div class="flex-1 grid grid-cols-2 gap-6">
+                            <div class="p-6 scorecard rounded-3xl">
+                                <div class="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M12 12v8"/></svg>
+                                </div>
+                                <h4 class="text-white font-bold mb-2">Adaptive AI</h4>
+                                <p class="text-xs text-slate-500">Modèles qui s'auto-ajustent en temps réel sans intervention humaine.</p>
+                            </div>
+                            <div class="p-6 scorecard rounded-3xl">
+                                <div class="w-10 h-10 bg-emerald-500/20 text-emerald-400 rounded-lg flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                </div>
+                                <h4 class="text-white font-bold mb-2">Self-Healing</h4>
+                                <p class="text-xs text-slate-500">Infrastructures capables de détecter et réparer leurs propres failles.</p>
+                            </div>
+                            <div class="p-6 scorecard rounded-3xl">
+                                <div class="w-10 h-10 bg-purple-500/20 text-purple-400 rounded-lg flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+                                </div>
+                                <h4 class="text-white font-bold mb-2">High-End UI</h4>
+                                <p class="text-xs text-slate-500">Interfaces conçues pour la performance et l'impact visuel.</p>
+                            </div>
+                            <div class="p-6 scorecard rounded-3xl">
+                                <div class="w-10 h-10 bg-amber-500/20 text-amber-400 rounded-lg flex items-center justify-center mb-4">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                                </div>
+                                <h4 class="text-white font-bold mb-2">Scalable Ops</h4>
+                                <p class="text-xs text-slate-500">Déploiement cloud optimisé pour la haute disponibilité.</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="flex-1 grid grid-cols-2 gap-4">
-                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <span class="text-3xl mb-3 block">🚀</span>
-                            <h4 class="font-bold mb-2">IA Avancée</h4>
-                            <p class="text-xs text-slate-400">Modèles prédictifs et automatisation intelligente.</p>
-                        </div>
-                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <span class="text-3xl mb-3 block">🛠️</span>
-                            <h4 class="font-bold mb-2">DevOps</h4>
-                            <p class="text-xs text-slate-400">Infrastructures scalables et haute disponibilité.</p>
-                        </div>
-                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <span class="text-3xl mb-3 block">🎨</span>
-                            <h4 class="font-bold mb-2">UI/UX Design</h4>
-                            <p class="text-xs text-slate-400">Interfaces modernes et expériences fluides.</p>
-                        </div>
-                        <div class="p-6 bg-white/5 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <span class="text-3xl mb-3 block">🛡️</span>
-                            <h4 class="font-bold mb-2">Sécurité</h4>
-                            <p class="text-xs text-slate-400">Audit et protection des systèmes critiques.</p>
-                        </div>
-                    </div>
+                    <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl"></div>
                 </div>
-                <!-- Decorative background element -->
-                <div class="absolute -bottom-24 -right-24 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section class="py-20 bg-slate-100 px-4">
+        <section class="py-32 px-4 relative z-10">
             <div class="max-w-7xl mx-auto">
-                <div class="text-center mb-16">
-                    <h2 class="text-3xl font-bold text-slate-900 mb-4">Pourquoi choisir VFL ?</h2>
-                    <p class="text-slate-600 max-w-2xl mx-auto">Notre approche hybride combine les probabilités du marché avec des heuristiques sportives pour une précision maximale.</p>
+                <div class="text-center mb-20">
+                    <h2 class="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tighter">
+                        Pourquoi <span class="text-emerald-500">VFL</span> ?
+                    </h2>
+                    <p class="text-slate-400 max-w-2xl mx-auto text-lg">
+                        L'époque des pronostics "au feeling" est terminée. Bienvenue dans l'ère de la prédiction algorithmique.
+                    </p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                        <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center text-2xl mb-6">🤖</div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-3">Moteur Hybrid AI</h3>
-                        <p class="text-slate-600 leading-relaxed">Fusion de données en temps réel et de modèles statistiques avancés pour minimiser l'erreur de prédiction.</p>
+                    <div class="scorecard p-10 rounded-[2.5rem] group">
+                        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M12 12v8"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Hybrid AI Engine</h3>
+                        <p class="text-slate-400 leading-relaxed">Un moteur qui fusionne les probabilités implicites du marché et des heuristiques sportives pour éliminer les biais cognitifs.</p>
                     </div>
-                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                        <div class="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center text-2xl mb-6">🛡️</div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-3">Auto-Healing</h3>
-                        <p class="text-slate-600 leading-relaxed">Infrastructure capable de se réparer seule pour garantir une disponibilité et une fiabilité 24/7.</p>
+                    <div class="scorecard p-10 rounded-[2.5rem] group">
+                        <div class="w-14 h-14 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Auto-Healing</h3>
+                        <p class="text-slate-400 leading-relaxed">Une architecture résiliente capable d'auto-diagnostic et de réparation en temps réel pour une performance optimisée.</p>
                     </div>
-                    <div class="bg-white p-8 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all">
-                        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center text-2xl mb-6">📈</div>
-                        <h3 class="text-xl font-bold text-slate-900 mb-3">Learning Loop</h3>
-                        <p class="text-slate-600 leading-relaxed">Le système apprend de chaque résultat réel pour ajuster ses poids et s'améliorer continuellement.</p>
+                    <div class="scorecard p-10 rounded-[2.5rem] group">
+                        <div class="w-14 h-14 bg-amber-500/10 text-amber-400 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><path d="M12 13v4"/><path d="M8 17h8"/></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-white mb-4">Learning Loop</h3>
+                        <p class="text-slate-400 leading-relaxed">L'algorithme analyse chaque erreur de prédiction pour ajuster ses poids mathématiques et s'optimiser continuellement.</p>
                     </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="bg-white border-t border-slate-200 py-12 px-4">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-            <div class="flex items-center gap-2">
-                <span class="text-2xl">🏆</span>
-                <span class="text-lg font-bold text-slate-900">VFL Predict</span>
+    <footer class="bg-slate-900/50 dark:bg-black/50 border-t border-white/10 py-16 px-4 relative z-10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-emerald-600 rounded flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.45 1-1 1H8c-.55 0-1-.45-1-1v-2.34c0-1.63.4-3.23 1.12-4.56"/><path d="M14 14.66V17c0 .55.45 1 1 1h2c.55 0 1-.45 1-1v-2.34c0-1.63-.4-3.23-1.12-4.56"/><path d="M12 14.66V12"/><path d="M12 10.34V5"/></svg>
+                </div>
+                <span class="text-xl font-bold text-white">VFL <span class="text-emerald-500">Predict</span></span>
             </div>
-            <p class="text-slate-500 text-sm">
-                &copy; 2026 <span class="font-semibold">VFL Autonomous Platform</span>. Gratuit et Open Source.
+            <p class="text-slate-500 text-sm font-light">
+                &copy; 2026 <span class="text-slate-300 font-semibold">VFL Autonomous Platform</span>. Engineered by Lucas46.
             </p>
-            <div class="flex items-center gap-6">
-                <a href="#" class="text-sm text-slate-600 hover:text-blue-600 transition-colors">Conditions</a>
-                <a href="#" class="text-sm text-slate-600 hover:text-blue-600 transition-colors">Confidentialité</a>
+            <div class="flex items-center gap-8">
+                <a href="#" class="text-xs uppercase tracking-widest text-slate-500 hover:text-emerald-400 transition-colors font-bold">Légal</a>
+                <a href="#" class="text-xs uppercase tracking-widest text-slate-500 hover:text-emerald-400 transition-colors font-bold">Confidentialité</a>
             </div>
         </div>
     </footer>
@@ -175,10 +310,10 @@
         function showToast(message, type = 'success') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const bgColor = type === 'success' ? 'bg-emerald-500' : 'bg-red-500';
             const icon = type === 'success' ? '✓' : '⚠️';
 
-            toast.className = `${bgColor} text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0`;
+            toast.className = `${bgColor} text-white px-6 py-3 rounded-2xl shadow-lg flex items-center gap-3 transform transition-all duration-300 translate-x-full opacity-0 z-[100]`;
             toast.innerHTML = `<span class="text-lg">${icon}</span> <span class="font-medium">${message}</span>`;
 
             container.appendChild(toast);
@@ -198,6 +333,34 @@
             if (params.has('success')) {
                 showToast(params.get('success'));
             }
+
+            // Theme Toggle Logic
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const darkIcon = document.getElementById('theme-toggle-dark-icon');
+            const lightIcon = document.getElementById('theme-toggle-light-icon');
+
+            const updateIcons = () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    darkIcon.classList.add('hidden');
+                    lightIcon.classList.remove('hidden');
+                } else {
+                    darkIcon.classList.remove('hidden');
+                    lightIcon.classList.add('hidden');
+                }
+            };
+
+            updateIcons();
+
+            themeToggleBtn.addEventListener('click', () => {
+                if (document.documentElement.classList.contains('dark')) {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('theme', 'dark');
+                }
+                updateIcons();
+            });
         };
     </script>
 </body>
