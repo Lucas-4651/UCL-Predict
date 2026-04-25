@@ -181,9 +181,9 @@
                         </div>
                         <div class="flex flex-wrap gap-1 mt-1 ml-2 ${isBroadcast ? 'justify-center w-full' : ''}">
                             ${reactionHtml}
-                            ${!isBroadcast ? `<button onclick="window.toggleReaction(${m.id}, null)" class="text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                            <button onclick="window.toggleReaction(${m.id}, null)" class="text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                                 <span>😊</span> <span>Réagir</span>
-                            </button>` : ''}
+                            </button>
                         </div>
                     </div>
                 `;
