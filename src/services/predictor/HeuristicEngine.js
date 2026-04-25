@@ -2,61 +2,68 @@ const weightManager = require('./WeightManager');
 const intelligenceService = require('../intelligence/LeagueIntelligenceService');
 
 class HeuristicEngine {
+    constructor() {
+        this.predictionCache = new Map();
+        this.CACHE_TTL = 60000; // 1 minute
+    }
+
     async predict(match) {
         const { homeTeam, awayTeam } = match;
         const homeName = homeTeam.name;
         const awayName = awayTeam.name;
+        const matchKey = `${homeName}_vs_${awayName}`;
 
-        // 1. BASE LAYER: Calculate Poisson Lambdas
-        let { home: homeLambda, away: awayLambda } = this.calculateExpectedGoals(match);
+        // 0. CACHE CHECK
+        const cached = this.predictionCache.get(matchKey);
+        if (cached && (Date.now() - cached.timestamp < this.CACHE_TTL)) {
+            return cached.result;
+        }
 
-        // 2. MOMENTUM MODIFIER: Adjust lambdas based on Season Tweaks (Upgraded/Degraded)
-        const homeMomentum = intelligenceService.getMomentum(homeName);
-        const awayMomentum = intelligenceService.getMomentum(awayName);
+        // 1. PARALLEL DATA FETCHING
+        // Fetch momentum and lambdas simultaneously to reduce await chain
+        const [homeMomentum, awayMomentum, baseLambdas] = await Promise.all([
+            intelligenceService.getMomentum(homeName),
+            intelligenceService.getMomentum(awayName),
+            this.calculateExpectedGoals(match)
+        ]);
 
-        // Apply delta as a multiplier to expected goals (e.g., -20% delta -> 0.8x goals)
+        let { home: homeLambda, away: awayLambda } = baseLambdas;
+
+        // 2. MOMENTUM MODIFIER
         const homeMult = 1 + (homeMomentum.delta / 100);
         const awayMult = 1 + (awayMomentum.delta / 100);
-
         homeLambda *= homeMult;
         awayLambda *= awayMult;
 
-        // 3. PROBABILITY GENERATION: Generate base matrix from adjusted lambdas
+        // 3. PROBABILITY GENERATION (Optimized Matrix)
         const matrix = this.generateProbabilityMatrix(homeLambda, awayLambda);
         let probs = this.deriveMarketProbabilities(matrix);
 
-        // 4. DNA MODIFIER: Adjust probabilities based on tactical profiles
+        // 4. MODIFIERS (Applied sequentially but with pre-fetched data)
         probs = this._applyDNAModifiers(homeName, awayName, probs);
-
-        // 5. KRYPTONITE MODIFIER: Shift probabilities for natural predators
         probs = this._applyKryptoniteModifiers(homeName, awayName, probs);
-
-        // 6. DRAW ENGINE: Correct for tactical symmetry and equilibrium
         probs = this._applyDrawCorrection(homeName, awayName, probs);
 
-        // 7. FINAL DERIVATION
+        // 5. FINAL DERIVATION
         const outcome = this._determineBestOutcome(probs.outcome);
         const btts = probs.btts['Yes'] > 0.5 ? 'Yes' : 'No';
         const ou = probs.ou['Over'] > 0.5 ? 'Over' : 'Under';
 
-        return {
-            outcome: outcome,
-            outcomeConf: Math.max(...Object.values(probs.outcome)),
-            btts: btts,
-            bttsConf: Math.max(probs.btts['Yes'], probs.btts['No']),
-            ou: ou,
-            ouConf: Math.max(probs.ou['Over'], probs.ou['Under']),
-            probabilities: probs,
+        const result = {
+            outcome,
+            outcomeConf: probs.outcome[outcome],
+            btts,
+            bttsConf: probs.btts[btts],
+            ou,
+            ouConf: probs.ou[ou],
             lambdas: { home: homeLambda, away: awayLambda },
-            matrix: matrix,
-            factors: this._calculateFactors(match),
-            intelligence: {
-                homeMomentum: homeMomentum,
-                awayMomentum: awayMomentum,
-                homeDNA: intelligenceService.getTeamDNA(homeName),
-                awayDNA: intelligenceService.getTeamDNA(awayName)
-            }
+            factors: probs.factors
         };
+
+        // Store in cache
+        this.predictionCache.set(matchKey, { result, timestamp: Date.now() });
+
+        return result;
     }
 
     _applyDNAModifiers(homeName, awayName, probs) {
@@ -157,7 +164,7 @@ class HeuristicEngine {
         }
 
         // Global inflation for draws to better match historical 28% average
-        const DRAW_INFLATION_FACTOR = 1.2;
+        const DRAW_INFLATION_FACTOR = weightManager.getWeight('draw_inflation');
         newProbs.outcome['X'] *= DRAW_INFLATION_FACTOR;
 
         this._normalize(newProbs.outcome);

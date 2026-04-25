@@ -67,7 +67,6 @@ class LearningLoop {
             }
         }
 
-        await weightManager.loadWeights();
         return { error, brierScore, updatedWeights: weightManager.weights };
     }
 

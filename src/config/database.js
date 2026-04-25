@@ -7,7 +7,7 @@ const pool = new Pool({
         rejectUnauthorized: false // Required for Neon/many cloud providers
     },
     max: 20, // Limit maximum number of clients in the pool
-    connectionTimeoutMillis: 5000, // Fail fast if connection cannot be established
+    connectionTimeoutMillis: 30000, // Increased to 30s for slower environments
     idleTimeoutMillis: 30000 // Close idle clients after 30 seconds
 });
 

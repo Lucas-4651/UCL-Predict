@@ -32,7 +32,8 @@ class WeightManager {
                 outcome_ranking: 0.9, outcome_form: 0.7, outcome_bias: 0.3,
                 outcome_threshold_high: 0.45, outcome_threshold_low: 0.35,
                 btts_form: 0.6, btts_ranking: 0.4,
-                ou_form: 0.7, ou_volatility: 0.3
+                ou_form: 0.7, ou_volatility: 0.3,
+                draw_inflation: 1.2
             };
             await this.saveAllWeights();
         } else {

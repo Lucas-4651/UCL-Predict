@@ -63,8 +63,8 @@ async function runLearningJob() {
                         awayRank: match.awayTeam.position
                     });
 
-                    // Learn from Outcome
-                    await learningLoop.adjustWeights(pred, actualOutcome, pred.factors, 'outcome', pred.outcomeConf);
+                    // Learn from Outcome with actual goals for Lambda-based learning
+                    await learningLoop.adjustWeights(pred, actualOutcome, pred.factors, 'outcome', pred.outcomeConf, { home: homeScore, away: awayScore });
 
 
                     // In a real system, we'd also have actuals for BTTS and OU
