@@ -46,7 +46,7 @@ function normalizeMatchData(rawMatch, rankingMap) {
     };
 }
 
-function analyzeVFLDNA(matches) {
+function analyzeUCLDNA(matches) {
     console.log(`[Analyzer] Analyzing DNA for ${matches.length} matches...`);
     let totalHomeGoals = 0, totalAwayGoals = 0, homeWins = 0, draws = 0, awayWins = 0, btts = 0, over25 = 0;
 
@@ -148,7 +148,7 @@ async function optimizeWeights(matches) {
 function generateReport(dna, params) {
     console.log(`
 ============================================================
-🌟 VFL DISCOVERY REPORT 🌟
+🌟 UCL-Predict DISCOVERY REPORT 🌟
 ============================================================
 
 📊 SIMULATOR DNA ANALYSIS
@@ -180,7 +180,7 @@ to maximize prediction accuracy based on historical data.
 }
 
 async function main() {
-    console.log('Starting VFL Discovery Process...');
+    console.log('Starting UCL-Predict Discovery Process...');
     try {
         const rankingData = await formService.getRanking();
         const rankingMap = {};
@@ -193,7 +193,7 @@ async function main() {
         const rawMatches = await collectAllResults(settings.LEAGUE_ID);
         const normalized = rawMatches.map(m => normalizeMatchData(m, rankingMap));
 
-        const dna = analyzeVFLDNA(normalized);
+        const dna = analyzeUCLDNA(normalized);
         const params = await optimizeWeights(normalized);
 
         generateReport(dna, params);

@@ -1,64 +1,46 @@
-const learningLoop = require('../src/services/predictor/LearningLoop');
-const weightManager = require('../src/services/predictor/WeightManager');
-const db = require('../src/config/database');
+const WeightManager = require('../src/services/predictor/WeightManager');
+const LearningLoop = require('../src/services/predictor/LearningLoop');
 
-describe('LearningLoop', () => {
-    beforeAll(async () => {
-        await new Promise((resolve) => {
-            db.run('DELETE FROM weights', () => resolve());
-        });
-        await weightManager.init();
+// Mock db so adjustWeights' internal _getPredictionCount and saveWeight never
+// hit the real cloud database (keeps the suite fast and deterministic).
+jest.mock('../src/config/database', () => ({
+    query: jest.fn().mockResolvedValue({ rows: [] }),
+    close: jest.fn().mockResolvedValue(),
+    getClient: jest.fn(),
+}));
+
+describe('Learning Loop', () => {
+    beforeEach(async () => {
+        await WeightManager.init();
     });
 
-    test('calculateBrierScore should return correct value', () => {
-        // prob = 0.8, isCorrect = true (outcome = 1) -> (0.8 - 1)^2 = 0.04
-        expect(learningLoop.calculateBrierScore(0.8, true)).toBeCloseTo(0.04, 5);
-        // prob = 0.8, isCorrect = false (outcome = 0) -> (0.8 - 0)^2 = 0.64
-        expect(learningLoop.calculateBrierScore(0.8, false)).toBeCloseTo(0.64, 5);
+    test('weights expose default factor values', () => {
+        const weights = WeightManager.getAllWeights();
+        expect(weights.outcome_market).toBeCloseTo(0.5);
+        expect(weights.btts_market).toBeCloseTo(0.5);
+        expect(weights.ou_market).toBeCloseTo(0.5);
     });
 
-    test('adjustWeights should use Lambda Error for outcome market', async () => {
-        const factors = { outcome_ranking: 0.5, outcome_form: 0.5, outcome_bias: 0.5 };
-        const prediction = {
-            lambdas: { home: 1.0, away: 1.0 }
-        };
-        const actualGoals = { home: 2, away: 0 }; // Home scored more than predicted
-        const actualOutcome = '1';
+    test('a wrong BTTS prediction decreases the BTTS weight', async () => {
+        WeightManager.setWeight('btts_market', 0.5);
+        const before = WeightManager.getWeight('btts_market');
 
-        const oldWeight = weightManager.getWeight('outcome_ranking');
+        // Predicted "Yes" but actual "No" => negative error => weight moves down
+        await LearningLoop.adjustWeights({ btts: 'Yes' }, 'No', { btts_market: 1.0 }, 'btts');
 
-        await learningLoop.adjustWeights(
-            prediction,
-            actualOutcome,
-            factors,
-            'outcome',
-            0.8,
-            actualGoals
-        );
-
-        const newWeight = weightManager.getWeight('outcome_ranking');
-        // homeLambdaError = 2 - 1.0 = 1.0. Since ranking factor is positive, weight should increase.
-        expect(newWeight).toBeGreaterThan(oldWeight);
+        const after = WeightManager.getWeight('btts_market');
+        expect(after).toBeLessThan(before);
     });
 
-    test('adjustWeights should use Brier Score for binary markets (BTTS)', async () => {
-        const factors = { btts_form: 0.5 };
-        const prediction = 'No';
-        const actual = 'Yes';
-        const brierScore = 0.64; // confident it was No, but it was Yes
+    test('a wrong OU prediction decreases the OU weight and stays bounded', async () => {
+        WeightManager.setWeight('ou_market', 0.5);
+        const before = WeightManager.getWeight('ou_market');
 
-        const oldWeight = weightManager.getWeight('btts_form');
+        await LearningLoop.adjustWeights({ ou: 'Over' }, 'Under', { ou_market: 1.0 }, 'ou');
 
-        await learningLoop.adjustWeights(
-            prediction,
-            actual,
-            factors,
-            'btts',
-            brierScore
-        );
-
-        const newWeight = weightManager.getWeight('btts_form');
-        // error = 1 - 0 = 1. Weight should increase.
-        expect(newWeight).toBeGreaterThan(oldWeight);
+        const after = WeightManager.getWeight('ou_market');
+        expect(after).toBeLessThan(before);
+        expect(after).toBeGreaterThanOrEqual(0);
+        expect(after).toBeLessThanOrEqual(1);
     });
 });

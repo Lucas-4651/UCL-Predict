@@ -1,6 +1,6 @@
 const weightManager = require('./WeightManager');
 
-class VFLSymmetryAnalyzer {
+class UCLSymmetryAnalyzer {
     constructor() {
         this.signatures = []; // Will be populated with findings from data mining
     }
@@ -33,4 +33,4 @@ class VFLSymmetryAnalyzer {
     }
 }
 
-module.exports = new VFLSymmetryAnalyzer();
+module.exports = new UCLSymmetryAnalyzer();

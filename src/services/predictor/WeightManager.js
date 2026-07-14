@@ -11,7 +11,7 @@ class WeightManager {
         await db.query(`CREATE TABLE IF NOT EXISTS weights (
             factor_name TEXT PRIMARY KEY,
             weight_value DOUBLE PRECISION,
-            last_updated TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+            updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`);
 
         await this.loadWeights();
@@ -48,16 +48,16 @@ class WeightManager {
             INSERT INTO weights (factor_name, weight_value, updated_at)
             VALUES ($1, $2, CURRENT_TIMESTAMP)
             ON CONFLICT(factor_name)
-            DO UPDATE SET weight_value=EXCLUDED.weight_value, updated_at=EXCLUDED.updated_at
+            DO UPDATE SET weight_value=EXCLUDED.weight_value, updated_at=CURRENT_TIMESTAMP
         `;
         await db.query(sql, [factor, value]);
         this.weights[factor] = value;
     }
 
     async saveAllWeights() {
-        for (const [factor, value] of Object.entries(this.weights)) {
-            await this.saveWeight(factor, value);
-        }
+        await Promise.all(
+            Object.entries(this.weights).map(([factor, value]) => this.saveWeight(factor, value))
+        );
     }
 
     async resetWeights() {

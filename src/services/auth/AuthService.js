@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const settings = require('../../config/settings');
 
-const SECRET = process.env.JWT_SECRET || 'vfl-secret-key-2026';
+const SECRET = process.env.JWT_SECRET || 'ucl-predict-secret-key-2026';
 
 class AuthService {
     generateToken(user) {

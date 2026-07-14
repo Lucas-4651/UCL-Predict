@@ -1,4 +1,4 @@
-# VFL Auth, SaaS Style & SEO Implementation Plan
+# UCL Auth, SaaS Style & SEO Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -73,7 +73,7 @@
   ```javascript
   const session = require('express-session');
   app.use(session({
-      secret: 'vfl-super-secret-key', // In prod use env var
+      secret: 'ucl-super-secret-key', // In prod use env var
       resave: false,
       saveUninitialized: false,
       cookie: { secure: false, maxAge: 24 * 60 * 60 * 1000 }
@@ -142,7 +142,7 @@
 - [ ] **Step 2: Redesign User Dashboard (index.ejs)**
   - Transform the match list into a grid of professional "Prediction Cards".
   - Use a a clean, light-gray background with white cards and blue accents.
-  - Add a "Hero" section explaining the VFL platform.
+  - Add a "Hero" section explaining the UCL platform.
 
 - [ ] **Step 3: Redesign Admin Panel (admin.ejs)**
   - Use a sidebar layout.

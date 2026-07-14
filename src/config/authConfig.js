@@ -1,5 +1,5 @@
 module.exports = {
-    SESSION_SECRET: process.env.SESSION_SECRET || 'vfl-super-secret-key-2026',
+    SESSION_SECRET: process.env.SESSION_SECRET || 'ucl-predict-super-secret-key-2026',
     COOKIE_OPTIONS: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,

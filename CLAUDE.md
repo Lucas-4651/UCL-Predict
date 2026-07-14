@@ -1,4 +1,4 @@
-# VFL Autonomous Prediction Platform
+# UCL-Predict Autonomous Prediction Platform
 
 Autonomous, self-learning, and self-healing SaaS platform for football predictions.
 

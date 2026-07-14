@@ -9,7 +9,7 @@ Ceci n'est qu'un deco , Vous etes obliger de tester les api via curl
 *   **Base URL** : `https://hg-event-api-prod.sporty-tech.net/api/instantleagues`
 *   **Protocole** : `HTTPS`
 *   **Format de réponse** : `JSON (UTF-8)`
-*   **Usage** : Récupération de données en temps réel pour les ligues de football virtuelles (VFL).
+*   **Usage** : Récupération de données en temps réel pour les ligues de football (UCL).
 
 ## 🔑 Authentification et Identification
 

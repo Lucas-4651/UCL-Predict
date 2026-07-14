@@ -1,9 +1,9 @@
-# VFL Discovery Module Implementation Plan
+# UCL Discovery Module Implementation Plan
 
-> **Context**: This module is a standalone diagnostic and calibration tool designed to reverse-engineer the VFL simulation engine by analyzing historical data.
+> **Context**: This module is a standalone diagnostic and calibration tool designed to reverse-engineer the UCL simulation engine by analyzing historical data.
 
 ## Goal
-Implement an independent script that collects all available historical match results, analyzes the statistical "DNA" of the VFL, and optimizes the prediction engine's weights to minimize the Brier Score.
+Implement an independent script that collects all available historical match results, analyzes the statistical "DNA" of the UCL, and optimizes the prediction engine's weights to minimize the Brier Score.
 
 ## Architecture
 
@@ -41,7 +41,7 @@ Implement an independent script that collects all available historical match res
 
 ## Success Criteria
 - Successfully collect >100 matches (depending on API availability).
-- Generate a report that reveals the actual VFL goal average.
+- Generate a report that reveals the actual UCL goal average.
 - Provide a set of weights that significantly reduces the Brier Score compared to default weights.
 
 ## Constraints

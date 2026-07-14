@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /auth
 
-Sitemap: https://vfl-predict.com/sitemap.xml
+Sitemap: https://ucl-predict.com/sitemap.xml

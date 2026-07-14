@@ -7,7 +7,7 @@ Cette documentation fournit une spécification complète pour l'intégration de 
 *   **Base URL** : `https://hg-event-api-prod.sporty-tech.net/api/instantleagues`
 *   **Protocole** : `HTTPS`
 *   **Format de réponse** : `JSON (UTF-8)`
-*   **Usage** : Récupération de données en temps réel pour les ligues de football virtuelles (VFL).
+*   **Usage** : Récupération de données en temps réel pour les ligues de football virtuelles (UCL).
 
 ## 🔑 Authentification et Identification
 

@@ -1,8 +1,8 @@
-# VFL Autonomous Platform Implementation Plan
+# UCL Autonomous Platform Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Build a lightweight, self-learning, self-healing, and anti-drift VFL prediction SaaS.
+**Goal:** Build a lightweight, self-learning, self-healing, and anti-drift UCL prediction SaaS.
 
 **Architecture:** Hybrid architecture with a "Day 0" heuristic predictor, a background learning loop that adjusts weights in SQLite/Neon, a drift monitor for automatic recalibration, and a comprehensive self-healing layer for 24/7 resilience.
 
@@ -70,7 +70,7 @@
 - [ ] **Step 3: Implement `src/config/database.js` with WAL mode**
   ```javascript
   const sqlite3 = require('sqlite3').verbose();
-  const db = new sqlite3.Database('./vfl.db');
+  const db = new sqlite3.Database('./ucl.db');
   db.run('PRAGMA journal_mode = WAL');
   module.exports = db;
   ```

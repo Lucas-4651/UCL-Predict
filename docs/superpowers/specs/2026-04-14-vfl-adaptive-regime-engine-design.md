@@ -1,9 +1,9 @@
-# Design Spec: VFL Adaptive Regime Engine
+# Design Spec: UCL Adaptive Regime Engine
 Date: 2026-04-14
 Status: Approved by User
 
 ## 1. Overview
-The goal is to evolve the VFL prediction engine from a linear hybrid model to an adaptive system capable of detecting simulation "regimes" and adjusting its behavior accordingly. This addresses the specific nature of VFL where favorites usually win (~50%), draws are frequent (~30%), and surprises occur (~20%).
+The goal is to evolve the UCL prediction engine from a linear hybrid model to an adaptive system capable of detecting simulation "regimes" and adjusting its behavior accordingly. This addresses the specific nature of UCL where favorites usually win (~50%), draws are frequent (~30%), and surprises occur (~20%).
 
 ## 2. Architecture
 The system implements a closed-loop feedback mechanism consisting of three main layers:
@@ -38,7 +38,7 @@ The learning process is now profile-aware and distribution-aware.
 - This prevents "pollution" of the `Safe` profile during chaotic periods.
 
 ### 3.2. Dynamic Draw Correction (The 30% Rule)
-- **Goal**: Ensure the predicted draw rate converges to the observed VFL draw rate (~30%).
+- **Goal**: Ensure the predicted draw rate converges to the observed UCL draw rate (~30%).
 - **Mechanism**: 
     - Compare `Predicted Draw Rate` vs `Actual Draw Rate` over a window.
     - If `Actual > Predicted` $\rightarrow$ Narrow the gap between `thresholdHigh` and `thresholdLow` to expand the 'X' zone.

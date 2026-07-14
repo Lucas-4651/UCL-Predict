@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
         req.session.role = user.role;
         req.session.user = { id: user.id, username: user.username, email: user.email, role: user.role };
 
-        res.redirect('/?success=Connexion réussie ! Bienvenue sur VFL.');
+        res.redirect('/?success=Connexion réussie ! Bienvenue sur UCL-Predict.');
     } catch (err) {
         res.status(500).send(`Erreur serveur: ${err.message}`);
     }

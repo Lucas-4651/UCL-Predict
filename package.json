@@ -1,5 +1,5 @@
 {
-  "name": "vfl",
+  "name": "ucl-predict",
   "version": "1.0.0",
   "main": "index.js",
   "directories": {
@@ -340,7 +340,6 @@
     "source-map": "^0.6.1",
     "source-map-support": "^0.5.13",
     "sprintf-js": "^1.0.3",
-    "sqlite3": "^5.1.7",
     "ssri": "^8.0.1",
     "stack-utils": "^2.0.6",
     "statuses": "^2.0.2",
@@ -397,7 +396,8 @@
     "jest": "^30.3.0"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "test:integration": "jest --testPathPattern tests/integration"
   },
   "keywords": [],
   "author": "",

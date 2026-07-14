@@ -3,7 +3,7 @@ const db = require('./src/config/database');
 
 async function seedAdmin() {
     try {
-        const email = 'admin@vfl-predict.com';
+        const email = 'admin@ucl-predict.com';
         const password = 'admin_password_2026'; // In a real app, this would be in .env
 
         const res = await db.query('SELECT * FROM admins WHERE email = $1', [email]);

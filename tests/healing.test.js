@@ -1,5 +1,16 @@
+const db = require('../src/config/database');
 const apiRecovery = require('../src/services/healing/ApiRecoveryService');
 const healthMonitor = require('../src/services/healing/HealthMonitor');
+
+// Mock db.query so health checks are deterministic and not dependent on
+// real DB latency (a cloud DB can easily exceed the 200ms CRITICAL threshold,
+// which is an environment artifact, not a logic bug). We only want to verify
+// the state-transition logic driven by the API error counter.
+jest.mock('../src/config/database', () => ({
+    query: jest.fn().mockResolvedValue({ rows: [{ avg: 1, count: 50 }] }),
+    close: jest.fn().mockResolvedValue(),
+    getClient: jest.fn(),
+}));
 
 describe('HealingSystem', () => {
     test('ApiRecovery should rotate identity on 403 error', async () => {
@@ -23,9 +34,9 @@ describe('HealingSystem', () => {
 
     test('HealthMonitor should transition to DEGRADED on multiple API errors', async () => {
         healthMonitor.setState('HEALTHY');
+        healthMonitor.apiErrorCount = 0;
 
-        // Simulate several errors
-        for(let i = 0; i < 5; i++) {
+        for (let i = 0; i < 5; i++) {
             healthMonitor.reportApiError();
         }
 
@@ -35,9 +46,9 @@ describe('HealingSystem', () => {
 
     test('HealthMonitor should transition to CRITICAL on extreme API errors', async () => {
         healthMonitor.setState('HEALTHY');
+        healthMonitor.apiErrorCount = 0;
 
-        // Simulate massive errors
-        for(let i = 0; i < 15; i++) {
+        for (let i = 0; i < 15; i++) {
             healthMonitor.reportApiError();
         }
 

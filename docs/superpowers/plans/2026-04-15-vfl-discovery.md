@@ -1,8 +1,8 @@
-# VFL Discovery Module Implementation Plan
+# UCL Discovery Module Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Create a standalone script to reverse-engineer the VFL simulation by collecting historical data, analyzing its statistical DNA, and optimizing the prediction engine's weights.
+**Goal:** Create a standalone script to reverse-engineer the UCL simulation by collecting historical data, analyzing its statistical DNA, and optimizing the prediction engine's weights.
 
 **Architecture:** A pipeline-based script that sequentially executes `Collection` $\rightarrow$ `Statistical Analysis` $\rightarrow$ `Optimization` $\rightarrow$ `Reporting`. It leverages existing `sportyClient`, `HeuristicEngine`, and `WeightManager` services.
 
@@ -63,11 +63,11 @@ Expected: Console log showing "Collected X matches".
 **Files:**
 - Modify: `src/scripts/discovery.js`
 
-- [ ] **Step 1: Implement `analyzeVFLDNA`**
+- [ ] **Step 1: Implement `analyzeUCLDNA`**
 Create a function that computes global averages and frequencies from the normalized data.
 
 ```javascript
-function analyzeVFLDNA(matches) {
+function analyzeUCLDNA(matches) {
     let totalHomeGoals = 0, totalAwayGoals = 0, homeWins = 0, draws = 0, awayWins = 0, btts = 0, over25 = 0;
     matches.forEach(m => {
         totalHomeGoals += m.homeGoals;
@@ -157,4 +157,4 @@ Connect all pieces: `load settings` $\rightarrow$ `collect` $\rightarrow$ `analy
 
 - [ ] **Step 3: Final Test Run**
 Execute `node src/scripts/discovery.js`.
-Expected: A complete report showing the VFL DNA and the recommended weights.
+Expected: A complete report showing the UCL DNA and the recommended weights.

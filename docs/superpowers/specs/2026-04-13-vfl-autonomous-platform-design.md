@@ -1,8 +1,8 @@
-# Design Spec: Plateforme SaaS VFL Autonome
+# Design Spec: Plateforme SaaS UCL Autonome
 
 ## 📅 Date: 2026-04-13
 ## 🎯 Objectif
-Construire une plateforme de prédiction de football virtuel (VFL) ultra-légère, auto-apprenante, auto-réparatrice et anti-dérive, optimisée pour Termux et VPS (2GB RAM).
+Construire une plateforme de prédiction de football virtuel (UCL) ultra-légère, auto-apprenante, auto-réparatrice et anti-dérive, optimisée pour Termux et VPS (2GB RAM).
 
 ---
 

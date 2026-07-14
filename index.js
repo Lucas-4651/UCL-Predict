@@ -77,7 +77,7 @@ async function startServer() {
         }, 60000);
 
         app.listen(PORT, () => {
-            console.log(`🚀 VFL Autonomous Platform running on http://localhost:${PORT}`);
+            console.log(`🚀 UCL-Predict running on http://localhost:${PORT}`);
             console.log(`🛠️ Admin Dashboard: http://localhost:${PORT}/admin`);
         });
     } catch (err) {

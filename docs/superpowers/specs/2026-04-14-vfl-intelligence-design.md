@@ -1,10 +1,10 @@
-# Design Spec: VFL Intelligence Engine (Probabilistic Model)
+# Design Spec: UCL Intelligence Engine (Probabilistic Model)
 Date: 2026-04-14
 Status: Approved
 Sub-project: Intelligence
 
 ## 1. Goal
-Increase prediction accuracy for VFL (Virtual Football League) simulated matches by moving from a linear weighted sum to a probabilistic Poisson model.
+Increase prediction accuracy for UCL (Virtual Football League) simulated matches by moving from a linear weighted sum to a probabilistic Poisson model.
 
 ## 2. Core Concept
 The system will stop predicting results directly. Instead, it will predict the "scoring intensity" ($\lambda$) for each team and use the Poisson distribution to derive all market probabilities.
@@ -14,7 +14,7 @@ The system will stop predicting results directly. Instead, it will predict the "
 ### 3.1. Expected Goals ($\lambda$) Calculation
 The `HeuristicEngine` will calculate $\lambda_{home}$ and $\lambda_{away}$ using the following formula:
 $$\lambda = \text{Base\_Rate} + (W_{rank} \times \text{RankDiff}) + (W_{form} \times \text{FormDiff}) + (W_{bias} \times \text{Biais})$$
-- **Base\_Rate**: Global average goals per match in VFL.
+- **Base\_Rate**: Global average goals per match in UCL.
 - **RankDiff/FormDiff**: Normalized differences between teams.
 - **Biais**: Home/Away advantage constant.
 

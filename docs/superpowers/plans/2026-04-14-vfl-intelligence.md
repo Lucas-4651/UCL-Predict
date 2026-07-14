@@ -1,8 +1,8 @@
-# VFL Intelligence Engine Implementation Plan
+# UCL Intelligence Engine Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Implement a probabilistic Poisson-based prediction engine with a Brier Score learning loop for VFL simulations.
+**Goal:** Implement a probabilistic Poisson-based prediction engine with a Brier Score learning loop for UCL simulations.
 
 **Architecture:** Expected Goals ($\lambda$) Calculation $\rightarrow$ Poisson Probability Matrix $\rightarrow$ Market Probabilities $\rightarrow$ Brier Score Optimization.
 
@@ -34,8 +34,8 @@ Modify the `predictions` table creation script to include:
 - `brier_score` (REAL)
 
 - [ ] **Step 2: Reset database to apply changes**
-Run: `rm vfl.db && node src/config/dbInit.js`
-Expected: `vfl.db` recreated with new schema.
+Run: `rm ucl.db && node src/config/dbInit.js`
+Expected: `ucl.db` recreated with new schema.
 
 - [ ] **Step 3: Commit**
 ```bash
@@ -207,7 +207,7 @@ git commit -m "feat(learning): implement dynamic learning rate decay"
 - [ ] **Step 1: Run all tests**
 Run: `npm test`
 - [ ] **Step 2: Verify DB records**
-Run: `sqlite3 vfl.db "SELECT * FROM predictions LIMIT 1;"`
+Run: `sqlite3 ucl.db "SELECT * FROM predictions LIMIT 1;"`
 - [ ] **Step 3: Final Commit**
 ```bash
 git commit -m "chore: finalize probabilistic engine implementation"

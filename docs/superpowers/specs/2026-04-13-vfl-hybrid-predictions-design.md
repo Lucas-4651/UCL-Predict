@@ -1,4 +1,4 @@
-# VFL Hybrid Prediction System Design
+# UCL Hybrid Prediction System Design
 
 **Date:** 2026-04-13
 **Status:** Approved
