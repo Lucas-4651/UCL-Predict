@@ -40,6 +40,16 @@ class RealtimeService {
             }
         }
     }
+
+    broadcastTo(res, event) {
+        const payload = `data: ${JSON.stringify(event)}\n\n`;
+        try {
+            res.write(payload);
+            if (typeof res.flush === 'function') res.flush();
+        } catch (err) {
+            this.clients.delete(res);
+        }
+    }
 }
 
 module.exports = new RealtimeService();
