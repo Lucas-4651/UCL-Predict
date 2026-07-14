@@ -17,6 +17,18 @@ class RealtimeService {
         this.clients.delete(res);
     }
 
+    setPresence(clientId, identity) {
+        this.presence.set(clientId, identity);
+    }
+
+    removePresence(clientId) {
+        this.presence.delete(clientId);
+    }
+
+    getPresenceList() {
+        return Array.from(this.presence.values());
+    }
+
     broadcast(event) {
         const payload = `data: ${JSON.stringify(event)}\n\n`;
         for (const res of this.clients) {

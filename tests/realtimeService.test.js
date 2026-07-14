@@ -29,3 +29,18 @@ test('removeClient stops receiving broadcasts', () => {
     realtimeService.broadcast({ type: 'message', message: { id: 1 } });
     expect(res.getChunks()).toBe('');
 });
+
+test('setPresence adds client and getPresenceList returns usernames', () => {
+    realtimeService.setPresence('c1', { userId: 1, username: 'alice' });
+    realtimeService.setPresence('c2', { userId: 2, username: 'bob' });
+    const list = realtimeService.getPresenceList();
+    expect(list.map(u => u.username).sort()).toEqual(['alice', 'bob']);
+    expect(list.length).toBe(2);
+    realtimeService.removePresence('c1');
+});
+
+test('removePresence removes client from presence list', () => {
+    realtimeService.setPresence('cX', { userId: 9, username: 'carol' });
+    realtimeService.removePresence('cX');
+    expect(realtimeService.getPresenceList().find(u => u.username === 'carol')).toBeUndefined();
+});
