@@ -210,6 +210,20 @@ router.get('/api/chat/stream', async (req, res) => {
     });
 });
 
+router.post('/api/chat/typing', isAuthenticated, async (req, res) => {
+    try {
+        const user = req.session.user;
+        realtimeService.broadcast({
+            type: 'typing',
+            userId: user.id,
+            username: user.username,
+        });
+        res.json({ ok: true });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 router.post('/api/chat/react', isAuthenticated, async (req, res) => {
     try {
         const { messageId, reaction } = req.body;
@@ -225,13 +239,26 @@ router.post('/api/chat/react', isAuthenticated, async (req, res) => {
             [messageId, userId, reaction]
         );
 
+        let action;
         if (existing.rows.length > 0) {
             await chatService.removeReaction(messageId, userId, reaction);
-            res.json({ action: 'removed', messageId, reaction });
+            action = 'removed';
         } else {
             await chatService.addReaction(messageId, userId, reaction);
-            res.json({ action: 'added', messageId, reaction });
+            action = 'added';
         }
+
+        const reactionsResult = await db.query(
+            'SELECT reaction, count(*)::int as count FROM message_reactions WHERE message_id = $1 GROUP BY reaction',
+            [messageId]
+        );
+        const reactions = {};
+        for (const r of reactionsResult.rows) {
+            reactions[r.reaction] = r.count;
+        }
+        realtimeService.broadcast({ type: 'reaction', messageId, reactions });
+
+        res.json({ action, messageId, reaction });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -243,6 +270,7 @@ router.post('/api/chat/send', isAuthenticated, async (req, res) => {
         if (!content) return res.status(400).json({ error: 'Message content is required' });
 
         const message = await chatService.sendMessage(req.session.user.id, content, 'chat');
+        realtimeService.broadcast({ type: 'message', message });
         res.json(message);
     } catch (err) {
         res.status(500).json({ error: err.message });
