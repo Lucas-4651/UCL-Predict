@@ -1,4 +1,12 @@
 <!-- Chat Widget -->
+<style>
+    #chat-widget .msg-font {
+        font-family: 'Segoe UI', 'Helvetica Neue', Helvetica, Arial, system-ui, sans-serif;
+        font-size: 13.5px;
+        line-height: 1.35;
+        -webkit-font-smoothing: antialiased;
+    }
+</style>
 <div id="chat-widget" class="fixed bottom-8 left-8 z-50 font-sans" data-current-user="<%= (typeof currentUser !== 'undefined' && currentUser && currentUser.username) ? currentUser.username : '' %>" data-current-role="<%= (typeof currentUser !== 'undefined' && currentUser && currentUser.role) ? currentUser.role : '' %>">
     <!-- Chat Bubble Button -->
     <button id="chat-toggle" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group">
@@ -12,20 +20,20 @@
     </button>
 
     <!-- Chat Window -->
-    <div id="chat-window" class="absolute bottom-20 left-0 w-80 md:w-96 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden hidden flex-col transition-all duration-300 transform translate-y-10 opacity-0">
+    <div id="chat-window" class="absolute bottom-20 left-0 w-80 md:w-96 max-h-[calc(100dvh-7rem)] flex flex-col bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden hidden transition-all duration-300 transform translate-y-10 opacity-0">
         <!-- Header -->
-        <div class="bg-emerald-600 p-4 text-white flex items-center justify-between">
+        <div class="shrink-0 bg-[#0064FF] p-3.5 text-white flex items-center justify-between">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 bg-emerald-400 rounded-full flex items-center justify-center font-bold">V</div>
+                <div class="w-9 h-9 bg-white/20 rounded-full flex items-center justify-center font-bold text-lg">💬</div>
                 <div>
-                    <h3 class="font-bold text-sm">UCL-Predict Community</h3>
-                    <p class="text-[10px] opacity-80"><span id="chat-presence">1 en ligne</span></p>
+                    <h3 class="font-bold text-sm msg-font">UCL-Predict</h3>
+                    <p class="text-[10px] opacity-80 msg-font"><span id="chat-presence">1 en ligne</span></p>
                 </div>
             </div>
         </div>
 
         <!-- Messages Area -->
-        <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-1 bg-slate-50 dark:bg-slate-800" style="overscroll-behavior: contain;">
+        <div id="chat-messages" class="msg-font flex-1 min-h-0 overflow-y-auto p-3 space-y-2.5 bg-[#F0F2F5] dark:bg-slate-800" style="overscroll-behavior: contain;">
             <div class="text-center text-xs text-slate-400 my-4">Chargement des messages...</div>
         </div>
 
@@ -72,11 +80,31 @@
     let lastMessageId = null;
     let activeMessageId = null;
 
+    // Escape user-provided content before injecting into innerHTML (prevents XSS).
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+
+    // Deterministic avatar color from a name (stable across renders, no storage needed).
+    const AVATAR_COLORS = ['bg-rose-500', 'bg-orange-500', 'bg-amber-500', 'bg-emerald-500', 'bg-teal-500', 'bg-sky-500', 'bg-indigo-500', 'bg-violet-500', 'bg-fuchsia-500'];
+    const avatarColor = (name) => {
+        let h = 0;
+        for (let i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+        return AVATAR_COLORS[h % AVATAR_COLORS.length];
+    };
+    const initial = (name) => (name || '?').trim().charAt(0).toUpperCase();
+
+    const fmtTime = (ts) => {
+        const d = ts ? new Date(ts) : null;
+        return d && !isNaN(d) ? d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) : '';
+    };
+
     // Toggle Window
     toggleBtn.addEventListener('click', () => {
         const isHidden = windowEl.classList.contains('hidden');
         if (isHidden) {
             windowEl.classList.remove('hidden');
+            document.body.style.overflow = 'hidden'; // lock background scroll
             setTimeout(() => {
                 windowEl.classList.remove('translate-y-10', 'opacity-0');
             }, 10);
@@ -85,6 +113,7 @@
             chatBadge.classList.add('hidden');
         } else {
             windowEl.classList.add('translate-y-10', 'opacity-0');
+            document.body.style.overflow = ''; // restore background scroll
             setTimeout(() => windowEl.classList.add('hidden'), 300);
             openIcon.classList.remove('hidden');
             closeIcon.classList.add('hidden');
@@ -159,36 +188,60 @@
             }
             lastMessageId = messages[messages.length - 1].id;
 
+            const me = windowEl.closest('#chat-widget').dataset.currentUser;
             messagesContainer.innerHTML = messages.map(m => {
                 const isBroadcast = m.type === 'broadcast';
                 const isPinned = m.is_pinned;
                 const isAdminMsg = m.is_admin || (m.user_role === 'admin');
+                const author = esc(m.username || m.user_name || 'Utilisateur');
+                const mine = !isBroadcast && !isAdminMsg && author && me && author.toLowerCase() === me.toLowerCase();
                 const reactions = m.reactions || {};
                 const reactionHtml = Object.entries(reactions)
-                    .map(([emoji, count]) => `<span class="flex items-center gap-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-full text-[10px] font-medium">${emoji} ${count}</span>`)
+                    .map(([emoji, count]) =>
+                        `<button onclick="window.toggleReaction(${m.id}, '${emoji}')" title="Retirer ma réaction" class="flex items-center gap-1 bg-slate-200 dark:bg-slate-700 hover:bg-blue-200 dark:hover:bg-blue-800 px-1.5 py-0.5 rounded-full text-[10px] font-medium transition-colors">${emoji} ${count}</button>`)
                     .join('');
 
-                return `
-                    <div class="flex flex-col ${isBroadcast ? 'items-center' : 'items-start'} group relative">
-                        ${isPinned ? '<span class="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded-full font-bold mb-1 uppercase tracking-wider">📌 Épinglé</span>' : ''}
-                        <div class="max-w-[85%] p-3 rounded-2xl text-sm shadow-sm ${
-                            isBroadcast
-                            ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 rounded-lg text-center italic'
-                            : 'bg-emerald-100 dark:bg-emerald-900 text-emerald-900 dark:text-emerald-100 rounded-bl-none'
-                        }">
-                            <div class="flex items-center gap-2 mb-1 ${isBroadcast ? 'justify-center' : ''}">
-                                <span class="font-bold text-[10px] ${isBroadcast ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-300'}">
-                                    ${isBroadcast ? '📢 ADMIN' : (m.username || m.user_name || 'Utilisateur')}
-                                    ${isAdminMsg && !isBroadcast ? ' <span class="ml-1 bg-slate-700 text-white px-1 rounded text-[9px]">ADMIN</span>' : ''}
-                                </span>
+                // Messenger avatar bubble (initial + deterministic color)
+                const avatar = (isBroadcast || isAdminMsg) ? '' :
+                    `<div class="shrink-0 w-7 h-7 rounded-full ${avatarColor(author)} text-white flex items-center justify-center text-[11px] font-bold self-end mb-0.5">${esc(initial(author))}</div>`;
+
+                // ADMIN messages are always centered (broadcast or not), Messenger-style callout.
+                if (isAdminMsg) {
+                    return `
+                        <div class="flex justify-center group relative w-full">
+                            <div class="max-w-[90%] px-3.5 py-2 rounded-2xl text-center shadow-sm bg-[#E7F3FF] dark:bg-blue-900/40 border border-[#BBD7FB] dark:border-blue-700 text-slate-800 dark:text-slate-100">
+                                ${isPinned ? '<div class="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-0.5">📌 Épinglé</div>' : ''}
+                                <div class="font-bold text-[11px] mb-0.5 text-[#0064FF] dark:text-blue-300">👑 ${author}</div>
+                                <p class="leading-relaxed break-words">${esc(m.content)}</p>
+                                <div class="text-[9px] mt-1 text-slate-400">${fmtTime(m.created_at)}</div>
                             </div>
-                            <p class="leading-relaxed">${m.content}</p>
-                        </div>
-                        <div class="flex flex-wrap gap-1 mt-1 ml-2 ${isBroadcast ? 'justify-center w-full' : ''}">
-                            ${reactionHtml}
-                            <button onclick="window.toggleReaction(${m.id}, null)" class="text-[11px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-emerald-600 hover:text-white opacity-0 group-hover:opacity-100 transition-all px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
-                                <span>😊</span> <span>Réagir</span>
-                            </button>
+                        </div>`;
+                }
+
+                const bubble = `
+                    <div class="max-w-[80%] px-3.5 py-2 rounded-2xl shadow-sm ${
+                        isBroadcast
+                        ? 'bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100 rounded-lg text-center italic'
+                        : (mine
+                            ? 'bg-[#0064FF] text-white rounded-br-md'
+                            : 'bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 rounded-bl-md border border-slate-100 dark:border-slate-600')
+                    }">
+                        ${!isBroadcast && !mine ? `<div class="font-bold text-[11px] mb-0.5 text-[#0064FF] dark:text-blue-300">${author}</div>` : ''}
+                        <p class="leading-relaxed break-words">${esc(m.content)}</p>
+                        <div class="text-[9px] mt-1 ${mine ? 'text-blue-100/90' : 'text-slate-400'} ${isBroadcast ? 'text-center' : 'text-right'}">${fmtTime(m.created_at)}</div>
+                    </div>`;
+
+                return `
+                    <div class="flex items-end gap-2 ${isBroadcast ? 'justify-center' : (mine ? 'flex-row-reverse' : 'flex-row')} group relative">
+                        ${avatar}
+                        <div class="flex flex-col ${mine ? 'items-end' : 'items-start'} max-w-full">
+                            ${bubble}
+                            <div class="flex flex-wrap gap-1 mt-1 px-1 ${isBroadcast ? 'justify-center w-full' : ''}">
+                                ${reactionHtml}
+                                <button onclick="window.toggleReaction(${m.id}, null)" class="text-[10px] bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-[#0064FF] hover:text-white opacity-0 group-hover:opacity-100 transition-all px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                                    <span>😊</span> <span>Réagir</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 `;
