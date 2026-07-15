@@ -19,7 +19,7 @@
                 <div class="w-8 h-8 bg-emerald-400 rounded-full flex items-center justify-center font-bold">V</div>
                 <div>
                     <h3 class="font-bold text-sm">UCL-Predict Community</h3>
-                    <p class="text-[10px] opacity-80">En ligne</p>
+                    <p class="text-[10px] opacity-80"><span id="chat-presence">1 en ligne</span></p>
                 </div>
             </div>
         </div>
@@ -28,6 +28,9 @@
         <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-800">
             <div class="text-center text-xs text-slate-400 my-4">Chargement des messages...</div>
         </div>
+
+        <!-- Typing Indicator -->
+        <div id="chat-typing" class="hidden text-xs text-slate-400 px-4 py-1 italic"></div>
 
         <!-- Input Area -->
         <div class="p-4 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900">
@@ -224,8 +227,110 @@
         }
     });
 
-    // Polling: Refresh every 4 seconds
-    setInterval(fetchMessages, 4000);
-    fetchMessages();
+    // ---- Real-time: EventSource instead of polling ----
+    const presenceEl = document.getElementById('chat-presence');
+    const typingEl = document.getElementById('chat-typing');
+
+    let esFailCount = 0;
+    let pollingFallback = null;
+    let suppressSound = false;          // cleared after our own optimistic render
+    let selfTypingUntil = 0;            // heuristic window to ignore our own "typing"
+    let lastTyping = 0;                 // throttles our own typing emit
+
+    // Sound: WebAudio beep (no binary asset needed), lazily created on first user gesture.
+    let audioCtx = null;
+    function playNotify() {
+        try {
+            audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+            const o = audioCtx.createOscillator();
+            o.connect(audioCtx.destination);
+            o.frequency.value = 660;
+            o.start();
+            setTimeout(() => o.stop(), 120);
+        } catch (e) { /* ignore */ }
+    }
+
+    function showTyping(username) {
+        if (!typingEl) return;
+        const name = username || 'Quelqu\'un';
+        typingEl.textContent = `${name} écrit…`;
+        typingEl.classList.remove('hidden');
+        clearTimeout(showTyping._t);
+        showTyping._t = setTimeout(() => typingEl.classList.add('hidden'), 3000);
+    }
+
+    function notifyIfHidden() {
+        if (windowEl.classList.contains('hidden')) {
+            chatBadge.classList.remove('hidden');
+            playNotify();
+        }
+    }
+
+    function handleEvent(data) {
+        switch (data.type) {
+            case 'init':
+            case 'message':
+            case 'reaction':
+                // Reuse the existing rich rendering (broadcast / pinned / reactions).
+                fetchMessages();
+                if (data.type === 'message') {
+                    if (suppressSound) { suppressSound = false; }
+                    else { notifyIfHidden(); }
+                }
+                break;
+            case 'presence':
+                if (presenceEl) {
+                    presenceEl.textContent = `${data.count} en ligne`;
+                }
+                break;
+            case 'typing':
+                if (Date.now() > selfTypingUntil && data.username) {
+                    showTyping(data.username);
+                }
+                break;
+            case 'ping':
+            default:
+                break;
+        }
+    }
+
+    function setupSSE() {
+        if (pollingFallback) return; // already降级到轮询
+        const es = new EventSource('/api/chat/stream');
+        es.onmessage = (e) => {
+            esFailCount = 0;
+            try { handleEvent(JSON.parse(e.data)); } catch (err) { /* ignore malformed */ }
+        };
+        es.onerror = () => {
+            es.close();
+            esFailCount++;
+            if (esFailCount >= 5 && !pollingFallback) {
+                // Graceful degradation: fall back to the old 4s poll.
+                pollingFallback = setInterval(fetchMessages, 4000);
+                if (presenceEl) presenceEl.textContent = 'Reconnexion…';
+            }
+        };
+    }
+
+    // Throttled typing indicator (emit at most every 1.5s).
+    if (chatInput) {
+        chatInput.addEventListener('input', () => {
+            const now = Date.now();
+            if (now - lastTyping > 1500) {
+                lastTyping = now;
+                selfTypingUntil = now + 2000; // suppress our own echo
+                fetch('/api/chat/typing', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({})
+                }).catch(() => {});
+            }
+        });
+    }
+
+    // Optimistically suppress the sound on our own send (we'll get the SSE echo).
+    chatForm.addEventListener('submit', () => { suppressSound = true; }, true);
+
+    fetchMessages().then(setupSSE);
 })();
 </script>
