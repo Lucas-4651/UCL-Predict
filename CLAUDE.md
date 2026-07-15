@@ -12,11 +12,26 @@ Server runs on `http://localhost:3000`. Admin dashboard available at `/admin`.
 
 ### Run Tests
 ```bash
-npm test
+npm test                  # unit + predictor/learning/healing tests (jest)
+npm run test:integration  # integration tests under tests/integration
+```
+
+### Seed Admin (utility)
+```bash
+node scripts/seedAdmin.js  # create an initial admin user
 ```
 
 ### Database
-Uses PostgreSQL. Connection is managed via `src/config/database.js` using a connection string from environment variables.
+Uses **PostgreSQL** (Neon cloud) via `src/config/database.js` (`pg` Pool). Tables are created at startup by `src/config/dbInit.js`. Sessions are stored in PostgreSQL via `connect-pg-simple` (table `sessions_v2`). Weights (in `WeightManager`) also live in PostgreSQL, **not SQLite**.
+
+### Environment Variables
+| Var | Required | Default | Purpose |
+|-----|----------|---------|---------|
+| `DATABASE_URL` | Yes | — | PostgreSQL connection string (Neon) |
+| `SESSION_SECRET` | No | hardcoded fallback | Express session signing |
+| `JWT_SECRET` | No | hardcoded fallback | AuthService JWT signing |
+| `PORT` | No | `3000` | Server port |
+| `NODE_ENV` | No | — | Enables `secure` cookies in production |
 
 ## 🏗️ Architecture
 
@@ -33,9 +48,14 @@ $$\text{Score} = (W_{\text{market}} \times \text{Prob}_{\text{market}}) + (W_{\t
 ### Key Components
 - `src/api/sportyClient.js`: Handles API communication with Sporty Tech using browser spoofing.
 - `src/services/predictor/HeuristicEngine.js`: Implements the hybrid logic and market-specific predictions.
-- `src/services/predictor/WeightManager.js`: Manages market-aware weights in SQLite.
+- `src/services/predictor/WeightManager.js`: Manages market-aware weights in PostgreSQL.
 - `src/services/predictor/LearningLoop.js`: Adjusts weights based on the error between predictions and actual results.
 - `src/services/healing/`: Self-healing layer for API recovery, memory management, and system health.
+- `src/services/intelligence/LeagueIntelligenceService.js`: League-level intelligence (initialized at startup).
+- `src/services/drift/RecalibrationEngine.js`: Detects model drift and triggers recalibration.
+- `src/services/auth/AuthService.js` + `AdminAuthService.js`: JWT auth for users and admins.
+- `src/services/chatService.js`: Interactive chat (requires `req.session.user.id` & `.username`).
+- `src/jobs/learningJob.js`: Scheduled learning job.
 
 ## 🛠️ Project Patterns & Guidelines
 
@@ -48,9 +68,10 @@ Weights are updated dynamically by the `LearningLoop`.
 - **Negative Error**: Over-predicted the outcome $\rightarrow$ decrease weight.
 
 ### Data Flow
-`sportyClient` $\rightarrow$ `userRoutes` $\rightarrow$ `HeuristicEngine` $\rightarrow$ `index.ejs`
+`sportyClient` $\rightarrow$ `userRoutes`/`authRoutes` $\rightarrow$ `HeuristicEngine` (+ `WeightManager`, `LearningLoop`) $\rightarrow$ `index.ejs`. Admin flows go through `adminRoutes`/`adminAuthRoutes` + `LeagueIntelligenceService`.
 
 ## ⚠️ Gotchas & Quirks
 - **API Spoofing**: The API requires specific headers (`User-Agent`, `App-Version`, `Origin`) to avoid blocks.
+- **API Spoofing (concrete)**: `sportyClient.js` spoofs `Origin: https://bet261.mg` plus dynamic `User-Agent`/`App-Version`. Changing the Origin silently breaks all API calls.
 - **Session Structure**: Ensure `req.session.user` includes both `id` and `username` to prevent fallback names (e.g., "Utilisateur") in the chat.
 - **Weight Migration**: When changing the weight schema, the `weights` table may need to be cleared to apply new defaults.

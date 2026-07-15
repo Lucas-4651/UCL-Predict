@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { isAuthenticated } = require('../middleware/authMiddleware');
+const { isAuthenticated, isChatAuthenticated } = require('../middleware/authMiddleware');
 const predictor = require('../services/predictor/HeuristicEngine');
 const sportyClient = require('../api/sportyClient');
 const formService = require('../services/predictor/FormService');
@@ -31,7 +31,12 @@ router.get('/download', async (req, res) => {
 router.get('/predictions', isAuthenticated, async (req, res) => {
     try {
         const { predictions, systemState } = await getPredictionsData();
-        res.render('predictions', { predictions, league: settings.LEAGUE_NAME, systemState });
+        res.render('predictions', {
+            predictions,
+            league: settings.LEAGUE_NAME,
+            systemState,
+            currentUser: req.session.user || null
+        });
     } catch (err) {
         res.status(500).send(`Error: ${err.message}`);
     }
@@ -193,7 +198,9 @@ router.get('/api/chat/stream', async (req, res) => {
 
     const identity = req.session && req.session.user
         ? { userId: req.session.user.id, username: req.session.user.username }
-        : { userId: null, username: 'Invité' };
+        : (req.session && req.session.adminId
+            ? { userId: req.session.adminId, username: req.session.adminEmail || 'Admin' }
+            : { userId: null, username: 'Invité' });
     const clientId = `${req.ip}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     realtimeService.addClient(res);
@@ -210,9 +217,9 @@ router.get('/api/chat/stream', async (req, res) => {
     });
 });
 
-router.post('/api/chat/typing', isAuthenticated, async (req, res) => {
+router.post('/api/chat/typing', isChatAuthenticated, async (req, res) => {
     try {
-        const user = req.session.user;
+        const user = req.chatUser;
         realtimeService.broadcast({
             type: 'typing',
             userId: user.id,
@@ -224,14 +231,14 @@ router.post('/api/chat/typing', isAuthenticated, async (req, res) => {
     }
 });
 
-router.post('/api/chat/react', isAuthenticated, async (req, res) => {
+router.post('/api/chat/react', isChatAuthenticated, async (req, res) => {
     try {
         const { messageId, reaction } = req.body;
         if (!messageId || !reaction) {
             return res.status(400).json({ error: 'messageId and reaction are required' });
         }
 
-        const userId = req.session.user.id;
+        const userId = req.chatUser.id;
 
         // Check if reaction already exists to toggle it
         const existing = await db.query(
@@ -264,12 +271,15 @@ router.post('/api/chat/react', isAuthenticated, async (req, res) => {
     }
 });
 
-router.post('/api/chat/send', isAuthenticated, async (req, res) => {
+router.post('/api/chat/send', isChatAuthenticated, async (req, res) => {
     try {
         const { content } = req.body;
         if (!content) return res.status(400).json({ error: 'Message content is required' });
 
-        const message = await chatService.sendMessage(req.session.user.id, content, 'chat');
+        const message = await chatService.sendMessage(req.chatUser.id, content, 'chat', {
+            username: req.chatUser.username,
+            isAdmin: req.chatUser.isAdmin
+        });
         realtimeService.broadcast({ type: 'message', message });
         res.json(message);
     } catch (err) {

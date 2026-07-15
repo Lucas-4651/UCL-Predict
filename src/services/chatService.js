@@ -10,24 +10,33 @@ class ChatService {
      */
     async getRecentMessages(limit = 50) {
         const query = `
-            SELECT m.*, u.username as user_name,
-            (
-                SELECT jsonb_object_agg(reaction, count)
-                FROM (
-                    SELECT reaction, count(*) as count
-                    FROM message_reactions
-                    WHERE message_id = m.id
-                    GROUP BY reaction
-                ) s
-            ) as reactions
-            FROM messages m
-            LEFT JOIN users u ON m.user_id = u.id
-            WHERE m.is_deleted = false
-            ORDER BY m.is_pinned DESC, m.created_at ASC
-            LIMIT $1
+            SELECT * FROM (
+                SELECT m.*, u.username as user_name,
+                (
+                    SELECT jsonb_object_agg(reaction, count)
+                    FROM (
+                        SELECT reaction, count(*) as count
+                        FROM message_reactions
+                        WHERE message_id = m.id
+                        GROUP BY reaction
+                    ) s
+                ) as reactions
+                FROM messages m
+                LEFT JOIN users u ON m.user_id = u.id
+                WHERE m.is_deleted = false
+                ORDER BY m.is_pinned DESC, m.created_at DESC
+                LIMIT $1
+            ) recent
+            ORDER BY recent.is_pinned ASC, recent.created_at ASC
         `;
         const result = await db.query(query, [limit]);
-        return result.rows;
+        // Prefer the denormalized username (set for admins and at send time);
+        // fall back to the joined users.username for legacy rows.
+        return result.rows.map(r => ({
+            ...r,
+            username: r.username || r.user_name || 'Utilisateur',
+            is_admin: r.is_admin || false
+        }));
     }
 
     /**
@@ -35,14 +44,21 @@ class ChatService {
      * @param {number|null} userId - The ID of the user sending the message (null for system/global admin broadcasts if not linked to a user).
      * @param {string} content - Message content.
      * @param {string} type - 'broadcast' or 'chat'.
+     * @param {Object} [meta] - { username, isAdmin } denormalized author info (so admin messages render without a users.id row).
      */
-    async sendMessage(userId, content, type = 'chat') {
+    async sendMessage(userId, content, type = 'chat', meta = {}) {
         const query = `
-            INSERT INTO messages (user_id, content, type)
-            VALUES ($1, $2, $3)
+            INSERT INTO messages (user_id, username, is_admin, content, type)
+            VALUES ($1, $2, $3, $4, $5)
             RETURNING *
         `;
-        const result = await db.query(query, [userId, content, type]);
+        const result = await db.query(query, [
+            userId,
+            meta.username || null,
+            meta.isAdmin || false,
+            content,
+            type
+        ]);
         return result.rows[0];
     }
 

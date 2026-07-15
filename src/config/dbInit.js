@@ -78,11 +78,22 @@ const TABLES = {
         CREATE TABLE IF NOT EXISTS messages (
             id SERIAL PRIMARY KEY,
             user_id INTEGER REFERENCES users(id),
+            username TEXT,
+            is_admin BOOLEAN DEFAULT false,
             content TEXT NOT NULL,
             type TEXT CHECK (type IN ('broadcast', 'chat')) DEFAULT 'chat',
             is_pinned BOOLEAN DEFAULT false,
             is_deleted BOOLEAN DEFAULT false,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+        )`,
+    message_reactions: `
+        CREATE TABLE IF NOT EXISTS message_reactions (
+            id SERIAL PRIMARY KEY,
+            message_id INTEGER NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+            user_id INTEGER,
+            reaction TEXT NOT NULL,
+            created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            UNIQUE (message_id, user_id, reaction)
         )`,
     session: `
         CREATE TABLE IF NOT EXISTS sessions_v2 (
@@ -115,6 +126,21 @@ async function initDb() {
             await db.query('ALTER TABLE users ADD CONSTRAINT users_username_unique UNIQUE (username)');
             console.log('Migration completed successfully.');
         }
+        // Migration: ensure messages table carries a denormalized author name so
+        // chat works for admins (whose session has no users.id row) as well as users.
+        const msgCols = await db.query(
+            "SELECT column_name FROM information_schema.columns WHERE table_name = 'messages' AND column_name = 'username'"
+        );
+        if (msgCols.rowCount === 0) {
+            console.log('Migrating messages table: adding username/is_admin columns...');
+            await db.query('ALTER TABLE messages ADD COLUMN username TEXT');
+            await db.query('ALTER TABLE messages ADD COLUMN is_admin BOOLEAN DEFAULT false');
+            await db.query(
+                "UPDATE messages SET username = (SELECT u.username FROM users u WHERE u.id = messages.user_id) WHERE username IS NULL"
+            );
+            console.log('Migration completed successfully.');
+        }
+
         console.log('PostgreSQL database schema initialized successfully');
     } catch (err) {
         console.error('Database initialization failed:', err);

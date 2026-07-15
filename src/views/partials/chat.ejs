@@ -1,5 +1,5 @@
 <!-- Chat Widget -->
-<div id="chat-widget" class="fixed bottom-8 left-8 z-50 font-sans">
+<div id="chat-widget" class="fixed bottom-8 left-8 z-50 font-sans" data-current-user="<%= (typeof currentUser !== 'undefined' && currentUser && currentUser.username) ? currentUser.username : '' %>" data-current-role="<%= (typeof currentUser !== 'undefined' && currentUser && currentUser.role) ? currentUser.role : '' %>">
     <!-- Chat Bubble Button -->
     <button id="chat-toggle" class="bg-emerald-600 hover:bg-emerald-700 text-white p-4 rounded-full shadow-2xl transition-all duration-300 transform hover:scale-110 active:scale-95 flex items-center justify-center group">
         <svg id="chat-open-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -25,7 +25,7 @@
         </div>
 
         <!-- Messages Area -->
-        <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-slate-800">
+        <div id="chat-messages" class="h-80 overflow-y-auto p-4 space-y-1 bg-slate-50 dark:bg-slate-800" style="overscroll-behavior: contain;">
             <div class="text-center text-xs text-slate-400 my-4">Chargement des messages...</div>
         </div>
 
@@ -162,6 +162,7 @@
             messagesContainer.innerHTML = messages.map(m => {
                 const isBroadcast = m.type === 'broadcast';
                 const isPinned = m.is_pinned;
+                const isAdminMsg = m.is_admin || (m.user_role === 'admin');
                 const reactions = m.reactions || {};
                 const reactionHtml = Object.entries(reactions)
                     .map(([emoji, count]) => `<span class="flex items-center gap-1 bg-slate-200 dark:bg-slate-700 px-1.5 py-0.5 rounded-full text-[10px] font-medium">${emoji} ${count}</span>`)
@@ -177,7 +178,8 @@
                         }">
                             <div class="flex items-center gap-2 mb-1 ${isBroadcast ? 'justify-center' : ''}">
                                 <span class="font-bold text-[10px] ${isBroadcast ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-300'}">
-                                    ${isBroadcast ? '📢 ADMIN' : (m.user_name || 'Utilisateur')}
+                                    ${isBroadcast ? '📢 ADMIN' : (m.username || m.user_name || 'Utilisateur')}
+                                    ${isAdminMsg && !isBroadcast ? ' <span class="ml-1 bg-slate-700 text-white px-1 rounded text-[9px]">ADMIN</span>' : ''}
                                 </span>
                             </div>
                             <p class="leading-relaxed">${m.content}</p>

@@ -271,7 +271,7 @@
 
                 adminChatList.innerHTML = messages.map(m => `
                     <tr class="hover:bg-football-bg transition-colors">
-                        <td class="px-6 py-4 text-sm font-medium text-football-text/80">${m.user_email || 'Système'}</td>
+                        <td class="px-6 py-4 text-sm font-medium text-football-text/80">${m.username || m.user_name || 'Système'}${m.is_admin ? ' <span class="text-[9px] bg-slate-700 text-white px-1 rounded">ADMIN</span>' : ''}</td>
                         <td class="px-6 py-4 text-sm text-football-text/60">${m.content}</td>
                         <td class="px-6 py-4">
                             <span class="text-[10px] font-bold px-2 py-1 rounded-full ${m.type === 'broadcast' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600'}">
