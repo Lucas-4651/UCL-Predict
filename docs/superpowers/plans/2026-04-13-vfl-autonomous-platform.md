@@ -4,9 +4,9 @@
 
 **Goal:** Build a lightweight, self-learning, self-healing, and anti-drift UCL prediction SaaS.
 
-**Architecture:** Hybrid architecture with a "Day 0" heuristic predictor, a background learning loop that adjusts weights in SQLite/Neon, a drift monitor for automatic recalibration, and a comprehensive self-healing layer for 24/7 resilience.
+**Architecture:** Hybrid architecture with a "Day 0" heuristic predictor, a background learning loop that adjusts weights in PostgreSQL (Neon), a drift monitor for automatic recalibration, and a comprehensive self-healing layer for 24/7 resilience.
 
-**Tech Stack:** Node.js, Express, EJS, SQLite (dev) / Neon (prod), Axios.
+**Tech Stack:** Node.js, Express, EJS, PostgreSQL (Neon), Axios.
 
 ---
 

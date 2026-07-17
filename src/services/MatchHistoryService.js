@@ -3,20 +3,20 @@ const db = require('../config/database');
 class MatchHistoryService {
     async saveMatch(matchData) {
         const {
-            externalId, homeTeam, awayTeam, homeGoals, awayGoals, goals, round
+            externalId, homeTeam, awayTeam, homeGoals, awayGoals, goals, round, season
         } = matchData;
 
         const sql = `
             INSERT INTO match_history (
-                match_external_id, home_team, away_team, home_goals, away_goals, goals_json, round
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+                match_external_id, home_team, away_team, home_goals, away_goals, goals_json, round, season
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             ON CONFLICT (match_external_id) DO NOTHING
             RETURNING id
         `;
 
         const res = await db.query(sql, [
             externalId, homeTeam, awayTeam, homeGoals, awayGoals,
-            JSON.stringify(goals), round
+            JSON.stringify(goals), round, season
         ]);
 
         return res.rows[0] ? res.rows[0].id : null;

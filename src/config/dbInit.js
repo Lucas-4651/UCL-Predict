@@ -100,6 +100,19 @@ const TABLES = {
             sid varchar PRIMARY KEY,
             sess text NOT NULL,
             expire timestamp(6) with time zone
+        )`,
+    match_history: `
+        CREATE TABLE IF NOT EXISTS match_history (
+            id SERIAL PRIMARY KEY,
+            match_external_id TEXT UNIQUE,
+            home_team TEXT,
+            away_team TEXT,
+            home_goals INTEGER,
+            away_goals INTEGER,
+            goals_json JSONB,
+            round INTEGER,
+            season TEXT,
+            captured_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )`
 
 };

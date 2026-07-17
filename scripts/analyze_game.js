@@ -1,14 +1,17 @@
 const sportyClient = require('./src/api/sportyClient');
 const settings = require('./src/config/settings');
 const fs = require('fs');
-const storage = require('./sqlite_storage');
+const { MatchHistoryService } = require('../src/services/MatchHistoryService');
+const { initDb } = require('../src/config/dbInit');
+const db = require('../src/config/database');
+const storage = MatchHistoryService;
 
 async function analyzeGame() {
     const leagueId = settings.LEAGUE_ID;
     console.log(`Starting ULTIMATE LEAGUE INTELLIGENCE analysis for League ${leagueId}...`);
 
     try {
-        await storage.init();
+        await initDb();
 
         // PHASE 1: INGESTION (API -> SQLite)
         console.log('\n--- Phase 1: Ingesting results from API ---');
@@ -215,7 +218,7 @@ async function analyzeGame() {
     } catch (error) {
         console.error('Analysis failed:', error.message);
     } finally {
-        await storage.close();
+        await db.close();
     }
 }
 

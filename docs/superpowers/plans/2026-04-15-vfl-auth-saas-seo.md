@@ -5,12 +5,12 @@
 **Goal:** Implement a professional authentication system for Users and Admins, transform the UI into a modern SaaS aesthetic, and optimize the site for SEO.
 
 **Architecture:**
-- **Authentication:** Session-based authentication using `express-session` and `bcryptjs` for password hashing. SQLite will store user credentials and roles.
+- **Authentication:** Session-based authentication using `express-session` and `bcryptjs` for password hashing. PostgreSQL (Neon) stores user credentials and roles (table `users`), and sessions in `sessions_v2`.
 - **Authorization:** Middleware-based Role-Based Access Control (RBAC) to distinguish between standard users and administrators.
 - **UI/UX:** Transition to a modern SaaS look using Tailwind CSS (via CDN for rapid deployment).
 - **SEO:** Implementation of semantic HTML, meta tags, and search engine directives.
 
-**Tech Stack:** Node.js, Express, SQLite3, express-session, bcryptjs, EJS, Tailwind CSS.
+**Tech Stack:** Node.js, Express, PostgreSQL (Neon), express-session, bcryptjs, EJS, Tailwind CSS.
 
 ---
 

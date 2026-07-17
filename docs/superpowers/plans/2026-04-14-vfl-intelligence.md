@@ -6,7 +6,7 @@
 
 **Architecture:** Expected Goals ($\lambda$) Calculation $\rightarrow$ Poisson Probability Matrix $\rightarrow$ Market Probabilities $\rightarrow$ Brier Score Optimization.
 
-**Tech Stack:** Node.js, SQLite.
+**Tech Stack:** Node.js, PostgreSQL (Neon).
 
 ---
 
@@ -34,8 +34,8 @@ Modify the `predictions` table creation script to include:
 - `brier_score` (REAL)
 
 - [ ] **Step 2: Reset database to apply changes**
-Run: `rm ucl.db && node src/config/dbInit.js`
-Expected: `ucl.db` recreated with new schema.
+Run: `node src/config/dbInit.js` (requires `DATABASE_URL` for PostgreSQL/Neon)
+Expected: schema applied idempotently on the Neon database.
 
 - [ ] **Step 3: Commit**
 ```bash
