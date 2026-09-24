@@ -1,87 +1,13 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-
-
-    <meta name="monetag" content="695e0d0af1f9c9fd3bc216923a311f75">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UCL-Predict Admin | Panel de Contrôle</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        football: {
-                            primary: 'var(--fb-primary)',
-                            bg: 'var(--fb-bg)',
-                            surface: 'var(--fb-surface)',
-                            text: 'var(--fb-text)',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
-
-        :root {
-            --fb-primary: #10b981;
-            --fb-bg: #f8fafc;
-            --fb-surface: #ffffff;
-            --fb-text: #0f172a;
-        }
-
-        .dark {
-            --fb-primary: #34d399;
-            --fb-bg: #000000;
-            --fb-surface: #0a0a0a;
-            --fb-text: #f1f5f9;
-        }
-
-        body { font-family: 'Outfit', sans-serif; }
-        .font-display { font-family: 'Syne', sans-serif; }
-        .font-mono { font-family: 'Fira Code', monospace; }
-    </style>
-</head>
+<%- include('../partials/admin-head', { title: 'UCL-Predict Admin | Panel de Contrôle' }) %>
 <body class="bg-football-bg text-football-text min-h-screen flex">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-slate-950 text-white hidden lg:flex flex-col sticky top-0 h-screen border-r border-football-primary/10">
-        <div class="p-6 flex items-center gap-2">
-            <i data-lucide="trophy" class="text-football-primary w-6 h-6"></i>
-            <span class="text-xl font-display font-bold tracking-tight">UCL-Predict <span class="text-football-primary">Admin</span></span>
-        </div>
-        <nav class="flex-grow px-4 space-y-2 mt-4">
-            <a href="/admin" class="flex items-center gap-3 px-4 py-3 bg-football-primary text-white rounded-xl font-medium transition-all">
-                <i data-lucide="layout-dashboard" class="w-5 h-5"></i> Dashboard
-            </a>
-            <a href="/admin/users" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-lucide="users" class="w-5 h-5"></i> Utilisateurs
-            </a>
-            <a href="/admin/learn" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-lucide="graduation-cap" class="w-5 h-5"></i> Apprentissage IA
-            </a>
-            <a href="/admin/intelligence" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-lucide="brain-circuit" class="w-5 h-5"></i> Intelligence
-            </a>
-            <a href="#" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl font-medium transition-all">
-                <i data-lucide="settings" class="w-5 h-5"></i> Configuration
-            </a>
-        </nav>
-        <div class="p-6 border-t border-slate-800">
-            <a href="/" class="flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-white transition-all text-sm font-medium">
-                <i data-lucide="home" class="w-4 h-4"></i> Retour au site
-            </a>
-        </div>
-    </aside>
+    <%- include('partials/admin-sidebar') %>
+
+    <!-- Mobile bottom navigation -->
+    <%- include('partials/admin-bottomnav', { active: 'dashboard' }) %>
 
     <!-- Main Content -->
-    <main class="flex-grow p-4 md:p-8 overflow-y-auto">
+    <main class="flex-grow p-4 md:p-8 pb-24 lg:pb-8 overflow-y-auto">
         <header class="flex justify-between items-center mb-12">
             <div>
                 <h1 class="text-3xl font-display font-bold text-football-text tracking-tight">Observabilité Système</h1>

@@ -76,6 +76,27 @@ async function startServer() {
             await memoryRecovery.checkAndRecover();
         }, 60000);
 
+        // Pre-compute R+1 prediction job.
+        // Polls every 15s: as soon as the next round (R+1) appears populated in
+        // the Sporty API, its predictions are computed and cached in Postgres so
+        // clients can read them instantly via /predictions/api/round/:n (SSE
+        // round-ready triggers the auto-refresh). This gives clients the full
+        // betting window before the round opens.
+        const cacheService = require('./src/services/predictor/CachePredictionService');
+        let lastComputedRound = 0;
+        const precomputeTimer = setInterval(async () => {
+            try {
+                const next = await cacheService.computeAndCacheNextRound(lastComputedRound);
+                if (next && next !== lastComputedRound) {
+                    lastComputedRound = next;
+                    console.log(`🔮 Pre-computed round ${next} (R+1) → cache ready`);
+                }
+            } catch (err) {
+                console.error('⚠️ Pre-compute R+1 failed:', err.message);
+            }
+        }, 15000);
+        if (precomputeTimer.unref) precomputeTimer.unref();
+
         app.listen(PORT, () => {
             console.log(`🚀 UCL-Predict running on http://localhost:${PORT}`);
             console.log(`🛠️ Admin Dashboard: http://localhost:${PORT}/admin`);

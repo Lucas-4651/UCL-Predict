@@ -2,6 +2,14 @@ function isAuthenticated(req, res, next) {
     if (req.session && req.session.userId) {
         return next();
     }
+    // API/fetch calls expect JSON, not an HTML redirect (which a fetch treats
+    // as a non-ok response and surfaces as a generic client error). Mirror the
+    // behavior already used by isChatAuthenticated.
+    const wantsJson = req.accepts(['json', 'html']) === 'json' ||
+        req.headers['x-requested-with'] === 'XMLHttpRequest';
+    if (wantsJson) {
+        return res.status(401).json({ error: 'Non authentifié' });
+    }
     res.redirect('/auth/login');
 }
 

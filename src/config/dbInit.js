@@ -113,6 +113,13 @@ const TABLES = {
             round INTEGER,
             season TEXT,
             captured_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )`,
+    prediction_cache: `
+        CREATE TABLE IF NOT EXISTS prediction_cache (
+            round_number INTEGER PRIMARY KEY,
+            predictions JSONB NOT NULL,
+            computed_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+            expected_start TIMESTAMPTZ
         )`
 
 };

@@ -8,6 +8,7 @@ const settings = require('../config/settings');
 const healthMonitor = require('../services/healing/HealthMonitor');
 const dbService = require('../services/dbService');
 const learningLoop = require('../services/predictor/LearningLoop');
+const cacheService = require('../services/predictor/CachePredictionService');
 const chatService = require('../services/chatService');
 const realtimeService = require('../services/realtimeService');
 const db = require('../config/database');
@@ -51,6 +52,31 @@ router.get('/predictions/api', isAuthenticated, async (req, res) => {
     }
 });
 
+// Serves pre-computed predictions for a specific round from prediction_cache.
+// Falls back to live computation if the round is not (yet) cached OR if the
+// cache read fails (e.g. Neon is momentarily unreachable). The DB read is NOT
+// wrapped in a .catch upstream, so a transient connection error would otherwise
+// bubble up as a 500 and trigger the client refresh alert — we degrade
+// gracefully to the live path instead, which only needs the Sporty API.
+router.get('/predictions/api/round/:n', isAuthenticated, async (req, res) => {
+    try {
+        const roundNumber = Number(req.params.n);
+        let cached = null;
+        try {
+            cached = await cacheService.getCachedRound(roundNumber);
+        } catch (cacheErr) {
+            console.error('⚠️ Cache read failed (falling back to live):', cacheErr.message);
+        }
+        if (cached) {
+            return res.json({ predictions: cached.predictions, systemState: healthMonitor.getState(), fromCache: true });
+        }
+        const { predictions, systemState } = await getPredictionsData();
+        res.json({ predictions, systemState, fromCache: false });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 async function getPredictionsData() {
     const matchesData = await sportyClient.getMatches(settings.LEAGUE_ID);
     const rounds = matchesData.rounds || [];
@@ -59,74 +85,7 @@ async function getPredictionsData() {
         (round && Array.isArray(round.matches)) ? round.matches : []
     ).filter(match => match && match.homeTeam && match.awayTeam);
 
-    const rankingData = await formService.getRanking();
-    const rankingMap = {};
-    if (rankingData && Array.isArray(rankingData.teams)) {
-        rankingData.teams.forEach(t => {
-            rankingMap[t.name] = t.position;
-        });
-    }
-
-    const predictionPromises = allMatches.map(async (match) => {
-            const homeForm = await formService.getTeamForm(match.homeTeam.name);
-            const awayForm = await formService.getTeamForm(match.awayTeam.name);
-
-            let odds = { home: 2.0, draw: 3.0, away: 3.0, bttsYes: 2.0, ouOver: 2.0 };
-            if (match.eventBetTypes) {
-                match.eventBetTypes.forEach(bet => {
-                    if (bet.name === '1X2' && bet.eventBetTypeItems) {
-                        bet.eventBetTypeItems.forEach(item => {
-                            if (item.shortName === '1') odds.home = item.odds;
-                            else if (item.shortName === 'X') odds.draw = item.odds;
-                            else if (item.shortName === '2') odds.away = item.odds;
-                        });
-                    } else if (bet.name === 'BTTS' && bet.eventBetTypeItems) {
-                        const yes = bet.eventBetTypeItems.find(item => item.shortName === 'Yes');
-                        if (yes) odds.bttsYes = yes.odds;
-                    } else if (bet.name === 'Over/Under 2.5' && bet.eventBetTypeItems) {
-                        const over = bet.eventBetTypeItems.find(item => item.shortName === 'Over');
-                        if (over) odds.ouOver = over.odds;
-                    }
-                });
-            }
-
-            const predictorMatch = {
-                homeTeam: {
-                    name: match.homeTeam.name,
-                    ranking: rankingMap[match.homeTeam.name] ?? match.homeTeam.position,
-                    form: homeForm
-                },
-                awayTeam: {
-                    name: match.awayTeam.name,
-                    ranking: rankingMap[match.awayTeam.name] ?? match.awayTeam.position,
-                    form: awayForm
-                },
-                odds: odds
-            };
-            const pred = await predictor.predict(predictorMatch);
-
-            await dbService.savePrediction({
-                match_id: match.id || `${match.homeTeam.name}-${match.awayTeam.name}-${Date.now()}`,
-                home_team: match.homeTeam.name,
-                away_team: match.awayTeam.name,
-                predicted_outcome: pred.outcome,
-                confidence: pred.outcomeConf,
-                lambda_home: pred.lambda_home,
-                lambda_away: pred.lambda_away,
-                prob_matrix: pred.matrix,
-                predicted_probs: pred.probabilities
-            }).catch(err => console.error('Logging failure:', err));
-
-        return {
-            match: `${match.homeTeam.name} vs ${match.awayTeam.name}`,
-            odds: odds,
-            ...pred,
-            outcomeName: pred.outcome === '1' ? match.homeTeam.name :
-                         pred.outcome === '2' ? match.awayTeam.name : 'Nul'
-        };
-    });
-
-    const predictions = await Promise.all(predictionPromises);
+    const predictions = await cacheService.computePredictionsForMatches(allMatches);
     return { predictions, systemState: healthMonitor.getState() };
 }
 
