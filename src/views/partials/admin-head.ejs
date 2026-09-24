@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+
+
+    <meta name="monetag" content="695e0d0af1f9c9fd3bc216923a311f75">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title || 'UCL-Predict Admin | Panel de Contrôle' %></title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        football: {
+                            primary: 'var(--fb-primary)',
+                            bg: 'var(--fb-bg)',
+                            surface: 'var(--fb-surface)',
+                            text: 'var(--fb-text)',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Outfit:wght@300;400;600&family=Fira+Code:wght@400;500&display=swap');
+
+        :root {
+            --fb-primary: #10b981;
+            --fb-bg: #f8fafc;
+            --fb-surface: #ffffff;
+            --fb-text: #0f172a;
+        }
+
+        .dark {
+            --fb-primary: #34d399;
+            --fb-bg: #000000;
+            --fb-surface: #0a0a0a;
+            --fb-text: #f1f5f9;
+        }
+
+        body { font-family: 'Outfit', sans-serif; }
+        .font-display { font-family: 'Syne', sans-serif; }
+        .font-mono { font-family: 'Fira Code', monospace; }
+    </style>
+</head>

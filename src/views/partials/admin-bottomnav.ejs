@@ -1,0 +1,18 @@
+    <!-- Mobile bottom navigation (visible below lg breakpoint) -->
+    <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950 border-t border-football-primary/10 grid grid-cols-5 text-white">
+        <a href="/admin" class="flex flex-col items-center justify-center gap-1 py-3 text-[11px] transition-colors <%= active === 'dashboard' ? 'text-football-primary' : 'text-slate-400' %>">
+            <span class="text-xl leading-none">📊</span><span>Dashboard</span>
+        </a>
+        <a href="/admin/users" class="flex flex-col items-center justify-center gap-1 py-3 text-[11px] transition-colors <%= active === 'users' ? 'text-football-primary' : 'text-slate-400' %>">
+            <span class="text-xl leading-none">👥</span><span>Users</span>
+        </a>
+        <a href="/admin/learn" class="flex flex-col items-center justify-center gap-1 py-3 text-[11px] transition-colors <%= active === 'learn' ? 'text-football-primary' : 'text-slate-400' %>">
+            <span class="text-xl leading-none">🎓</span><span>Learn</span>
+        </a>
+        <a href="/admin/intelligence" class="flex flex-col items-center justify-center gap-1 py-3 text-[11px] transition-colors <%= active === 'intelligence' ? 'text-football-primary' : 'text-slate-400' %>">
+            <span class="text-xl leading-none">🧠</span><span>Intel</span>
+        </a>
+        <a href="/admin/logout" class="flex flex-col items-center justify-center gap-1 py-3 text-[11px] text-slate-400 transition-colors">
+            <span class="text-xl leading-none">🚪</span><span>Logout</span>
+        </a>
+    </nav>
