@@ -69,7 +69,9 @@ async function runLearningJob() {
                             lambda_home: pred.lambdas.home,
                             lambda_away: pred.lambdas.away,
                             prob_matrix: null, // Not storing full matrix to save space
-                            predicted_probs: pred.probabilities
+                            predicted_probs: pred.probabilities,
+                            match_features: predictorMatch,
+                            market: 'outcome'
                         });
 
                         // Update with actual results

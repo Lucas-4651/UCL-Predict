@@ -9,21 +9,24 @@ class DbService {
     async savePrediction(predictionData) {
         const {
             match_id, home_team, away_team, predicted_outcome,
-            lambda_home, lambda_away, prob_matrix, predicted_probs, confidence
+            lambda_home, lambda_away, prob_matrix, predicted_probs, confidence,
+            match_features, market
         } = predictionData;
 
         const sql = `
             INSERT INTO predictions (
                 match_id, home_team, away_team, predicted_outcome,
-                confidence, lambda_home, lambda_away, prob_matrix, predicted_probs
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                confidence, lambda_home, lambda_away, prob_matrix, predicted_probs,
+                match_features, market
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
             RETURNING id
         `;
 
         const res = await db.query(sql, [
             match_id, home_team, away_team, predicted_outcome,
             confidence, lambda_home, lambda_away,
-            JSON.stringify(prob_matrix), JSON.stringify(predicted_probs)
+            JSON.stringify(prob_matrix), JSON.stringify(predicted_probs),
+            JSON.stringify(match_features), market
         ]);
         return res.rows[0].id;
     }

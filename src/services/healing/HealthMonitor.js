@@ -47,19 +47,88 @@ class HealthMonitor {
 
     async checkDegeneratePredictions() {
         try {
-            // Check last 20 predictions to see if they are all the same outcome
+            // Check last hour of predictions for degeneracy
             const res = await db.query(
-                `SELECT predicted_outcome, COUNT(*) as count
+                `SELECT predicted_outcome, COUNT(*) as count,
+                        AVG(confidence) as avg_confidence,
+                        MIN(confidence) as min_confidence,
+                        MAX(confidence) as max_confidence
                  FROM predictions
                  WHERE created_at > NOW() - INTERVAL '1 hour'
                  GROUP BY predicted_outcome`
             );
 
-            if (res.rows.length === 1 && res.rows[0].count >= 10) {
-                // All predictions in the last hour are the same outcome
-                logger.warn('[HealthMonitor] Degenerate predictions detected', { outcome: res.rows[0].predicted_outcome, count: res.rows[0].count });
-                await recoveryManager.handleEvent('degenerate_predictions', { outcome: res.rows[0].predicted_outcome, count: res.rows[0].count });
-                return true;
+            const totalPredictions = res.rows.reduce((sum, row) => sum + parseInt(row.count), 0);
+            
+            if (totalPredictions >= 10) {
+                // Check 1: Single outcome dominates (low diversity)
+                if (res.rows.length === 1) {
+                    logger.warn('[HealthMonitor] Degenerate predictions: single outcome', { 
+                        outcome: res.rows[0].predicted_outcome, 
+                        count: res.rows[0].count 
+                    });
+                    await recoveryManager.handleEvent('degenerate_predictions', { 
+                        outcome: res.rows[0].predicted_outcome, 
+                        count: res.rows[0].count,
+                        type: 'single_outcome'
+                    });
+                    return true;
+                }
+
+                // Check 2: One outcome dominates >90% (near-degenerate)
+                const maxCount = Math.max(...res.rows.map(r => parseInt(r.count)));
+                if (maxCount / totalPredictions > 0.9) {
+                    const dominant = res.rows.find(r => parseInt(r.count) === maxCount);
+                    logger.warn('[HealthMonitor] Degenerate predictions: dominant outcome', { 
+                        outcome: dominant.predicted_outcome, 
+                        count: dominant.count,
+                        percentage: (maxCount / totalPredictions * 100).toFixed(1) + '%'
+                    });
+                    await recoveryManager.handleEvent('degenerate_predictions', { 
+                        outcome: dominant.predicted_outcome, 
+                        count: dominant.count,
+                        percentage: maxCount / totalPredictions,
+                        type: 'dominant_outcome'
+                    });
+                    return true;
+                }
+
+                // Check 3: All predictions have very high confidence but low accuracy (overconfident)
+                const avgConfidence = res.rows.reduce((sum, r) => sum + parseFloat(r.avg_confidence) * parseInt(r.count), 0) / totalPredictions;
+                if (avgConfidence > 0.85) {
+                    // This might indicate overconfidence - check accuracy
+                    const accuracy = await this.getRollingAccuracy(50);
+                    if (accuracy !== null && accuracy < 0.5) {
+                        logger.warn('[HealthMonitor] Degenerate predictions: overconfident but inaccurate', { 
+                            avgConfidence: avgConfidence.toFixed(3),
+                            accuracy: accuracy.toFixed(3)
+                        });
+                        await recoveryManager.handleEvent('degenerate_predictions', { 
+                            type: 'overconfident',
+                            avgConfidence,
+                            accuracy
+                        });
+                        return true;
+                    }
+                }
+
+                // Check 4: Very low confidence variance (all predictions similar confidence)
+                const minConf = Math.min(...res.rows.map(r => parseFloat(r.min_confidence)));
+                const maxConf = Math.max(...res.rows.map(r => parseFloat(r.max_confidence)));
+                if (maxConf - minConf < 0.05 && totalPredictions >= 20) {
+                    logger.warn('[HealthMonitor] Degenerate predictions: uniform confidence', { 
+                        minConf: minConf.toFixed(3),
+                        maxConf: maxConf.toFixed(3),
+                        count: totalPredictions
+                    });
+                    await recoveryManager.handleEvent('degenerate_predictions', { 
+                        type: 'uniform_confidence',
+                        minConf,
+                        maxConf,
+                        count: totalPredictions
+                    });
+                    return true;
+                }
             }
 
             // Also check if weights are zero (which causes degenerate predictions)

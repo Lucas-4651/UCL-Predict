@@ -6,8 +6,9 @@ class WeightManager {
     constructor() {
         this.weights = {};
         this.initialized = false;
-        this.mode = 'UNINITIALIZED'; // 'DB', 'CACHE', 'DEFAULTS', 'FALLBACK_MARKET_ONLY'
+        this.mode = 'UNINITIALIZED'; // 'DB', 'CACHE', 'DEFAULTS', 'FALLBACK_MARKET_ONLY', 'FALLBACK_INTERNAL_ONLY'
         this.cacheFile = path.join(process.cwd(), 'weights_cache.json');
+        this.previousMode = null; // Store mode before fallback
         this.defaultWeights = {
             outcome_market: 0.5, outcome_internal: 0.5,
             btts_market: 0.5, btts_internal: 0.5,
@@ -136,6 +137,10 @@ class WeightManager {
         if (this.mode === 'FALLBACK_MARKET_ONLY' && factor.includes('_internal')) {
             return 0;
         }
+        // In INTERNAL_ONLY mode, market weights are forced to 0
+        if (this.mode === 'FALLBACK_INTERNAL_ONLY' && factor.includes('_market')) {
+            return 0;
+        }
         return this.weights[factor] || 0;
     }
 
@@ -153,10 +158,25 @@ class WeightManager {
 
     async setFallbackMode(mode) {
         if (mode === 'MARKET_ONLY') {
+            this.previousMode = this.mode;
             this.mode = 'FALLBACK_MARKET_ONLY';
-            console.log('[WeightManager] Switched to FALLBACK_MARKET_ONLY mode (internal weights disabled)');
+            // Set market weights to 1.0, internal to 0 (handled by getWeight)
+            this.weights.outcome_market = 1.0;
+            this.weights.btts_market = 1.0;
+            this.weights.ou_market = 1.0;
+            this.writeCache();
+            console.log('[WeightManager] Switched to FALLBACK_MARKET_ONLY mode (market weights=1.0, internal disabled)');
+        } else if (mode === 'INTERNAL_ONLY') {
+            this.previousMode = this.mode;
+            this.mode = 'FALLBACK_INTERNAL_ONLY';
+            // Market weights will be forced to 0 by getWeight
+            console.log('[WeightManager] Switched to FALLBACK_INTERNAL_ONLY mode (internal weights only, market disabled)');
         } else if (mode === 'RESTORE') {
             // Revert to the mode we were in before fallback (DB/CACHE/DEFAULTS)
+            if (this.previousMode) {
+                this.mode = this.previousMode;
+                this.previousMode = null;
+            }
             await this.loadWeightsWithFallback();
         } else {
             throw new Error(`Unknown fallback mode: ${mode}`);

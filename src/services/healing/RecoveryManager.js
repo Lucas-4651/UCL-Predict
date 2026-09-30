@@ -80,33 +80,30 @@ class RecoveryManager {
     async handleDBDown(details) {
         logger.warn('[RecoveryManager] Database connection lost, attempting recovery...');
         
-        // 1. Try to reconnect by reinitializing the pool
-        const dbPool = require('../../config/database').pool;
+        // 1. Use the new reconnection logic with retries
         try {
-            await dbPool.end();
-            // The pool will be recreated on next query? Actually we need to reinitialize.
-            // For now, we'll just log and wait for the pool's error handler to recover.
+            await require('../../config/database').reconnect();
+            logger.info('[RecoveryManager] Database reconnected successfully');
         } catch (err) {
-            logger.error('[RecoveryManager] Failed to reconnect DB', { error: err.message });
+            logger.error('[RecoveryManager] Failed to reconnect DB after retries', { error: err.message });
+            throw err;
         }
         
-        // 2. Switch weight manager to cache mode if not already
-        if (weightManager.getMode() === 'DB') {
-            // The weight manager will automatically fallback to cache on next load
-            logger.info('[RecoveryManager] WeightManager will fallback to cache on next load');
-        }
+        // 2. Reload weights (will use DB if available, else cache/defaults)
+        await weightManager.init();
+        logger.info('[RecoveryManager] WeightManager reinitialized, mode:', weightManager.getMode());
         
-        healthMonitor.setState('DEGRADED');
+        healthMonitor.setState('HEALTHY');
     }
 
     async handleAPIUnavailable(details) {
         logger.warn('[RecoveryManager] External API unavailable, switching to internal model only...');
         
-        // Increase internal weight reliance by switching to MARKET_ONLY fallback? Actually we want to disable market.
-        // For now, we can set a flag in weight manager to ignore market weights.
-        // We'll implement a mode for that if needed.
+        // Switch to INTERNAL_ONLY mode - market weights disabled, internal weights used
+        await weightManager.setFallbackMode('INTERNAL_ONLY');
         
         healthMonitor.setState('DEGRADED');
+        logger.info('[RecoveryManager] Switched to INTERNAL_ONLY mode due to API unavailability');
     }
 
     async handleDegeneratePredictions(details) {

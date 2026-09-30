@@ -213,6 +213,16 @@ router.post('/recovery/fallback/market-only', isAdminAuthenticated, async (req, 
     }
 });
 
+router.post('/recovery/fallback/internal-only', isAdminAuthenticated, async (req, res) => {
+    try {
+        const weightManager = require('../services/predictor/WeightManager');
+        weightManager.setFallbackMode('INTERNAL_ONLY');
+        res.json({ success: true, message: 'Switched to INTERNAL_ONLY fallback mode (market weights disabled, internal only)' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 router.post('/recovery/fallback/restore', isAdminAuthenticated, async (req, res) => {
     try {
         const weightManager = require('../services/predictor/WeightManager');

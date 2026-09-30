@@ -3,6 +3,7 @@ const settings = require('../../config/settings');
 const db = require('../../config/database');
 const fs = require('fs');
 const path = require('path');
+const predictor = require('./HeuristicEngine');
 
 class LearningLoop {
     constructor() {
@@ -150,85 +151,110 @@ class LearningLoop {
     }
 
     async _validateWeights(proposedWeights) {
-        // Temporal cross-validation: evaluate Brier score on recent predictions
-        // using current weights vs proposed weights.
-        // For simplicity, we fetch the last N predictions and compute the Brier score
-        // using the stored predicted probabilities (which were generated with current weights).
-        // We then estimate the new probabilities by applying the weight changes to the factors.
-        // This is an approximation; a full re-run would require match data.
-
+        // Temporal cross-validation: re-evaluate recent predictions with proposed weights
+        // and compare Brier scores. Requires stored match features.
+        
         const windowSize = settings.VALIDATION_WINDOW;
         const minImprovement = settings.MIN_IMPROVEMENT;
 
         try {
             const res = await db.query(
-                `SELECT predicted_probs, actual_outcome, actual_home_goals, actual_away_goals, market
+                `SELECT match_features, actual_outcome, actual_home_goals, actual_away_goals, market
                  FROM predictions
-                 WHERE actual_outcome IS NOT NULL
+                 WHERE actual_outcome IS NOT NULL AND match_features IS NOT NULL
                  ORDER BY created_at DESC
                  LIMIT $1`,
                 [windowSize]
             );
 
             if (res.rows.length < 10) {
-                // Not enough data for validation, allow update
+                // Not enough data with features for validation, allow update
                 return true;
             }
 
-            // We'll compute Brier score for outcome market only for simplicity
+            // Temporarily swap weights to proposed, evaluate, then restore
+            const originalWeights = { ...weightManager.weights };
+            
+            // Apply proposed weights
+            for (const [factor, value] of Object.entries(proposedWeights)) {
+                weightManager.weights[factor] = value;
+            }
+
             let currentBrier = 0;
             let proposedBrier = 0;
             let count = 0;
 
             for (const row of res.rows) {
                 if (row.market !== 'outcome') continue;
-                const probs = row.predicted_probs;
-                if (!probs || !probs.outcome) continue;
+                const features = row.match_features;
+                if (!features) continue;
 
                 const actual = row.actual_outcome;
-                const map = { '1': 1, 'X': 0, '2': -1 };
-                const actualVal = map[actual];
-                if (actualVal === undefined) continue;
-
-                // Current probability for the actual outcome
-                let currentProb = 0;
-                if (actual === '1') currentProb = probs.outcome['1'];
-                else if (actual === 'X') currentProb = probs.outcome['X'];
-                else if (actual === '2') currentProb = probs.outcome['2'];
-
-                currentBrier += Math.pow(currentProb - 1, 2); // since actual is 1 for correct class? Actually Brier for multi-class: sum over classes (p_i - y_i)^2
-                // For multi-class Brier, we need all class probabilities. We'll approximate with the probability of the actual class.
-                // Proper multi-class Brier: sum_{classes} (p_c - y_c)^2 where y_c=1 for actual class else 0.
-                // We'll compute properly:
+                const actualHome = row.actual_home_goals;
+                const actualAway = row.actual_away_goals;
+                
+                // Re-run prediction with ORIGINAL weights (current)
+                const predCurrent = await predictor.predict(features);
+                
+                // Calculate Brier for original
+                let brierCurrent = 0;
                 const classes = ['1', 'X', '2'];
-                let brier = 0;
                 for (const c of classes) {
-                    const p = probs.outcome[c] || 0;
+                    const p = predCurrent.probabilities.outcome[c] || 0;
                     const y = (c === actual) ? 1 : 0;
-                    brier += Math.pow(p - y, 2);
+                    brierCurrent += Math.pow(p - y, 2);
                 }
-                currentBrier += brier;
+                currentBrier += brierCurrent;
+
+                // Swap to proposed weights
+                for (const [factor, value] of Object.entries(proposedWeights)) {
+                    weightManager.weights[factor] = value;
+                }
+                
+                // Re-run prediction with PROPOSED weights
+                const predProposed = await predictor.predict(features);
+                
+                // Calculate Brier for proposed
+                let brierProposed = 0;
+                for (const c of classes) {
+                    const p = predProposed.probabilities.outcome[c] || 0;
+                    const y = (c === actual) ? 1 : 0;
+                    brierProposed += Math.pow(p - y, 2);
+                }
+                proposedBrier += brierProposed;
+
+                // Restore original weights for next iteration
+                for (const [factor, value] of Object.entries(originalWeights)) {
+                    weightManager.weights[factor] = value;
+                }
+
                 count++;
+            }
+
+            // Restore original weights permanently
+            for (const [factor, value] of Object.entries(originalWeights)) {
+                weightManager.weights[factor] = value;
             }
 
             if (count === 0) return true;
 
             currentBrier /= count;
+            proposedBrier /= count;
 
-            // For proposed weights, we would need to re-run predictions. Since we don't have match data,
-            // we'll approximate by assuming the probability shifts proportionally to weight changes.
-            // This is a rough approximation. For now, we'll just log and allow update if currentBrier is not too high.
-            // In a full implementation, we would store match features and re-evaluate.
+            const improvement = currentBrier - proposedBrier;
 
             if (process.env.DEBUG_WEIGHTS === '1') {
-                console.log(`[LearningLoop] Validation: current Brier=${currentBrier.toFixed(4)} on ${count} samples`);
+                console.log(`[LearningLoop] Validation: current Brier=${currentBrier.toFixed(4)}, proposed Brier=${proposedBrier.toFixed(4)}, improvement=${improvement.toFixed(4)} on ${count} samples`);
             }
 
-            // Allow update if current Brier is above a threshold (meaning model is not great) or we have no baseline.
-            // We'll always allow for now, but log.
-            return true;
+            // Accept only if improvement exceeds minimum threshold
+            return improvement >= minImprovement;
         } catch (err) {
             console.error('[LearningLoop] Validation error:', err.message);
+            // Restore original weights on error
+            for (const [factor, value] of Object.entries(originalWeights)) {
+                weightManager.weights[factor] = value;
+            }
             return true; // fail open
         }
     }

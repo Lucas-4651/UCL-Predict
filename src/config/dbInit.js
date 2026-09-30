@@ -24,6 +24,8 @@ const TABLES = {
             prob_matrix JSONB,
             predicted_probs JSONB,
             brier_score DOUBLE PRECISION,
+            match_features JSONB,
+            market TEXT,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`,
     drift_metrics: `

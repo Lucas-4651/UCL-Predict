@@ -143,14 +143,14 @@ class DriftDetector {
     }
 
     evaluateDrift(metrics) {
-        if (metrics.sampleSize < 20) {
+        if (metrics.sampleSize < settings.DRIFT_MIN_SAMPLES) {
             return false; // not enough data
         }
 
-        // Thresholds (configurable via settings later)
-        const BRIER_THRESHOLD = 0.30; // high Brier = poor calibration
-        const HIT_RATE_THRESHOLD = 0.35; // low hit rate = poor discrimination
-        const CALIBRATION_THRESHOLD = 0.25; // high calibration error
+        // Thresholds from settings
+        const BRIER_THRESHOLD = settings.DRIFT_BRIER_THRESHOLD;
+        const HIT_RATE_THRESHOLD = settings.DRIFT_HIT_RATE_THRESHOLD;
+        const CALIBRATION_THRESHOLD = settings.DRIFT_CALIBRATION_THRESHOLD;
 
         const driftSignals = [];
 
