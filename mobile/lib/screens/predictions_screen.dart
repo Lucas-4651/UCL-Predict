@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart'
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/prediction_widgets.dart';
