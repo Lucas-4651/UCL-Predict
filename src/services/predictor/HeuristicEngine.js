@@ -1,6 +1,13 @@
 const weightManager = require('./WeightManager');
 const intelligenceService = require('../intelligence/LeagueIntelligenceService');
 
+// Simple debug logger controlled by env var
+function debug(...args) {
+    if (process.env.DEBUG_WEIGHTS === '1') {
+        console.log('[HeuristicEngine DEBUG]', ...args);
+    }
+}
+
 class HeuristicEngine {
     constructor() {
         this.predictionCache = new Map();
@@ -13,9 +20,12 @@ class HeuristicEngine {
         const awayName = awayTeam.name;
         const matchKey = `${homeName}_vs_${awayName}`;
 
+        debug('Predicting for:', matchKey, 'WeightManager mode:', weightManager.getMode());
+
         // 0. CACHE CHECK
         const cached = this.predictionCache.get(matchKey);
         if (cached && (Date.now() - cached.timestamp < this.CACHE_TTL)) {
+            debug('Cache hit for:', matchKey);
             return cached.result;
         }
 
@@ -253,21 +263,31 @@ class HeuristicEngine {
         const { homeTeam, awayTeam, homeRanking, awayRanking, homeForm, awayForm } = match;
         const baseRate = 0.8;
 
-        const homeRankDiff = (awayRanking - homeRanking) / 20;
-        const awayRankDiff = (homeRanking - awayRanking) / 20;
+        // Normalize ranking difference: max difference is 19 (for 20 teams)
+        const homeRankDiff = (awayRanking - homeRanking) / 19;
+        const awayRankDiff = (homeRanking - awayRanking) / 19;
 
-        const homeFormDiff = (homeForm - awayForm + 1) / 2;
-        const awayFormDiff = (awayForm - homeForm + 1) / 2;
+        // Normalize form difference: form is points per game (0-3), difference range -3 to +3 -> shift to 0-1
+        const homeFormDiff = (homeForm - awayForm + 3) / 6;
+        const awayFormDiff = (awayForm - homeForm + 3) / 6;
+
+        const wForm = weightManager.getWeight('outcome_form');
+        const wRank = weightManager.getWeight('outcome_ranking');
+        const wBias = weightManager.getWeight('outcome_bias');
+
+        debug('Weights:', { wForm, wRank, wBias });
+        debug('Ranking diff (home):', homeRankDiff, 'Form diff (home):', homeFormDiff);
 
         const homeLambda = baseRate +
-            2 * (weightManager.getWeight('outcome_form') * homeFormDiff) +
-            (weightManager.getWeight('outcome_ranking') * homeRankDiff) +
-            (weightManager.getWeight('outcome_bias') * 0.3);
+            2 * (wForm * homeFormDiff) +
+            (wRank * homeRankDiff) +
+            (wBias * 0.3);
 
         const awayLambda = baseRate +
-            2 * (weightManager.getWeight('outcome_form') * awayFormDiff) +
-            (weightManager.getWeight('outcome_ranking') * awayRankDiff);
+            2 * (wForm * awayFormDiff) +
+            (wRank * awayRankDiff);
 
+        debug('Lambda home:', homeLambda, 'away:', awayLambda);
 
         return {
             home: Math.max(0.1, homeLambda),
