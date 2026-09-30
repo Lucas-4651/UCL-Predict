@@ -78,22 +78,18 @@ class RecoveryManager {
     }
 
     async handleDBDown(details) {
-        logger.warn('[RecoveryManager] Database connection lost, attempting recovery...');
+        logger.warn('[RecoveryManager] Database connection lost, marking as DEGRADED');
         
-        // 1. Use the new reconnection logic with retries
+        // The pool will handle reconnection internally via keepAlive.
+        // Just reload weights (will use DB if available, else cache/defaults)
         try {
-            await require('../../config/database').reconnect();
-            logger.info('[RecoveryManager] Database reconnected successfully');
+            await weightManager.init();
+            logger.info('[RecoveryManager] WeightManager reinitialized, mode:', weightManager.getMode());
         } catch (err) {
-            logger.error('[RecoveryManager] Failed to reconnect DB after retries', { error: err.message });
-            throw err;
+            logger.error('[RecoveryManager] Failed to reinitialize weights', { error: err.message });
         }
         
-        // 2. Reload weights (will use DB if available, else cache/defaults)
-        await weightManager.init();
-        logger.info('[RecoveryManager] WeightManager reinitialized, mode:', weightManager.getMode());
-        
-        healthMonitor.setState('HEALTHY');
+        healthMonitor.setState('DEGRADED');
     }
 
     async handleAPIUnavailable(details) {

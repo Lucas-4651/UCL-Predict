@@ -153,9 +153,12 @@ async function startServer() {
     // round-ready triggers the auto-refresh). This gives clients the full
     // betting window before the round opens.
     const cacheService = require('./src/services/predictor/CachePredictionService');
+    const db = require('./src/config/database');
     let lastComputedRound = 0;
     const precomputeTimer = setInterval(async () => {
-        if (!dbAvailable) return; // Skip if DB unavailable
+        // Check DB health before running pre-compute
+        const healthy = await db.checkHealth();
+        if (!healthy) return; // Skip if DB unavailable
         try {
             const next = await cacheService.computeAndCacheNextRound(lastComputedRound);
             if (next && next !== lastComputedRound) {
@@ -168,11 +171,13 @@ async function startServer() {
     }, 15000);
     if (precomputeTimer.unref) precomputeTimer.unref();
 
-    app.listen(PORT, () => {
-        const mode = dbAvailable ? 'NORMAL' : 'DEGRADED (DB unavailable)';
+    app.listen(PORT, async () => {
+        const healthy = await db.checkHealth();
+        const mode = healthy ? 'NORMAL' : 'DEGRADED (DB unavailable)';
         console.log(`🚀 UCL-Predict running on http://localhost:${PORT} [${mode}]`);
         console.log(`🛠️ Admin Dashboard: http://localhost:${PORT}/admin`);
         console.log(`📊 Metrics: http://localhost:${PORT}/metrics`);
     });
+}
 
 startServer();
