@@ -19,7 +19,9 @@ class ChatMessage with _$ChatMessage {
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => _$ChatMessageFromJson(json);
+}
 
+extension ChatMessageExtension on ChatMessage {
   DateTime get createdAtDateTime => DateTime.parse(createdAt).toLocal();
 
   String get formattedTime => _formatTime(createdAtDateTime);

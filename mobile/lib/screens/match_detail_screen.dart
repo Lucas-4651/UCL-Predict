@@ -232,6 +232,7 @@ class MatchDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+              ),
             ],
           ),
         ],
