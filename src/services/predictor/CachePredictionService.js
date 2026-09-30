@@ -33,18 +33,27 @@ async function computePredictionsForMatches(matches) {
                 }
             });
         }
+        const rankingData = await formService.getRanking();
+        const rankMap = {};
+        if (rankingData && Array.isArray(rankingData.teams)) {
+            rankingData.teams.forEach(t => { rankMap[t.name] = t.position; });
+        }
 
         const predictorMatch = {
             homeTeam: {
                 name: match.homeTeam.name,
-                ranking: match.homeTeam.position,
+                ranking: rankMap[match.homeTeam.name] || 0,
                 form: homeForm
             },
             awayTeam: {
                 name: match.awayTeam.name,
-                ranking: match.awayTeam.position,
+                ranking: rankMap[match.awayTeam.name] || 0,
                 form: awayForm
             },
+            homeRanking: rankMap[match.homeTeam.name] || 0,
+            awayRanking: rankMap[match.awayTeam.name] || 0,
+            homeForm: homeForm,
+            awayForm: awayForm,
             odds: odds
         };
         const pred = await predictor.predict(predictorMatch);

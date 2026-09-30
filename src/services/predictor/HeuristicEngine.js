@@ -1,5 +1,6 @@
 const weightManager = require('./WeightManager');
 const intelligenceService = require('../intelligence/LeagueIntelligenceService');
+const parameterOptimizer = require('./ParameterOptimizer');
 
 class HeuristicEngine {
     constructor() {
@@ -165,7 +166,10 @@ class HeuristicEngine {
 
         // Global inflation for draws to better match historical 28% average
         const DRAW_INFLATION_FACTOR = weightManager.getWeight('draw_inflation');
-        newProbs.outcome['X'] *= DRAW_INFLATION_FACTOR;
+        // Only apply inflation if weight is positive (zero means no effect)
+        if (DRAW_INFLATION_FACTOR > 0) {
+            newProbs.outcome['X'] *= DRAW_INFLATION_FACTOR;
+        }
 
         this._normalize(newProbs.outcome);
         return newProbs;
@@ -187,8 +191,24 @@ class HeuristicEngine {
     }
 
     _normalize(obj) {
+        // Floor negative values at 0
+        for (let key in obj) {
+            if (obj[key] < 0) {
+                obj[key] = 0;
+            }
+        }
 
         const sum = Object.values(obj).reduce((a, b) => a + b, 0);
+        if (sum === 0) {
+            // If all are zero, set equal probabilities
+            const keys = Object.keys(obj);
+            const equal = 1 / keys.length;
+            for (let key of keys) {
+                obj[key] = equal;
+            }
+            return;
+        }
+
         for (let key in obj) {
             obj[key] = obj[key] / sum;
         }
@@ -231,25 +251,24 @@ class HeuristicEngine {
     }
 
     calculateExpectedGoals(match) {
-        const { homeTeam, awayTeam } = match;
+        const { homeTeam, awayTeam, homeRanking, awayRanking, homeForm, awayForm } = match;
         const baseRate = 0.8;
 
-        const homeRankDiff = (awayTeam.ranking - homeTeam.ranking) / 20;
-        const awayRankDiff = (homeTeam.ranking - awayTeam.ranking) / 20;
+        const homeRankDiff = (awayRanking - homeRanking) / 20;
+        const awayRankDiff = (homeRanking - awayRanking) / 20;
 
-        const homeFormDiff = (homeTeam.form - awayTeam.form + 1) / 2;
-        const awayFormDiff = (awayTeam.form - homeTeam.form + 1) / 2;
+        const homeFormDiff = (homeForm - awayForm + 1) / 2;
+        const awayFormDiff = (awayForm - homeForm + 1) / 2;
 
         const homeLambda = baseRate +
-            (homeTeam.form * 0.7) +
+            2 * (weightManager.getWeight('outcome_form') * homeFormDiff) +
             (weightManager.getWeight('outcome_ranking') * homeRankDiff) +
-            (weightManager.getWeight('outcome_form') * homeFormDiff) +
             (weightManager.getWeight('outcome_bias') * 0.3);
 
         const awayLambda = baseRate +
-            (awayTeam.form * 0.7) +
-            (weightManager.getWeight('outcome_ranking') * awayRankDiff) +
-            (weightManager.getWeight('outcome_form') * awayFormDiff);
+            2 * (weightManager.getWeight('outcome_form') * awayFormDiff) +
+            (weightManager.getWeight('outcome_ranking') * awayRankDiff);
+
 
         return {
             home: Math.max(0.1, homeLambda),
