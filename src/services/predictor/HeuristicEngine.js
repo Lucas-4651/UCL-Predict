@@ -59,6 +59,9 @@ class HeuristicEngine {
         const btts = probs.btts['Yes'] > 0.5 ? 'Yes' : 'No';
         const ou = probs.ou['Over'] > 0.5 ? 'Over' : 'Under';
 
+        // Compute factors for learning
+        const factors = this._calculateFactors(match);
+
         const result = {
             outcome,
             outcomeConf: probs.outcome[outcome],
@@ -67,7 +70,7 @@ class HeuristicEngine {
             ou,
             ouConf: probs.ou[ou],
             lambdas: { home: homeLambda, away: awayLambda },
-            factors: probs.factors
+            factors
         };
 
         // Store in cache
@@ -260,7 +263,12 @@ class HeuristicEngine {
     }
 
     calculateExpectedGoals(match) {
-        const { homeTeam, awayTeam, homeRanking, awayRanking, homeForm, awayForm } = match;
+        // Support both flat and nested match structures
+        const homeRanking = match.homeRanking ?? match.homeTeam?.ranking ?? 0;
+        const awayRanking = match.awayRanking ?? match.awayTeam?.ranking ?? 0;
+        const homeForm = match.homeForm ?? match.homeTeam?.form ?? 0.5;
+        const awayForm = match.awayForm ?? match.awayTeam?.form ?? 0.5;
+
         const baseRate = 0.8;
 
         // Normalize ranking difference: max difference is 19 (for 20 teams)
