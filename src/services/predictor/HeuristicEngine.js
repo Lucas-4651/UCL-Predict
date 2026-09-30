@@ -1,6 +1,5 @@
 const weightManager = require('./WeightManager');
 const intelligenceService = require('../intelligence/LeagueIntelligenceService');
-const parameterOptimizer = require('./ParameterOptimizer');
 
 class HeuristicEngine {
     constructor() {
