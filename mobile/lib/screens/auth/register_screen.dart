@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../theme/index.dart';
-import '../providers/auth_provider.dart';
-import '../widgets/common.dart';
+import '../../theme/index.dart';
+import '../../providers/auth_provider.dart';
+import '../../widgets/common.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});

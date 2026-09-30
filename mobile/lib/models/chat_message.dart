@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'chat_message.freezed.dart';
 part 'chat_message.g.dart';
@@ -44,22 +45,22 @@ class PresenceUser with _$PresenceUser {
   factory PresenceUser.fromJson(Map<String, dynamic> json) => _$PresenceUserFromJson(json);
 }
 
-@freezed
-class ChatReactionRequest with _$ChatReactionRequest {
-  const factory ChatReactionRequest({
-    required int messageId,
-    required String reaction,
-  }) = _ChatReactionRequest;
+@JsonSerializable()
+class ChatReactionRequest {
+  final int messageId;
+  final String reaction;
+
+  ChatReactionRequest({required this.messageId, required this.reaction});
 
   factory ChatReactionRequest.fromJson(Map<String, dynamic> json) => _$ChatReactionRequestFromJson(json);
   Map<String, dynamic> toJson() => _$ChatReactionRequestToJson(this);
 }
 
-@freezed
-class ChatSendRequest with _$ChatSendRequest {
-  const factory ChatSendRequest({
-    required String content,
-  }) = _ChatSendRequest;
+@JsonSerializable()
+class ChatSendRequest {
+  final String content;
+
+  ChatSendRequest({required this.content});
 
   factory ChatSendRequest.fromJson(Map<String, dynamic> json) => _$ChatSendRequestFromJson(json);
   Map<String, dynamic> toJson() => _$ChatSendRequestToJson(this);
