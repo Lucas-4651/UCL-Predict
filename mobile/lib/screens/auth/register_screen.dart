@@ -74,7 +74,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -84,7 +84,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -107,7 +107,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Header
                             Column(
                               children: [
                                 Container(
@@ -137,10 +136,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: AppSpacing.xl),
-
-                            // Error
                             if (authState.error != null)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -149,8 +145,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                   onDismiss: () => ref.read(authProvider.notifier).clearError(),
                                 ),
                               ),
-
-                            // Username
                             AppInput(
                               controller: _usernameController,
                               label: 'Pseudo',
@@ -163,10 +157,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: AppSpacing.md),
-
-                            // Email
                             AppInput(
                               controller: _emailController,
                               label: 'Adresse Email',
@@ -179,10 +170,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: AppSpacing.md),
-
-                            // Password
                             AppInput(
                               controller: _passwordController,
                               label: 'Mot de passe',
@@ -196,19 +184,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: AppSpacing.lg),
-
-                            // Submit
                             PrimaryButton(
                               label: 'Créer mon compte',
                               isLoading: authState.isLoading,
                               onPressed: _submit,
                             ),
-
                             const SizedBox(height: AppSpacing.lg),
-
-                            // Login link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

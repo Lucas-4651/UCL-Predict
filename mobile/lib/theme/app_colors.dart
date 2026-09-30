@@ -16,8 +16,8 @@ class AppColors {
   static const Color textMutedDark = Color(0xFF94A3B8);
   static const Color borderLight = Color(0xFFE2E8F0);
   static const Color borderDark = Color(0xFF1E293B);
-  static const Color cardBorderLight = Color(0xFF10B981, 0.1);
-  static const Color cardBorderDark = Color(0xFF10B981, 0.1);
+  static const Color cardBorderLight = Color(0x1A10B981);
+  static const Color cardBorderDark = Color(0x1A10B981);
 
   static const Color successLight = Color(0xFF10B981);
   static const Color successDark = Color(0xFF34D399);

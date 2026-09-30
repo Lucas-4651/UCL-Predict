@@ -3,16 +3,15 @@ import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/common.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class SplashScreen extends ConsumerStatefulWidget {
+class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+  State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _fadeAnimation;
   late final Animation<double> _scaleAnimation;
@@ -39,7 +38,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
     await Future.delayed(const Duration(milliseconds: 2000));
     if (!mounted) return;
 
-    final auth = ref.read(authProvider);
+    final auth = context.read<AuthProvider>();
     await auth.initialize();
 
     if (!mounted) return;
@@ -61,13 +60,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // Background pattern
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
-          // Glow
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -75,14 +72,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
               ),
             ),
           ),
-          // Content
           Center(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -105,11 +101,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> with SingleTickerPr
                           ),
                         ],
                       ),
-                      child: const Icon(
-                        Icons.sports_soccer,
-                        size: 40,
-                        color: Colors.white,
-                      ),
+                      child: const Icon(Icons.sports_soccer, size: 40, color: Colors.white),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     ShaderMask(
@@ -157,10 +149,7 @@ class _PitchLinesPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 0.5;
-
+    final paint = Paint()..color = color..strokeWidth = 0.5;
     const spacing = 40.0;
     for (double x = 0; x < size.width; x += spacing) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);

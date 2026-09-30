@@ -17,7 +17,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
   Timer? _sseTimer;
-  StreamSubscription? _sseSubscription;
   bool _showEmojiPicker = false;
   int? _activeMessageId;
 
@@ -33,7 +32,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
     _inputController.dispose();
     _scrollController.dispose();
     _sseTimer?.cancel();
-    _sseSubscription?.cancel();
     super.dispose();
   }
 
@@ -42,8 +40,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
   }
 
   void _connectSSE() {
-    // For now, use polling fallback since SSE on mobile needs native implementation
-    // In production, use web_socket_channel or a proper SSE client
     _sseTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (mounted) {
         ref.read(chatProvider.notifier).loadMessages();
@@ -71,9 +67,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
     try {
       await ref.read(chatProvider.notifier).sendMessage(content);
       _scrollToBottom();
-    } catch (_) {
-      // Error handled by provider
-    }
+    } catch (_) {}
   }
 
   void _toggleEmojiPicker(int messageId) {
@@ -153,16 +147,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
           Column(
             children: [
-              // Typing indicator
               if (chatState.typingUser != null)
                 TypingIndicator(username: chatState.typingUser!),
-
-              // Messages
               Expanded(
                 child: chatState.isLoading && chatState.messages.isEmpty
                     ? const Center(child: CircularProgressIndicator())
@@ -190,22 +181,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
                             },
                           ),
               ),
-
-              // Emoji Picker
               if (_showEmojiPicker && _activeMessageId != null)
                 _EmojiPicker(
                   messageId: _activeMessageId!,
                   onEmojiSelected: _handleReaction,
                   onClose: () => setState(() => _showEmojiPicker = false),
                 ),
-
-              // Input
               Container(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   border: Border(
-                    top: BorderSide(color: theme.customColors.scorecardBorder, width: 1),
+                    top: BorderSide(color: theme.extension<_AppCustomColors>()!.scorecardBorder, width: 1),
                   ),
                 ),
                 child: SafeArea(
@@ -280,7 +267,7 @@ class _EmojiPicker extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.customColors.scorecardBorder, width: 1),
+          top: BorderSide(color: theme.extension<_AppCustomColors>()!.scorecardBorder, width: 1),
         ),
         boxShadow: [
           BoxShadow(

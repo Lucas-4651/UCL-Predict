@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 import 'app_text_styles.dart';
+import 'app_spacing.dart';
 
 class AppTheme {
   static ThemeData lightTheme = _buildTheme(Brightness.light);
@@ -26,7 +28,7 @@ class AppTheme {
       shadow: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
       scrim: Colors.black.withOpacity(0.5),
       inverseSurface: isDark ? AppColors.surfaceLight : AppColors.surfaceDark,
-      onInverseSurface: isDark ? AppColors.onSurfaceLight : AppColors.onSurfaceDark,
+      onInverseSurface: isDark ? AppColors.onSurface(false) : AppColors.onSurface(true),
       inversePrimary: isDark ? AppColors.primaryLight : AppColors.primaryDark,
     );
 
@@ -37,7 +39,6 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.background(isDark),
       canvasColor: AppColors.surface(isDark),
 
-      // Typography
       textTheme: TextTheme(
         displayLarge: AppTextStyles.displayLarge(isDark),
         displayMedium: AppTextStyles.displayMedium(isDark),
@@ -56,7 +57,6 @@ class AppTheme {
         labelSmall: AppTextStyles.labelSmall(isDark),
       ),
 
-      // AppBar
       appBarTheme: AppBarTheme(
         centerTitle: false,
         elevation: 0,
@@ -70,19 +70,17 @@ class AppTheme {
         actionsIconTheme: IconThemeData(color: AppColors.onSurface(isDark)),
       ),
 
-      // Card
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(AppRadius.xl),
           side: BorderSide(color: AppColors.cardBorder(isDark), width: 1),
         ),
         color: AppColors.surface(isDark),
         shadowColor: AppColors.shadow(isDark),
       ),
 
-      // ElevatedButton
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           elevation: 0,
@@ -92,66 +90,63 @@ class AppTheme {
           disabledForegroundColor: Colors.white.withOpacity(0.7),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           textStyle: AppTextStyles.labelLarge(isDark),
           minimumSize: const Size(88, 48),
         ),
       ),
 
-      // OutlinedButton
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary(isDark),
           side: BorderSide(color: AppColors.primary(isDark), width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.lg),
           ),
           textStyle: AppTextStyles.labelLarge(isDark),
           minimumSize: const Size(88, 48),
         ),
       ),
 
-      // TextButton
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary(isDark),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
           ),
           textStyle: AppTextStyles.labelMedium(isDark),
         ),
       ),
 
-      // InputDecoration
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.background(isDark).withOpacity(0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.border(isDark), width: 1),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.border(isDark), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.primary(isDark), width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.error(isDark), width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.error(isDark), width: 2),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           borderSide: BorderSide(color: AppColors.border(isDark).withOpacity(0.5), width: 1),
         ),
         labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(color: AppColors.onSurfaceVariant(isDark)),
@@ -162,7 +157,6 @@ class AppTheme {
         suffixIconColor: AppColors.onSurfaceVariant(isDark),
       ),
 
-      // Chip
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface(isDark),
         disabledColor: AppColors.surface(isDark).withOpacity(0.5),
@@ -175,20 +169,18 @@ class AppTheme {
         elevation: 0,
         pressElevation: 0,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           side: BorderSide(color: AppColors.border(isDark), width: 1),
         ),
         showCheckmark: false,
       ),
 
-      // Divider
       dividerTheme: DividerThemeData(
         color: AppColors.border(isDark),
         thickness: 1,
         space: 1,
       ),
 
-      // ListTile
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         titleTextStyle: AppTextStyles.titleMedium(isDark),
@@ -198,33 +190,30 @@ class AppTheme {
         textColor: AppColors.onSurface(isDark),
         selectedColor: AppColors.primary(isDark).withOpacity(0.1),
         selectedTileColor: AppColors.primary(isDark).withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       ),
 
-      // Dialog
-      dialogTheme: DialogThemeData(
+      dialogTheme: DialogTheme(
         backgroundColor: AppColors.surface(isDark),
         surfaceTintColor: Colors.transparent,
         elevation: 24,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.xl)),
         titleTextStyle: AppTextStyles.headlineSmall(isDark),
         contentTextStyle: AppTextStyles.bodyMedium(isDark),
       ),
 
-      // BottomSheet
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: AppColors.surface(isDark),
         surfaceTintColor: Colors.transparent,
         elevation: 16,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
         ),
         modalBackgroundColor: AppColors.surface(isDark),
         dragHandleColor: AppColors.onSurfaceVariant(isDark).withOpacity(0.5),
         showDragHandle: true,
       ),
 
-      // NavigationBar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface(isDark).withOpacity(0.9),
         surfaceTintColor: Colors.transparent,
@@ -244,8 +233,7 @@ class AppTheme {
         }),
       ),
 
-      // TabBar
-      tabBarTheme: TabBarThemeData(
+      tabBarTheme: TabBarTheme(
         labelColor: AppColors.primary(isDark),
         unselectedLabelColor: AppColors.onSurfaceVariant(isDark),
         indicatorColor: AppColors.primary(isDark),
@@ -256,14 +244,12 @@ class AppTheme {
         overlayColor: WidgetStateProperty.all(AppColors.primary(isDark).withOpacity(0.1)),
       ),
 
-      // ProgressIndicator
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.primary(isDark),
         linearTrackColor: AppColors.primary(isDark).withOpacity(0.2),
         circularTrackColor: AppColors.primary(isDark).withOpacity(0.2),
       ),
 
-      // Slider
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.primary(isDark),
         inactiveTrackColor: AppColors.primary(isDark).withOpacity(0.2),
@@ -273,7 +259,6 @@ class AppTheme {
         valueIndicatorTextStyle: AppTextStyles.labelSmall(isDark).copyWith(color: Colors.white),
       ),
 
-      // Switch
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
@@ -286,7 +271,6 @@ class AppTheme {
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
-      // Checkbox
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
@@ -297,7 +281,6 @@ class AppTheme {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
-      // Radio
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
@@ -305,7 +288,6 @@ class AppTheme {
         }),
       ),
 
-      // FloatingActionButton
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary(isDark),
         foregroundColor: Colors.white,
@@ -313,25 +295,23 @@ class AppTheme {
         focusElevation: 12,
         hoverElevation: 12,
         highlightElevation: 16,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
         extendedTextStyle: AppTextStyles.labelLarge(isDark),
       ),
 
-      // SnackBar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.surfaceDark,
         contentTextStyle: AppTextStyles.bodyMedium(true),
         actionTextColor: AppColors.accent(true),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.lg)),
         behavior: SnackBarBehavior.floating,
         elevation: 8,
       ),
 
-      // Tooltip
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
           color: AppColors.surfaceDark,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(color: AppColors.border(true)),
         ),
         textStyle: AppTextStyles.bodySmall(true),
@@ -339,7 +319,6 @@ class AppTheme {
         preferBelow: true,
       ),
 
-      // Extensions for custom colors
       extensions: <ThemeExtension<dynamic>>[
         _AppCustomColors(isDark),
       ],

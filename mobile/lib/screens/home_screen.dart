@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
+import '../providers/predictions_provider.dart';
 import '../widgets/common.dart';
-import '../services/api_service.dart';
 import 'predictions_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -52,20 +52,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final auth = ref.watch(authProvider);
-    final user = auth.user;
+    final authState = ref.watch(authProvider);
+    final user = authState.user;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // Background pattern
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
-          // Glow
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -73,24 +71,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
               ),
             ),
           ),
-          // Content
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // Navigation
               SliverAppBar(
                 pinned: true,
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: theme.customColors.glassNavBg,
+                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
                 surfaceTintColor: Colors.transparent,
                 title: Row(
                   children: [
@@ -108,12 +104,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.sports_soccer, size: 20, color: Colors.white),
+                      child: const Icon(Icons.emoji_events, size: 20, color: Colors.white),
                     ),
                     const SizedBox(width: 10),
                     RichText(
                       text: TextSpan(
-                        style: AppTextStyles.titleLarge(isDark),
+                        style: AppTextStyles.titleMedium(isDark),
                         children: [
                           const TextSpan(text: 'UCL-Predict '),
                           TextSpan(
@@ -126,13 +122,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                   ],
                 ),
                 actions: [
-                  ThemeToggle(
-                    onChanged: (isDark) async {
-                      await StorageService().saveThemeMode(isDark);
-                      if (mounted) {
-                        // Theme changes via MaterialApp.themeMode would need a different approach
-                        // For now, just save preference
-                      }
+                  Consumer(
+                    builder: (context, ref, _) {
+                      return ThemeToggle(
+                        onChanged: (isDark) async {
+                          await StorageService().saveThemeMode(isDark);
+                          if (mounted) {
+                            ref.read(authProvider.notifier);
+                          }
+                        },
+                      );
                     },
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -172,7 +171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             child: Row(
                               children: [
                                 Icon(Icons.admin_panel_settings_outlined, size: 18),
-                                SizedBox(width: 8),
+                                const SizedBox(width: 8),
                                 Text('Admin Panel'),
                               ],
                             ),
@@ -181,8 +180,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           value: 'logout',
                           child: Row(
                             children: [
-                              Icon(Icons.logout, size: 18),
-                              SizedBox(width: 8),
+                              const Icon(Icons.logout, size: 18),
+                              const SizedBox(width: 8),
                               Text('Déconnexion'),
                             ],
                           ),
@@ -204,8 +203,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                   const SizedBox(width: AppSpacing.md),
                 ],
               ),
-
-              // Hero Section
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.xl),
@@ -253,7 +250,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                           colors: [theme.colorScheme.onSurface, theme.colorScheme.primary],
                         ).createShader(bounds),
                         child: Text(
-                          'L\'IA qui\n<span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-yellow-400">décode</span> le football',
+                          'L\'IA qui\ndécode le football',
                           style: AppTextStyles.displayLarge(isDark).copyWith(
                             height: 1.1,
                             color: Colors.white,
@@ -296,8 +293,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                   ),
                 ),
               ),
-
-              // Features
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),

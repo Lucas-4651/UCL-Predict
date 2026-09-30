@@ -15,9 +15,6 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/chat_screen.dart';
 
-final apiServiceProvider = Provider<ApiService>((ref) => ApiService());
-final storageServiceProvider = Provider<StorageService>((ref) => StorageService());
-
 class UclPredictApp extends StatefulWidget {
   const UclPredictApp({super.key});
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/index.dart';
-import '../providers/predictions_provider.dart';
+import '../providers/predictions_provider.dart'
 import '../widgets/prediction_widgets.dart';
 import '../models/prediction.dart';
 
@@ -26,7 +26,7 @@ class MatchDetailScreen extends ConsumerWidget {
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -36,7 +36,7 @@ class MatchDetailScreen extends ConsumerWidget {
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -51,7 +51,7 @@ class MatchDetailScreen extends ConsumerWidget {
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: theme.customColors.glassNavBg,
+                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
                 surfaceTintColor: Colors.transparent,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
@@ -62,14 +62,12 @@ class MatchDetailScreen extends ConsumerWidget {
                   style: AppTextStyles.titleMedium(isDark),
                 ),
               ),
-
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Match Header
                       Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(AppSpacing.xl),
@@ -124,13 +122,9 @@ class MatchDetailScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: AppSpacing.xl),
-
-                      // Market Cards
                       Text('Marchés', style: AppTextStyles.headlineSmall(isDark)),
                       const SizedBox(height: AppSpacing.md),
-
                       _MarketDetailCard(
                         title: '1X2 - Résultat du Match',
                         icon: Icons.sports_soccer,
@@ -141,9 +135,7 @@ class MatchDetailScreen extends ConsumerWidget {
                         isDark: isDark,
                         theme: theme,
                       ),
-
                       const SizedBox(height: AppSpacing.md),
-
                       _MarketDetailCard(
                         title: 'BTTS - Les Deux Équipes Marquent',
                         icon: Icons.timer,
@@ -154,9 +146,7 @@ class MatchDetailScreen extends ConsumerWidget {
                         theme: theme,
                         showOdds: false,
                       ),
-
                       const SizedBox(height: AppSpacing.md),
-
                       _MarketDetailCard(
                         title: 'Over/Under 2.5 Buts',
                         icon: Icons.trending_up,
@@ -167,13 +157,9 @@ class MatchDetailScreen extends ConsumerWidget {
                         theme: theme,
                         showOdds: false,
                       ),
-
                       const SizedBox(height: AppSpacing.xl),
-
-                      // Technical Details
                       Text('Détails Techniques', style: AppTextStyles.headlineSmall(isDark)),
                       const SizedBox(height: AppSpacing.md),
-
                       AppCard(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         child: Column(
@@ -227,13 +213,12 @@ class MatchDetailScreen extends ConsumerWidget {
                           ],
                         ),
                       ),
-
                       const SizedBox(height: AppSpacing.xxxl),
                     ],
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

@@ -71,7 +71,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -81,7 +81,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -104,7 +104,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            // Header
                             Column(
                               children: [
                                 Container(
@@ -117,7 +116,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                       color: theme.colorScheme.primary.withOpacity(0.2),
                                     ),
                                   ),
-                                  child: Icon(Icons.trophy, size: 32, color: theme.colorScheme.primary),
+                                  child: Icon(Icons.emoji_events, size: 32, color: theme.colorScheme.primary),
                                 ),
                                 const SizedBox(height: AppSpacing.lg),
                                 Text(
@@ -134,10 +133,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 ),
                               ],
                             ),
-
                             const SizedBox(height: AppSpacing.xl),
-
-                            // Error
                             if (authState.error != null)
                               Padding(
                                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
@@ -146,8 +142,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                   onDismiss: () => ref.read(authProvider.notifier).clearError(),
                                 ),
                               ),
-
-                            // Email
                             AppInput(
                               controller: _emailController,
                               label: 'Adresse Email',
@@ -160,10 +154,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: AppSpacing.md),
-
-                            // Password
                             AppInput(
                               controller: _passwordController,
                               label: 'Mot de passe',
@@ -177,10 +168,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 return null;
                               },
                             ),
-
                             const SizedBox(height: AppSpacing.xs),
-
-                            // Forgot password
                             Align(
                               alignment: Alignment.centerRight,
                               child: GhostButton(
@@ -188,19 +176,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 onPressed: () {},
                               ),
                             ),
-
                             const SizedBox(height: AppSpacing.lg),
-
-                            // Submit
                             PrimaryButton(
                               label: 'Se connecter',
                               isLoading: authState.isLoading,
                               onPressed: _submit,
                             ),
-
                             const SizedBox(height: AppSpacing.lg),
-
-                            // Register link
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [

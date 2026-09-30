@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/prediction_widgets.dart';
@@ -33,13 +33,11 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: Stack(
         children: [
-          // Background pattern
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.customColors.pitchLineColor),
+              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
             ),
           ),
-          // Glow
           Positioned.fill(
             child: Container(
               decoration: BoxDecoration(
@@ -47,31 +45,29 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
                   center: Alignment.topLeft,
                   radius: 1.2,
                   colors: [
-                    theme.customColors.floodlightGlowColor,
+                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
               ),
             ),
           ),
-          // Content
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
             slivers: [
-              // Navigation
               SliverAppBar(
                 pinned: true,
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: theme.customColors.glassNavBg,
+                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
                 surfaceTintColor: Colors.transparent,
                 leadingWidth: 100,
                 leading: Padding(
                   padding: const EdgeInsets.only(left: AppSpacing.md),
                   child: Row(
                     children: [
-                      Icon(Icons.trophy, size: 24, color: theme.colorScheme.primary),
+                      Icon(Icons.emoji_events, size: 24, color: theme.colorScheme.primary),
                       const SizedBox(width: 6),
                       Text(
                         'UCL-Predict',
@@ -115,12 +111,18 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
                   ),
                 ),
                 actions: [
-                  ThemeToggle(),
+                  Consumer(
+                    builder: (context, ref, _) {
+                      return ThemeToggle(
+                        onChanged: (isDark) async {
+                          await StorageService().saveThemeMode(isDark);
+                        },
+                      );
+                    },
+                  ),
                   const SizedBox(width: AppSpacing.sm),
                 ],
               ),
-
-              // Header
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
@@ -150,9 +152,6 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
                     ],
                   ),
                 ),
-              ),
-
-              // Predictions List
               if (predictionsState.isLoading && predictions.isEmpty)
                 const SliverFillRemaining(
                   child: Center(child: CircularProgressIndicator()),
@@ -182,7 +181,7 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
               else if (predictions.isEmpty)
                 SliverFillRemaining(
                   child: EmptyState(
-                    icon: Icons.sports_soccer_outlined,
+                    icon: Icons.emoji_events_outlined,
                     title: 'Aucune prédiction',
                     subtitle: 'Aucun match programmé pour le moment.',
                     action: PrimaryButton(
@@ -206,19 +205,20 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
                     },
                   ),
                 ),
-
-              // Bottom padding for FAB
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ),
-
-          // Floating Refresh Button
           Positioned(
             bottom: 24,
             right: 24,
-            child: RefreshFAB(
-              onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
-              isLoading: predictionsState.isRefreshing,
+            child: Consumer(
+              builder: (context, ref, _) {
+                final predictionsState = ref.watch(predictionsProvider);
+                return RefreshFAB(
+                  onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
+                  isLoading: predictionsState.isRefreshing,
+                );
+              },
             ),
           ),
         ],
@@ -231,7 +231,7 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
       case 'HEALTHY':
         return theme.colorScheme.primary;
       case 'DEGRADED':
-        return theme.colorScheme.warning;
+        return theme.colorScheme.error;
       default:
         return theme.colorScheme.error;
     }

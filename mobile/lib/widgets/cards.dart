@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/index.dart';
+import '../theme/index.dart';
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -32,7 +32,7 @@ class AppCard extends StatelessWidget {
         color: backgroundColor ?? theme.cardColor,
         borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.xl),
         border: border ?? BorderSide(
-          color: theme.customColors.scorecardBorder,
+          color: theme.extension<_AppCustomColors>()!.scorecardBorder,
           width: 1,
         ),
         boxShadow: shadows ?? AppShadows.cardShadow(isDark),
@@ -89,13 +89,13 @@ class _AppCardHoverState extends State<AppCardHover> {
         padding: widget.padding ?? const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: _isHovered
-              ? theme.customColors.scorecardHoverBg
+              ? theme.extension<_AppCustomColors>()!.scorecardHoverBg
               : (widget.backgroundColor ?? theme.cardColor),
           borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadius.xl),
           border: BorderSide(
             color: _isHovered
-                ? theme.customColors.scorecardHoverBorder
-                : theme.customColors.scorecardBorder,
+                ? theme.extension<_AppCustomColors>()!.scorecardHoverBorder
+                : theme.extension<_AppCustomColors>()!.scorecardBorder,
             width: 1,
           ),
           boxShadow: _isHovered
@@ -136,10 +136,10 @@ class GlassCard extends StatelessWidget {
     final card = Container(
       padding: padding ?? const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: theme.customColors.glassNavBg,
+        color: theme.extension<_AppCustomColors>()!.glassNavBg,
         borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.xl),
         border: BorderSide(
-          color: theme.customColors.scorecardBorder,
+          color: theme.extension<_AppCustomColors>()!.scorecardBorder,
           width: 1,
         ),
         boxShadow: AppShadows.cardShadow(isDark),
