@@ -35,9 +35,7 @@ dependencies:
   cached_network_image: ^3.3.1
   shimmer: ^3.0.0
 
-  # Chat / Real-time
-  web_socket_channel: ^2.4.5
-  sse_client: ^2.0.0
+  # Chat / Real-time (using polling fallback, no SSE client needed)
 
   # Utilities
   intl: ^0.19.0
