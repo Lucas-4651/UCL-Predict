@@ -4,6 +4,7 @@ const sportyClient = require('../api/sportyClient');
 const settings = require('../config/settings');
 const predictor = require('../services/predictor/HeuristicEngine');
 const formService = require('../services/predictor/FormService');
+const dbService = require('../services/dbService');
 
 
 async function runLearningJob() {
@@ -52,8 +53,32 @@ async function runLearningJob() {
                     // Generate real prediction
                     const pred = await predictor.predict(predictorMatch);
 
-                    // Behavioral Learning: Update DNA, Momentum, and Kryptonite
+                    // Save prediction to database for drift detection
                     const [homeScore, awayScore] = match.score.split(':').map(Number);
+                    const matchId = `${match.homeTeam.name}-${match.awayTeam.name}-${round.roundNumber}`;
+                    
+                    // Check if prediction already exists
+                    const existing = await dbService.getPrediction(matchId);
+                    if (!existing) {
+                        const predId = await dbService.savePrediction({
+                            match_id: matchId,
+                            home_team: match.homeTeam.name,
+                            away_team: match.awayTeam.name,
+                            predicted_outcome: pred.outcome,
+                            confidence: pred.outcomeConf,
+                            lambda_home: pred.lambdas.home,
+                            lambda_away: pred.lambdas.away,
+                            prob_matrix: null, // Not storing full matrix to save space
+                            predicted_probs: pred.probabilities
+                        });
+
+                        // Update with actual results
+                        const isCorrect = pred.outcome === actualOutcome ? 1 : 0;
+                        const brier = await _calculateBrierForMatch(pred, actualOutcome, homeScore, awayScore);
+                        await dbService.updatePredictionResult(predId, actualOutcome, homeScore, awayScore, isCorrect, brier);
+                    }
+
+                    // Behavioral Learning: Update DNA, Momentum, and Kryptonite
                     await learningService.processMatchResult({
                         homeTeam: match.homeTeam.name,
                         awayTeam: match.awayTeam.name,
@@ -65,7 +90,6 @@ async function runLearningJob() {
 
                     // Learn from Outcome with actual goals for Lambda-based learning
                     await learningLoop.adjustWeights(pred, actualOutcome, pred.factors, 'outcome', pred.outcomeConf, { home: homeScore, away: awayScore });
-
 
                     // In a real system, we'd also have actuals for BTTS and OU
                     // For now, we simulate those actuals based on the score to test the loop
@@ -81,6 +105,37 @@ async function runLearningJob() {
     } catch (err) {
         console.error('[LearningJob] Error during learning cycle:', err);
     }
+}
+
+async function _calculateBrierForMatch(pred, actualOutcome, homeScore, awayScore) {
+    let totalBrier = 0;
+    let count = 0;
+
+    // Outcome market
+    if (pred.probabilities && pred.probabilities.outcome) {
+        const classes = ['1', 'X', '2'];
+        for (const c of classes) {
+            const p = pred.probabilities.outcome[c] || 0;
+            const y = (c === actualOutcome) ? 1 : 0;
+            totalBrier += Math.pow(p - y, 2);
+        }
+        count += 3;
+    }
+
+    // BTTS market
+    const actualBTTS = (homeScore > 0 && awayScore > 0) ? 1 : 0;
+    const predBTTS = pred.probabilities && pred.probabilities.btts ? pred.probabilities.btts['Yes'] : 0;
+    totalBrier += Math.pow(predBTTS - actualBTTS, 2);
+    count++;
+
+    // OU market
+    const totalGoals = homeScore + awayScore;
+    const actualOU = (totalGoals > 2.5) ? 1 : 0;
+    const predOU = pred.probabilities && pred.probabilities.ou ? pred.probabilities.ou['Over'] : 0;
+    totalBrier += Math.pow(predOU - actualOU, 2);
+    count++;
+
+    return count > 0 ? totalBrier / count : 0;
 }
 
 function _parseScoreToOutcome(score) {

@@ -10,6 +10,7 @@ const os = require('os');
 const learningService = require('../services/healing/LearningService');
 const leagueIntelligence = require('../services/intelligence/LeagueIntelligenceService');
 const chatService = require('../services/chatService');
+const driftDetector = require('../services/drift/DriftDetector');
 
 router.get('/', isAdminAuthenticated, async (req, res) => {
 
@@ -142,6 +143,34 @@ router.post('/api/chat/moderate/:id', isAdminAuthenticated, async (req, res) => 
         res.json(message);
     } catch (err) {
         res.status(500).json({ error: err.message });
+    }
+});
+
+// Drift Detection Admin API
+router.get('/drift', isAdminAuthenticated, async (req, res) => {
+    try {
+        const resMetrics = await driftDetector.manualCheck();
+        res.json({
+            success: true,
+            metrics: resMetrics.metrics,
+            driftDetected: resMetrics.driftDetected,
+            lastCheck: driftDetector.lastCheck
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post('/drift/reset', isAdminAuthenticated, async (req, res) => {
+    try {
+        const weightManager = require('../services/predictor/WeightManager');
+        await weightManager.resetWeights();
+        const learningLoop = require('../services/predictor/LearningLoop');
+        learningLoop.velocity = {};
+        learningLoop.saveVelocity();
+        res.json({ success: true, message: 'Weights and velocity reset to defaults' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 

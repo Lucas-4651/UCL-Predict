@@ -70,7 +70,12 @@ class HeuristicEngine {
             ou,
             ouConf: probs.ou[ou],
             lambdas: { home: homeLambda, away: awayLambda },
-            factors
+            factors,
+            probabilities: {
+                outcome: { '1': probs.outcome['1'], 'X': probs.outcome['X'], '2': probs.outcome['2'] },
+                btts: { 'Yes': probs.btts['Yes'], 'No': probs.btts['No'] },
+                ou: { 'Over': probs.ou['Over'], 'Under': probs.ou['Under'] }
+            }
         };
 
         // Store in cache

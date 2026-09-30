@@ -31,6 +31,11 @@ const TABLES = {
             id SERIAL PRIMARY KEY,
             accuracy DOUBLE PRECISION,
             window_size INTEGER,
+            brier_score DOUBLE PRECISION,
+            hit_rate DOUBLE PRECISION,
+            calibration_error DOUBLE PRECISION,
+            drift_detected BOOLEAN DEFAULT FALSE,
+            signals JSONB,
             created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
         )`,
     healing_logs: `

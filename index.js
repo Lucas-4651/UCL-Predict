@@ -5,6 +5,7 @@ const userRoutes = require('./src/routes/userRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 const healthMonitor = require('./src/services/healing/HealthMonitor');
 const memoryRecovery = require('./src/services/healing/MemoryRecoveryService');
+const driftDetector = require('./src/services/drift/DriftDetector');
 
 async function startServer() {
     try {
@@ -68,6 +69,14 @@ async function startServer() {
             await intelligenceService.init();
         } catch (err) {
             console.error('⚠️ Failed to load league intelligence:', err);
+        }
+
+        // Initialize Drift Detector
+        try {
+            driftDetector.start(3600000); // check every hour
+            console.log('🔍 Drift Detector started');
+        } catch (err) {
+            console.error('⚠️ Failed to start Drift Detector:', err);
         }
 
         // Health & Maintenance Loop

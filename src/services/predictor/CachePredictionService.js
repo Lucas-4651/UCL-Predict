@@ -64,9 +64,9 @@ async function computePredictionsForMatches(matches) {
             away_team: match.awayTeam.name,
             predicted_outcome: pred.outcome,
             confidence: pred.outcomeConf,
-            lambda_home: pred.lambda_home,
-            lambda_away: pred.lambda_away,
-            prob_matrix: pred.matrix,
+            lambda_home: pred.lambdas.home,
+            lambda_away: pred.lambdas.away,
+            prob_matrix: null,
             predicted_probs: pred.probabilities
         }).catch(err => console.error('Logging failure:', err));
 
