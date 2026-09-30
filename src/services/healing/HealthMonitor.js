@@ -1,6 +1,8 @@
 const db = require('../../config/database');
 const settings = require('../../config/settings');
 const recalibrationService = require('./RecalibrationService');
+const recoveryManager = require('./RecoveryManager');
+const logger = require('./Logger');
 
 class HealthMonitor {
     constructor() {
@@ -11,7 +13,7 @@ class HealthMonitor {
 
     setState(newState) {
         if (this.state !== newState) {
-            console.log(`[HealthMonitor] State transition: ${this.state} -> ${newState}`);
+            logger.info(`[HealthMonitor] State transition: ${this.state} -> ${newState}`);
             this.state = newState;
         }
     }
@@ -28,17 +30,53 @@ class HealthMonitor {
         const accuracy = await this.getRollingAccuracy();
         if (accuracy === null) return null;
 
-        console.log(`[HealthMonitor] Drift Check: Accuracy=${(accuracy * 100).toFixed(1)}% (Threshold=${(settings.DRIFT_THRESHOLD * 100).toFixed(1)}%)`);
+        logger.debug(`[HealthMonitor] Drift Check: Accuracy=${(accuracy * 100).toFixed(1)}% (Threshold=${(settings.DRIFT_THRESHOLD * 100).toFixed(1)}%)`);
 
         if (accuracy < settings.DRIFT_THRESHOLD) {
-            console.log(`[HealthMonitor] ⚠️ Prediction drift detected! Accuracy ${accuracy.toFixed(2)} < ${settings.DRIFT_THRESHOLD}`);
+            logger.warn(`[HealthMonitor] ⚠️ Prediction drift detected! Accuracy ${accuracy.toFixed(2)} < ${settings.DRIFT_THRESHOLD}`);
             this.setState('RECALIBRATING');
+            // Trigger recovery manager for drift
+            await recoveryManager.handleEvent('drift_detected', { accuracy });
         } else {
             if (this.state === 'RECALIBRATING') {
                 this.setState('HEALTHY');
             }
         }
         return accuracy;
+    }
+
+    async checkDegeneratePredictions() {
+        try {
+            // Check last 20 predictions to see if they are all the same outcome
+            const res = await db.query(
+                `SELECT predicted_outcome, COUNT(*) as count
+                 FROM predictions
+                 WHERE created_at > NOW() - INTERVAL '1 hour'
+                 GROUP BY predicted_outcome`
+            );
+
+            if (res.rows.length === 1 && res.rows[0].count >= 10) {
+                // All predictions in the last hour are the same outcome
+                logger.warn('[HealthMonitor] Degenerate predictions detected', { outcome: res.rows[0].predicted_outcome, count: res.rows[0].count });
+                await recoveryManager.handleEvent('degenerate_predictions', { outcome: res.rows[0].predicted_outcome, count: res.rows[0].count });
+                return true;
+            }
+
+            // Also check if weights are zero (which causes degenerate predictions)
+            const weightManager = require('../predictor/WeightManager');
+            const weights = weightManager.getAllWeights();
+            const internalWeightsZero = ['outcome_internal', 'btts_internal', 'ou_internal'].every(w => weights[w] === 0);
+            if (internalWeightsZero) {
+                logger.warn('[HealthMonitor] Internal weights are zero, triggering recovery');
+                await recoveryManager.handleEvent('weights_zero', { weights });
+                return true;
+            }
+
+            return false;
+        } catch (err) {
+            logger.error('[HealthMonitor] Degenerate prediction check failed', { error: err.message });
+            return false;
+        }
     }
 
     async getRollingAccuracy(windowSize = 100) {
@@ -58,7 +96,7 @@ class HealthMonitor {
             if (!row || row.count < 20) return null;
             return parseFloat(row.accuracy);
         } catch (err) {
-            console.error(`[HealthMonitor] Accuracy calculation failed: ${err.message}`);
+            logger.error(`[HealthMonitor] Accuracy calculation failed: ${err.message}`);
             return null;
         }
     }
@@ -67,6 +105,9 @@ class HealthMonitor {
         try {
             // 0. Prediction Drift Check
             await this.checkPredictionDrift();
+
+            // 0b. Degenerate Predictions Check
+            await this.checkDegeneratePredictions();
 
             // 1. Memory Check
             const ramUsage = process.memoryUsage().heapUsed / 1024 / 1024;
@@ -80,7 +121,7 @@ class HealthMonitor {
             const errorRate = this.apiErrorCount;
             this.apiErrorCount = 0; // Reset for next window
 
-            console.log(`[HealthMonitor] Health Check: RAM=${ramUsage.toFixed(1)}MB, DB=${dbLatency}ms, APIErrors=${errorRate}`);
+            logger.info(`[HealthMonitor] Health Check: RAM=${ramUsage.toFixed(1)}MB, DB=${dbLatency}ms, APIErrors=${errorRate}`);
 
             if (ramUsage > 800 || dbLatency > 200 || errorRate > 10) {
                 this.setState('CRITICAL');
@@ -90,8 +131,9 @@ class HealthMonitor {
                 this.setState('HEALTHY');
             }
         } catch (err) {
-            console.error(`[HealthMonitor] Health check failed: ${err.message}`);
+            logger.error(`[HealthMonitor] Health check failed: ${err.message}`);
             this.setState('CRITICAL');
+            await recoveryManager.handleEvent('db_connection_lost', { error: err.message });
         }
 
         // Trigger recalibration if the state was set to RECALIBRATING during drift check

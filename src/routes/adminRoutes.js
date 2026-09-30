@@ -174,5 +174,55 @@ router.post('/drift/reset', isAdminAuthenticated, async (req, res) => {
     }
 });
 
+// Recovery Manager Admin API
+const recoveryManager = require('../services/healing/RecoveryManager');
+
+router.get('/recovery', isAdminAuthenticated, async (req, res) => {
+    try {
+        const status = recoveryManager.getStatus();
+        const health = healthMonitor.getState();
+        res.json({
+            success: true,
+            recovery: status,
+            healthState: health
+        });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post('/recovery/trigger', isAdminAuthenticated, async (req, res) => {
+    try {
+        const { event, details } = req.body;
+        if (!event) return res.status(400).json({ error: 'Event type required' });
+        
+        await recoveryManager.handleEvent(event, details || {});
+        res.json({ success: true, message: `Recovery event '${event}' triggered` });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post('/recovery/fallback/market-only', isAdminAuthenticated, async (req, res) => {
+    try {
+        const weightManager = require('../services/predictor/WeightManager');
+        weightManager.setFallbackMode('MARKET_ONLY');
+        res.json({ success: true, message: 'Switched to MARKET_ONLY fallback mode (internal weights disabled)' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post('/recovery/fallback/restore', isAdminAuthenticated, async (req, res) => {
+    try {
+        const weightManager = require('../services/predictor/WeightManager');
+        // The setFallbackMode with non-MARKET_ONLY will reload from DB/cache
+        weightManager.setFallbackMode('RESTORE');
+        res.json({ success: true, message: 'Restored normal weight loading mode' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
 module.exports = router;
 

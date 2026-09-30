@@ -6,7 +6,7 @@ class WeightManager {
     constructor() {
         this.weights = {};
         this.initialized = false;
-        this.mode = 'UNINITIALIZED'; // 'DB', 'CACHE', 'DEFAULTS'
+        this.mode = 'UNINITIALIZED'; // 'DB', 'CACHE', 'DEFAULTS', 'FALLBACK_MARKET_ONLY'
         this.cacheFile = path.join(process.cwd(), 'weights_cache.json');
         this.defaultWeights = {
             outcome_market: 0.5, outcome_internal: 0.5,
@@ -132,6 +132,10 @@ class WeightManager {
     }
 
     getWeight(factor) {
+        // In MARKET_ONLY mode, internal weights are forced to 0
+        if (this.mode === 'FALLBACK_MARKET_ONLY' && factor.includes('_internal')) {
+            return 0;
+        }
         return this.weights[factor] || 0;
     }
 
@@ -145,6 +149,18 @@ class WeightManager {
 
     getMode() {
         return this.mode;
+    }
+
+    async setFallbackMode(mode) {
+        if (mode === 'MARKET_ONLY') {
+            this.mode = 'FALLBACK_MARKET_ONLY';
+            console.log('[WeightManager] Switched to FALLBACK_MARKET_ONLY mode (internal weights disabled)');
+        } else if (mode === 'RESTORE') {
+            // Revert to the mode we were in before fallback (DB/CACHE/DEFAULTS)
+            await this.loadWeightsWithFallback();
+        } else {
+            throw new Error(`Unknown fallback mode: ${mode}`);
+        }
     }
 }
 
