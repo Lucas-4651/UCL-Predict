@@ -5,6 +5,10 @@ module.exports = {
     API_BASE_URL: 'https://hg-event-api-prod.sporty-tech.net/api/instantleagues',
     LEARNING_RATE: 0.01,
     LEARNING_DECAY: 0.001,
+    MOMENTUM: 0.9,
+    L2_REGULARIZATION: 0.0001,
+    VALIDATION_WINDOW: 50, // number of recent predictions to validate on
+    MIN_IMPROVEMENT: 0.001, // minimum Brier score improvement to accept new weights
     DRIFT_THRESHOLD: 0.65, // Accuracy below 65% triggers recalibration
     POLLING_INTERVAL: 120000, // 2 minutes (though predictions are now on-demand)
 };

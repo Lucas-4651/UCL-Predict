@@ -117,6 +117,17 @@ class WeightManager {
         console.log('[WeightManager] Resetting weights to defaults...');
         await db.query('DELETE FROM weights');
         await this.loadWeightsWithFallback();
+        // Also reset velocity cache
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const velocityFile = path.join(process.cwd(), 'velocity_cache.json');
+            if (fs.existsSync(velocityFile)) {
+                fs.unlinkSync(velocityFile);
+            }
+        } catch (err) {
+            console.warn('[WeightManager] Could not clear velocity cache:', err.message);
+        }
         console.log('[WeightManager] Weights successfully reset.');
     }
 
