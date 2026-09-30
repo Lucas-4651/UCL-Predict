@@ -1,0 +1,142 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'mobile/**'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'mobile/**'
+  workflow_dispatch:
+
+env:
+  FLUTTER_VERSION: '3.22.2'
+  FLUTTER_CHANNEL: 'stable'
+
+jobs:
+  analyze:
+    name: Analyze & Test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (freezed, json_serializable)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze Dart code
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          directory: ./mobile/coverage
+          flags: flutter
+
+  build-apk:
+    name: Build Release APK
+    runs-on: ubuntu-latest
+    needs: analyze
+    defaults:
+      run:
+        working-directory: ./mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (freezed, json_serializable)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build APK (release)
+        run: flutter build apk --release --split-per-abi
+
+      - name: Verify APK outputs
+        run: |
+          ls -la build/app/outputs/flutter-apk/
+          test -f build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
+          test -f build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
+          test -f build/app/outputs/flutter-apk/app-x86_64-release.apk
+
+      - name: Upload APK artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ucl-predict-apk
+          path: |
+            build/app/outputs/flutter-apk/*.apk
+          retention-days: 30
+
+      - name: Create Release (on tag)
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/app/outputs/flutter-apk/*.apk
+          generate_release_notes: true
+          draft: false
+          prerelease: false
+
+  build-appbundle:
+    name: Build App Bundle (Play Store)
+    runs-on: ubuntu-latest
+    needs: analyze
+    defaults:
+      run:
+        working-directory: ./mobile
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: ${{ env.FLUTTER_CHANNEL }}
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code (freezed, json_serializable)
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build App Bundle (release)
+        run: flutter build appbundle --release
+
+      - name: Verify AAB output
+        run: |
+          ls -la build/app/outputs/bundle/release/
+          test -f build/app/outputs/bundle/release/app-release.aab
+
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ucl-predict-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          retention-days: 30

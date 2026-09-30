@@ -1,0 +1,86 @@
+name: ucl_predict_mobile
+description: Application mobile Flutter pour UCL-Predict - Prédictions football IA
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+
+  # Navigation
+  go_router: ^14.2.0
+
+  # State Management
+  provider: ^6.1.2
+  flutter_riverpod: ^2.5.1
+
+  # HTTP & API
+  dio: ^5.4.3+1
+  cookie_jar: ^4.0.8
+  dio_cookie_manager: ^3.1.2
+
+  # Secure Storage
+  flutter_secure_storage: ^9.2.2
+
+  # JSON Serialization
+  json_annotation: ^4.9.0
+  freezed_annotation: ^2.4.4
+
+  # UI & Theming
+  google_fonts: ^6.2.1
+  flutter_svg: ^2.0.10+1
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+
+  # Chat / Real-time
+  web_socket_channel: ^2.4.5
+  sse_client: ^2.0.0
+
+  # Utilities
+  intl: ^0.19.0
+  url_launcher: ^6.2.6
+  package_info_plus: ^8.0.2
+  device_info_plus: ^10.1.0
+  connectivity_plus: ^6.0.3
+
+  # Notifications
+  flutter_local_notifications: ^17.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+  build_runner: ^2.4.9
+  json_serializable: ^6.8.0
+  freezed: ^2.5.2
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icons/
+
+  fonts:
+    - family: Syne
+      fonts:
+        - asset: assets/fonts/Syne/Syne-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Syne/Syne-ExtraBold.ttf
+          weight: 800
+    - family: Outfit
+      fonts:
+        - asset: assets/fonts/Outfit/Outfit-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Outfit/Outfit-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Outfit/Outfit-SemiBold.ttf
+          weight: 600
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Medium.ttf
+          weight: 500

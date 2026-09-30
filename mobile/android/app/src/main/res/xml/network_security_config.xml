@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">votre-api-domain.com</domain>
+        <!-- Ajoutez vos pins SHA-256 ici pour le certificate pinning -->
+        <!-- <pin-set>
+            <pin algorithm="SHA-256">BASE64_SHA256_DE_VOTRE_CERT</pin>
+            <pin algorithm="SHA-256">BASE64_SHA256_DE_VOTRE_CERT_BACKUP</pin>
+        </pin-set> -->
+    </domain-config>
+
+    <!-- Configuration pour le développement local (optionnel) -->
+    <debug-overrides>
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </debug-overrides>
+</network-security-config>

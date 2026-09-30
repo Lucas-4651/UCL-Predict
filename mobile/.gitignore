@@ -1,0 +1,48 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+build/
+*.dart.dart
+*.g.dart
+*.freezed.dart
+
+# Android
+local.properties
+*.jks
+*.keystore
+key.properties
+*.apk
+*.aab
+android/app/build/
+android/.gradle/
+android/gradle/wrapper/gradle-wrapper.jar
+
+# iOS
+ios/Flutter/
+ios/Pods/
+ios/.symlinks/
+ios/Runner.xcworkspace/
+ios/Runner/Generated.xcconfig
+ios/Flutter/Flutter.podspec
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Coverage
+coverage/
+lcov.info
+
+# Environment
+.env
+.env.*
