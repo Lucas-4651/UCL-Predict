@@ -54,159 +54,7 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
           ),
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                pinned: true,
-                floating: true,
-                snap: true,
-                elevation: 0,
-                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
-                surfaceTintColor: Colors.transparent,
-                leadingWidth: 100,
-                leading: Padding(
-                  padding: const EdgeInsets.only(left: AppSpacing.md),
-                  child: Row(
-                    children: [
-                      Icon(Icons.emoji_events, size: 24, color: theme.colorScheme.primary),
-                      const SizedBox(width: 6),
-                      Text(
-                        'UCL-Predict',
-                        style: AppTextStyles.titleMedium(isDark).copyWith(
-                          fontFamily: 'Syne',
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                title: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
-                  decoration: BoxDecoration(
-                    color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(AppRadius.round),
-                    border: Border.all(
-                      color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.3),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: _getStateColor(predictionsState.systemState, theme),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        predictionsState.systemState,
-                        style: AppTextStyles.monoSmall(isDark).copyWith(
-                          color: _getStateColor(predictionsState.systemState, theme),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                actions: [
-                  Consumer(
-                    builder: (context, ref, _) {
-                      return ThemeToggle(
-                        onChanged: (isDark) async {
-                          await StorageService().saveThemeMode(isDark);
-                        },
-                      );
-                    },
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                ],
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Prédictions Champions League',
-                        style: AppTextStyles.headlineMedium(isDark),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Terminal de données en temps réel — Moteur Adaptatif UCL-Predict',
-                        style: AppTextStyles.bodyMedium(isDark).copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                      if (predictionsState.lastUpdated != null) ...[
-                        const SizedBox(height: AppSpacing.xs),
-                        Text(
-                          'Dernière mise à jour: ${_formatTime(predictionsState.lastUpdated!)}',
-                          style: AppTextStyles.monoSmall(isDark).copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              if (predictionsState.isLoading && predictions.isEmpty)
-                const SliverFillRemaining(
-                  child: Center(child: CircularProgressIndicator()),
-                )
-              else if (predictionsState.error != null)
-                SliverFillRemaining(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.xl),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AppErrorMessage(
-                            message: predictionsState.error!,
-                            onDismiss: () => ref.read(predictionsProvider.notifier).refresh(),
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          PrimaryButton(
-                            label: 'Réessayer',
-                            onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              else if (predictions.isEmpty)
-                SliverFillRemaining(
-                  child: EmptyState(
-                    icon: Icons.emoji_events_outlined,
-                    title: 'Aucune prédiction',
-                    subtitle: 'Aucun match programmé pour le moment.',
-                    action: PrimaryButton(
-                      label: 'Actualiser',
-                      onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
-                    ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-                  sliver: SliverList.separated(
-                    itemCount: predictions.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                    itemBuilder: (context, index) {
-                      final prediction = predictions[index];
-                      return PredictionCard(
-                        prediction: prediction,
-                        onTap: () => context.go('/predictions/${prediction.matchId ?? prediction.match}'),
-                      );
-                    },
-                  ),
-                ),
-              const SliverToBoxAdapter(child: SizedBox(height: 100)),
-            ],
+            slivers: _buildSlivers(context, ref, theme, isDark, predictionsState, predictions),
           ),
           Positioned(
             bottom: 24,
@@ -224,6 +72,177 @@ class _PredictionsScreenState extends ConsumerState<PredictionsScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildSlivers(
+    BuildContext context,
+    WidgetRef ref,
+    ThemeData theme,
+    bool isDark,
+    dynamic predictionsState,
+    List<dynamic> predictions,
+  ) {
+    final slivers = <Widget>[
+      SliverAppBar(
+        pinned: true,
+        floating: true,
+        snap: true,
+        elevation: 0,
+        backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
+        surfaceTintColor: Colors.transparent,
+        leadingWidth: 100,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: AppSpacing.md),
+          child: Row(
+            children: [
+              Icon(Icons.emoji_events, size: 24, color: theme.colorScheme.primary),
+              const SizedBox(width: 6),
+              Text(
+                'UCL-Predict',
+                style: AppTextStyles.titleMedium(isDark).copyWith(
+                  fontFamily: 'Syne',
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+        ),
+        title: Container(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
+          decoration: BoxDecoration(
+            color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.15),
+            borderRadius: BorderRadius.circular(AppRadius.round),
+            border: Border.all(
+              color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.3),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 8,
+                height: 8,
+                decoration: BoxDecoration(
+                  color: _getStateColor(predictionsState.systemState, theme),
+                  shape: BoxShape.circle,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                predictionsState.systemState,
+                style: AppTextStyles.monoSmall(isDark).copyWith(
+                  color: _getStateColor(predictionsState.systemState, theme),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          Consumer(
+            builder: (context, ref, _) {
+              return ThemeToggle(
+                onChanged: (isDark) async {
+                  await StorageService().saveThemeMode(isDark);
+                },
+              );
+            },
+          ),
+          const SizedBox(width: AppSpacing.sm),
+        ],
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Prédictions Champions League',
+                style: AppTextStyles.headlineMedium(isDark),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Terminal de données en temps réel — Moteur Adaptatif UCL-Predict',
+                style: AppTextStyles.bodyMedium(isDark).copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              if (predictionsState.lastUpdated != null) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Dernière mise à jour: ${_formatTime(predictionsState.lastUpdated!)}',
+                  style: AppTextStyles.monoSmall(isDark).copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+    ];
+
+    if (predictionsState.isLoading && predictions.isEmpty) {
+      slivers.add(const SliverFillRemaining(child: Center(child: CircularProgressIndicator())));
+    } else if (predictionsState.error != null) {
+      slivers.add(
+        SliverFillRemaining(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppErrorMessage(
+                    message: predictionsState.error!,
+                    onDismiss: () => ref.read(predictionsProvider.notifier).refresh(),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  PrimaryButton(
+                    label: 'Réessayer',
+                    onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+    } else if (predictions.isEmpty) {
+      slivers.add(
+        SliverFillRemaining(
+          child: EmptyState(
+            icon: Icons.emoji_events_outlined,
+            title: 'Aucune prédiction',
+            subtitle: 'Aucun match programmé pour le moment.',
+            action: PrimaryButton(
+              label: 'Actualiser',
+              onPressed: () => ref.read(predictionsProvider.notifier).refresh(),
+            ),
+          ),
+        ),
+      );
+    } else {
+      slivers.add(
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          sliver: SliverList.separated(
+            itemCount: predictions.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) {
+              final prediction = predictions[index];
+              return PredictionCard(
+                prediction: prediction,
+                onTap: () => Navigator.of(context).pushNamed('/predictions/${prediction.matchId ?? prediction.match}'),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    slivers.add(const SliverToBoxAdapter(child: SizedBox(height: 100)));
+    return slivers;
   }
 
   Color _getStateColor(String state, ThemeData theme) {
