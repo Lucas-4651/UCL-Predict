@@ -230,12 +230,12 @@ class _Avatar extends StatelessWidget {
 class _ReactionChip extends StatelessWidget {
   final String emoji;
   final int count;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _ReactionChip({
     required this.emoji,
     required this.count,
-    required this.onTap,
+    this.onTap,
   });
 
   @override

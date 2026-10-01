@@ -229,7 +229,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: AppColors.primary(isDark), size: 24);
           }
-          return IconThemeData(color: AppColors.onSurfaceVariant(isDark), size: 24),
+          return IconThemeData(color: AppColors.onSurfaceVariant(isDark), size: 24);
         }),
       ),
 

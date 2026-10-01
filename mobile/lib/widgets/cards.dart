@@ -31,7 +31,7 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? theme.cardColor,
         borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.xl),
-        border: border ?? BorderSide(
+        border: border != null ? Border.fromBorderSide(border!) : BorderSide(
           color: theme.extension<AppCustomColors>()!.scorecardBorder,
           width: 1,
         ),
