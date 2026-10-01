@@ -14,6 +14,10 @@ import 'screens/auth/login_screen.dart';
 import 'screens/auth/register_screen.dart';
 import 'screens/chat_screen.dart';
 
+void main() {
+  runApp(const UclPredictApp());
+}
+
 class UclPredictApp extends StatefulWidget {
   const UclPredictApp({super.key});
 
