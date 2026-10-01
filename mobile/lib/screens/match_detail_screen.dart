@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/index.dart';
@@ -46,184 +47,195 @@ class MatchDetailScreen extends StatelessWidget {
           ),
           CustomScrollView(
             physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverAppBar(
-                pinned: true,
-                floating: true,
-                snap: true,
-                elevation: 0,
-                backgroundColor: customColors.glassNavBg,
-                surfaceTintColor: Colors.transparent,
-                leading: IconButton(
-                  icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                title: Text(
-                  'Détail du Match',
-                  style: AppTextStyles.titleMedium(isDark),
-                ),
-              ),
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [
-                              theme.colorScheme.primaryContainer,
-                              theme.colorScheme.primaryContainer.withOpacity(0.5),
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(AppRadius.xxl),
-                          border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(0.2),
-                          ),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              prediction.match,
-                              style: AppTextStyles.headlineMedium(isDark).copyWith(
-                                fontWeight: FontWeight.w800,
-                                color: theme.colorScheme.onPrimaryContainer,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox(height: AppSpacing.md),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                _DetailStat(
-                                  label: 'Confiance 1X2',
-                                  value: '${(prediction.outcomeConf * 100).round()}%',
-                                  color: theme.colorScheme.primary,
-                                  isDark: isDark,
-                                ),
-                                _DetailStat(
-                                  label: 'Confiance BTTS',
-                                  value: '${(prediction.bttsConf * 100).round()}%',
-                                  color: prediction.btts == 'Yes' ? Colors.green : Colors.orange,
-                                  isDark: isDark,
-                                ),
-                                _DetailStat(
-                                  label: 'Confiance O/U',
-                                  value: '${(prediction.ouConf * 100).round()}%',
-                                  color: prediction.ou == 'Over' ? Colors.red : Colors.blue,
-                                  isDark: isDark,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      Text('Marchés', style: AppTextStyles.headlineSmall(isDark)),
-                      const SizedBox(height: AppSpacing.md),
-                      _MarketDetailCard(
-                        title: '1X2 - Résultat du Match',
-                        icon: Icons.sports_soccer,
-                        prediction: prediction.outcomeName,
-                        confidence: prediction.outcomeConf,
-                        probabilities: prediction.probabilities.outcome,
-                        odds: prediction.odds,
-                        isDark: isDark,
-                        theme: theme,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _MarketDetailCard(
-                        title: 'BTTS - Les Deux Équipes Marquent',
-                        icon: Icons.timer,
-                        prediction: prediction.btts,
-                        confidence: prediction.bttsConf,
-                        probabilities: prediction.probabilities.btts,
-                        isDark: isDark,
-                        theme: theme,
-                        showOdds: false,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _MarketDetailCard(
-                        title: 'Over/Under 2.5 Buts',
-                        icon: Icons.trending_up,
-                        prediction: prediction.ou,
-                        confidence: prediction.ouConf,
-                        probabilities: prediction.probabilities.ou,
-                        isDark: isDark,
-                        theme: theme,
-                        showOdds: false,
-                      ),
-                      const SizedBox(height: AppSpacing.xl),
-                      Text('Détails Techniques', style: AppTextStyles.headlineSmall(isDark)),
-                      const SizedBox(height: AppSpacing.md),
-                      AppCard(
-                        padding: const EdgeInsets.all(AppSpacing.lg),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Poissons (λ)', style: AppTextStyles.titleSmall(isDark)),
-                            const SizedBox(height: AppSpacing.sm),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _LambdaRow(
-                                    label: 'λ Domicile',
-                                    value: prediction.lambdas.home.toStringAsFixed(2),
-                                    isDark: isDark,
-                                    theme: theme,
-                                  ),
-                                ),
-                                Expanded(
-                                  child: _LambdaRow(
-                                    label: 'λ Extérieur',
-                                    value: prediction.lambdas.away.toStringAsFixed(2),
-                                    isDark: isDark,
-                                    theme: theme,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: AppSpacing.lg),
-                            Text('Facteurs', style: AppTextStyles.titleSmall(isDark)),
-                            const SizedBox(height: AppSpacing.sm),
-                            Wrap(
-                              spacing: AppSpacing.sm,
-                              runSpacing: AppSpacing.sm,
-                              children: prediction.factors.entries.map((e) {
-                                return Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.md,
-                                    vertical: AppSpacing.xs,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.surfaceContainerHighest,
-                                    borderRadius: BorderRadius.circular(AppRadius.round),
-                                  ),
-                                  child: Text(
-                                    '${e.key}: ${e.value.toStringAsFixed(3)}',
-                                    style: AppTextStyles.monoSmall(isDark),
-                                  ),
-                                );
-                              }).toList(),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: AppSpacing.xxxl),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+            slivers: _buildSlivers(context, theme, isDark, customColors, prediction),
           ),
         ],
       ),
     );
+  }
+
+  List<Widget> _buildSlivers(
+    BuildContext context,
+    ThemeData theme,
+    bool isDark,
+    AppCustomColors customColors,
+    Prediction prediction,
+  ) {
+    final slivers = <Widget>[
+      SliverAppBar(
+        pinned: true,
+        floating: true,
+        snap: true,
+        elevation: 0,
+        backgroundColor: customColors.glassNavBg,
+        surfaceTintColor: Colors.transparent,
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          'Détail du Match',
+          style: AppTextStyles.titleMedium(isDark),
+        ),
+      ),
+      SliverToBoxAdapter(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      theme.colorScheme.primaryContainer,
+                      theme.colorScheme.primaryContainer.withOpacity(0.5),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(AppRadius.xxl),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.2),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      prediction.match,
+                      style: AppTextStyles.headlineMedium(isDark).copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: theme.colorScheme.onPrimaryContainer,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _DetailStat(
+                          label: 'Confiance 1X2',
+                          value: '${(prediction.outcomeConf * 100).round()}%',
+                          color: theme.colorScheme.primary,
+                          isDark: isDark,
+                        ),
+                        _DetailStat(
+                          label: 'Confiance BTTS',
+                          value: '${(prediction.bttsConf * 100).round()}%',
+                          color: prediction.btts == 'Yes' ? Colors.green : Colors.orange,
+                          isDark: isDark,
+                        ),
+                        _DetailStat(
+                          label: 'Confiance O/U',
+                          value: '${(prediction.ouConf * 100).round()}%',
+                          color: prediction.ou == 'Over' ? Colors.red : Colors.blue,
+                          isDark: isDark,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Text('Marchés', style: AppTextStyles.headlineSmall(isDark)),
+              const SizedBox(height: AppSpacing.md),
+              _MarketDetailCard(
+                title: '1X2 - Résultat du Match',
+                icon: Icons.sports_soccer,
+                prediction: prediction.outcomeName,
+                confidence: prediction.outcomeConf,
+                probabilities: prediction.probabilities.outcome,
+                odds: prediction.odds,
+                isDark: isDark,
+                theme: theme,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _MarketDetailCard(
+                title: 'BTTS - Les Deux Équipes Marquent',
+                icon: Icons.timer,
+                prediction: prediction.btts,
+                confidence: prediction.bttsConf,
+                probabilities: prediction.probabilities.btts,
+                isDark: isDark,
+                theme: theme,
+                showOdds: false,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _MarketDetailCard(
+                title: 'Over/Under 2.5 Buts',
+                icon: Icons.trending_up,
+                prediction: prediction.ou,
+                confidence: prediction.ouConf,
+                probabilities: prediction.probabilities.ou,
+                isDark: isDark,
+                theme: theme,
+                showOdds: false,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              Text('Détails Techniques', style: AppTextStyles.headlineSmall(isDark)),
+              const SizedBox(height: AppSpacing.md),
+              AppCard(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Poissons (λ)', style: AppTextStyles.titleSmall(isDark)),
+                    const SizedBox(height: AppSpacing.sm),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _LambdaRow(
+                            label: 'λ Domicile',
+                            value: prediction.lambdas.home.toStringAsFixed(2),
+                            isDark: isDark,
+                            theme: theme,
+                          ),
+                        ),
+                        Expanded(
+                          child: _LambdaRow(
+                            label: 'λ Extérieur',
+                            value: prediction.lambdas.away.toStringAsFixed(2),
+                            isDark: isDark,
+                            theme: theme,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Text('Facteurs', style: AppTextStyles.titleSmall(isDark)),
+                    const SizedBox(height: AppSpacing.sm),
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
+                      children: prediction.factors.entries.map((e) {
+                        return Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.xs,
+                          ),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(AppRadius.round),
+                          ),
+                          child: Text(
+                            '${e.key}: ${e.value.toStringAsFixed(3)}',
+                            style: AppTextStyles.monoSmall(isDark),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xxxl),
+            ],
+          ),
+        ),
+      ),
+    ];
+    return slivers;
   }
 }
 
