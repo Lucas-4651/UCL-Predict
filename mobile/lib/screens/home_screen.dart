@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/index.dart';
-import '../services/api_service.dart';
-import '../services/storage_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,7 +14,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
-  String _systemState = 'CHECKING...';
 
   @override
   void initState() {
@@ -38,14 +35,9 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
     try {
       final api = ApiService();
       await api.init();
-      final healthy = await api.healthCheck();
-      if (mounted) {
-        setState(() => _systemState = healthy ? 'HEALTHY' : 'DEGRADED');
-      }
+      await api.healthCheck();
     } catch (_) {
-      if (mounted) {
-        setState(() => _systemState = 'OFFLINE');
-      }
+      // System health check failed, UI will show offline state from predictions provider
     }
   }
 
