@@ -16,6 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
+  String _systemState = 'CHECKING...';
 
   @override
   void initState() {
