@@ -31,10 +31,12 @@ class AppCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor ?? theme.cardColor,
         borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.xl),
-        border: border != null ? Border.fromBorderSide(border!) : BorderSide(
-          color: theme.extension<AppCustomColors>()!.scorecardBorder,
-          width: 1,
-        ),
+        border: border != null 
+            ? Border.fromBorderSide(border!) 
+            : Border.fromBorderSide(BorderSide(
+                color: theme.extension<AppCustomColors>()!.scorecardBorder,
+                width: 1,
+              )),
         boxShadow: shadows ?? AppShadows.cardShadow(isDark),
       ),
       child: child,
@@ -92,12 +94,12 @@ class _AppCardHoverState extends State<AppCardHover> {
               ? theme.extension<AppCustomColors>()!.scorecardHoverBg
               : (widget.backgroundColor ?? theme.cardColor),
           borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadius.xl),
-          border: BorderSide(
+          border: Border.fromBorderSide(BorderSide(
             color: _isHovered
                 ? theme.extension<AppCustomColors>()!.scorecardHoverBorder
                 : theme.extension<AppCustomColors>()!.scorecardBorder,
             width: 1,
-          ),
+          )),
           boxShadow: _isHovered
               ? AppShadows.cardHoverShadow(isDark)
               : AppShadows.cardShadow(isDark),
@@ -138,10 +140,10 @@ class GlassCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.extension<AppCustomColors>()!.glassNavBg,
         borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.xl),
-        border: BorderSide(
+        border: Border.fromBorderSide(BorderSide(
           color: theme.extension<AppCustomColors>()!.scorecardBorder,
           width: 1,
-        ),
+        )),
         boxShadow: AppShadows.cardShadow(isDark),
       ),
       child: child,
