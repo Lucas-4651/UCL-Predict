@@ -19,6 +19,9 @@ class ChatMessage with _$ChatMessage {
   }) = _ChatMessage;
 
   factory ChatMessage.fromJson(Map<String, dynamic> json) => _$ChatMessageFromJson(json);
+
+  // Force regeneration of freezed code
+  static const String _regenerationMarker = '2026-10-01';
 }
 
 extension ChatMessageExtension on ChatMessage {
