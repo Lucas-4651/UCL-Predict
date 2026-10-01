@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
 import '../providers/predictions_provider.dart';
-import '../widgets/common.dart';
+import '../widgets/index.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 import 'predictions_screen.dart';
@@ -55,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
     final authState = context.watch<AuthProvider>();
     final user = authState.user;
 

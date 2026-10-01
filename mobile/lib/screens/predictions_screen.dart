@@ -3,8 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
-import '../widgets/prediction_widgets.dart';
-import '../widgets/common.dart';
+import '../widgets/index.dart';
 import '../services/storage_service.dart';
 import 'match_detail_screen.dart';
 
@@ -28,7 +27,7 @@ class _PredictionsScreenState extends State<PredictionsScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
     final predictionsState = context.watch<PredictionsProvider>();
     final predictions = predictionsState.predictions;
 

@@ -1,11 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/chat_provider.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/chat_widgets.dart';
+import '../widgets/index.dart';
 import '../models/chat_message.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -91,7 +90,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
     final chatState = context.watch<ChatProvider>();
     final authState = context.watch<AuthProvider>();
     final currentUsername = authState.user?.username;
@@ -264,7 +263,7 @@ class _EmojiPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),

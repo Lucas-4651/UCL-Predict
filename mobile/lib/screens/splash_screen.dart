@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/common.dart';
+import '../widgets/index.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
 
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,

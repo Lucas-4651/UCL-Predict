@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
-import '../widgets/prediction_widgets.dart';
+import '../widgets/index.dart';
 import '../models/prediction.dart';
 
 class MatchDetailScreen extends StatelessWidget {
@@ -15,7 +14,7 @@ class MatchDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final customColors = theme.extension<_AppCustomColors>()!;
+    final customColors = theme.extension<AppCustomColors>()!;
     final predictionsState = context.watch<PredictionsProvider>();
     final prediction = predictionsState.predictions.firstWhere(
       (p) => (p.matchId ?? p.match) == matchId,
