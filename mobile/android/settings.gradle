@@ -1,7 +1,3 @@
 include ':app'
 
 rootProject.name = 'ucl_predict_mobile'
-
-tasks.register("clean", Delete) {
-    delete rootProject.buildDir
-}
