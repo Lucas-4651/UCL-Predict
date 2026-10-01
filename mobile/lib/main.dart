@@ -110,4 +110,4 @@ final GoRouter _router = GoRouter(
       builder: (context, state) => const ChatScreen(),
     ),
   ],
-);
+); 
