@@ -64,7 +64,6 @@ void main() {
     test('ChatMessage fromJson parses correctly', () {
       final json = {
         'id': 1,
-        'user_id': 5,
         'username': 'FootMaster99',
         'is_admin': false,
         'content': 'Great prediction!',
