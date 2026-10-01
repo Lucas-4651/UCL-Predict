@@ -5,7 +5,6 @@ import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/index.dart';
 import '../services/storage_service.dart';
-import 'match_detail_screen.dart';
 
 class PredictionsScreen extends StatefulWidget {
   const PredictionsScreen({super.key});
@@ -178,6 +177,7 @@ class _PredictionsScreenState extends State<PredictionsScreen> {
             ],
           ),
         ),
+      ),
     ];
 
     if (predictionsState.isLoading && predictions.isEmpty) {

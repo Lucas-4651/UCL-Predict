@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/index.dart';

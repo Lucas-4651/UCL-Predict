@@ -5,7 +5,6 @@ import 'theme/index.dart';
 import 'providers/auth_provider.dart';
 import 'providers/predictions_provider.dart';
 import 'providers/chat_provider.dart';
-import 'services/api_service.dart';
 import 'services/storage_service.dart';
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';

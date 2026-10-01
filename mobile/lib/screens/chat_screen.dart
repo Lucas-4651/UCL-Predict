@@ -5,7 +5,6 @@ import '../theme/index.dart';
 import '../providers/chat_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/index.dart';
-import '../models/chat_message.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
