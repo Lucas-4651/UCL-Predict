@@ -7,14 +7,14 @@ part 'chat_message.g.dart';
 class ChatMessage with _$ChatMessage {
   const factory ChatMessage({
     required int id,
-    int? userId,
+    @JsonKey(name: 'user_id') int? userId,
     required String username,
-    @Default(false) bool isAdmin,
+    @JsonKey(name: 'is_admin') @Default(false) bool isAdmin,
     required String content,
     required String type,
-    @Default(false) bool isPinned,
-    @Default(false) bool isDeleted,
-    required String createdAt,
+    @JsonKey(name: 'is_pinned') @Default(false) bool isPinned,
+    @JsonKey(name: 'is_deleted') @Default(false) bool isDeleted,
+    @JsonKey(name: 'created_at') required String createdAt,
     @Default({}) Map<String, int> reactions,
   }) = _ChatMessage;
 
@@ -36,9 +36,9 @@ extension ChatMessageExtension on ChatMessage {
 @freezed
 class PresenceUser with _$PresenceUser {
   const factory PresenceUser({
-    required int userId,
+    @JsonKey(name: 'user_id') required int userId,
     required String username,
-    required bool isAdmin,
+    @JsonKey(name: 'is_admin') required bool isAdmin,
   }) = _PresenceUser;
 
   factory PresenceUser.fromJson(Map<String, dynamic> json) => _$PresenceUserFromJson(json);
@@ -46,6 +46,7 @@ class PresenceUser with _$PresenceUser {
 
 @JsonSerializable()
 class ChatReactionRequest {
+  @JsonKey(name: 'message_id')
   final int messageId;
   final String reaction;
 
