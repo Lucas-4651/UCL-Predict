@@ -64,14 +64,14 @@ void main() {
     test('ChatMessage fromJson parses correctly', () {
       final json = {
         'id': 1,
-        'user_id': null,
+        'userId': null,
         'username': 'FootMaster99',
-        'is_admin': false,
+        'isAdmin': false,
         'content': 'Great prediction!',
         'type': 'chat',
-        'is_pinned': false,
-        'is_deleted': false,
-        'created_at': '2026-01-15T20:30:00Z',
+        'isPinned': false,
+        'isDeleted': false,
+        'createdAt': '2026-01-15T20:30:00Z',
         'reactions': {'👍': 3, '❤️': 1}
       };
 
