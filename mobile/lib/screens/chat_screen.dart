@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/chat_provider.dart';
-import '../providers/auth_provider.dart'
-import '../widgets/chat_widgets.dart'
+import '../providers/auth_provider.dart';
+import '../widgets/chat_widgets.dart';
 import '../models/chat_message.dart';
 
 class ChatScreen extends StatefulWidget {

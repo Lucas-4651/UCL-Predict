@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../models/prediction.dart';
 import '../../theme/index.dart';
+import 'cards.dart';
 
 class ConfidenceBar extends StatelessWidget {
   final double confidence;

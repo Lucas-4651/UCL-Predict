@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import '../models/user.dart';
 import '../services/api_service.dart';
 import '../services/storage_service.dart';
-import 'package:dio/dio.dart';
 
 class AuthProvider with ChangeNotifier {
   final ApiService _api = ApiService();

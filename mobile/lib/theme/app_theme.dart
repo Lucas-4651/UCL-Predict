@@ -229,7 +229,7 @@ class AppTheme {
           if (states.contains(WidgetState.selected)) {
             return IconThemeData(color: AppColors.primary(isDark), size: 24);
           }
-          return IconThemeData(color: AppColors.onSurfaceVariant(isDark), size: 24);
+          return IconThemeData(color: AppColors.onSurfaceVariant(isDark), size: 24),
         }),
       ),
 
@@ -320,15 +320,15 @@ class AppTheme {
       ),
 
       extensions: <ThemeExtension<dynamic>>[
-        _AppCustomColors(isDark),
+        AppCustomColors(isDark),
       ],
     );
   }
 }
 
-class _AppCustomColors extends ThemeExtension<_AppCustomColors> {
+class AppCustomColors extends ThemeExtension<AppCustomColors> {
   final bool isDark;
-  _AppCustomColors(this.isDark);
+  AppCustomColors(this.isDark);
 
   Color get pitchLineColor => AppColors.primary(isDark).withOpacity(0.05);
   Color get floodlightGlowColor => AppColors.primary(isDark).withOpacity(0.1);
@@ -338,15 +338,15 @@ class _AppCustomColors extends ThemeExtension<_AppCustomColors> {
   Color get scorecardHoverBg => AppColors.primary(isDark).withOpacity(0.05);
 
   @override
-  _AppCustomColors copyWith({bool? isDark}) => _AppCustomColors(isDark ?? this.isDark);
+  AppCustomColors copyWith({bool? isDark}) => AppCustomColors(isDark ?? this.isDark);
 
   @override
-  _AppCustomColors lerp(ThemeExtension<_AppCustomColors>? other, double t) {
-    if (other is! _AppCustomColors) return this;
-    return _AppCustomColors(other.isDark);
+  AppCustomColors lerp(ThemeExtension<AppCustomColors>? other, double t) {
+    if (other is! AppCustomColors) return this;
+    return AppCustomColors(other.isDark);
   }
 }
 
 extension CustomColors on ThemeData {
-  _AppCustomColors get customColors => extension<_AppCustomColors>()!;
+  AppCustomColors get customColors => extension<AppCustomColors>()!;
 }

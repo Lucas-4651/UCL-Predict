@@ -4,7 +4,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import '../models/prediction.dart';
 import '../models/user.dart';
-import '../models/chat_message.dart'
+import '../models/chat_message.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
