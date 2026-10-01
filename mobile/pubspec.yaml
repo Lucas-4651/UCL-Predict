@@ -57,28 +57,3 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
-  assets:
-    - assets/images/
-    - assets/icons/
-
-  fonts:
-    - family: Syne
-      fonts:
-        - asset: assets/fonts/Syne/Syne-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/Syne/Syne-ExtraBold.ttf
-          weight: 800
-    - family: Outfit
-      fonts:
-        - asset: assets/fonts/Outfit/Outfit-Light.ttf
-          weight: 300
-        - asset: assets/fonts/Outfit/Outfit-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Outfit/Outfit-SemiBold.ttf
-          weight: 600
-    - family: JetBrainsMono
-      fonts:
-        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/JetBrainsMono/JetBrainsMono-Medium.ttf
-          weight: 500

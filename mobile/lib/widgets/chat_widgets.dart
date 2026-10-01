@@ -187,7 +187,6 @@ class _Avatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final color = _avatarColor(username);
     final initial = username.isNotEmpty ? username[0].toUpperCase() : '?';
 
