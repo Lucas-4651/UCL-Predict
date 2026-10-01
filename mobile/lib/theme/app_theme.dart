@@ -260,32 +260,36 @@ class AppTheme {
       ),
 
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
-          return AppColors.onSurfaceVariant(isDark).withOpacity(0.5);
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.primary(isDark).withOpacity(0.5);
-          return AppColors.onSurfaceVariant(isDark).withOpacity(0.3),
-        }),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) 
+              ? AppColors.primary(isDark) 
+              : AppColors.onSurfaceVariant(isDark).withOpacity(0.5),
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) 
+              ? AppColors.primary(isDark).withOpacity(0.5)
+              : AppColors.onSurfaceVariant(isDark).withOpacity(0.3),
+        ),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
 
       checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
-          return Colors.transparent;
-        }),
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) 
+              ? AppColors.primary(isDark) 
+              : Colors.transparent,
+        ),
         checkColor: WidgetStateProperty.all(Colors.white),
         side: BorderSide(color: AppColors.border(isDark), width: 2),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
 
       radioTheme: RadioThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
-          return AppColors.onSurfaceVariant(isDark),
-        }),
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected) 
+              ? AppColors.primary(isDark) 
+              : AppColors.onSurfaceVariant(isDark),
+        ),
       ),
 
       floatingActionButtonTheme: FloatingActionButtonThemeData(

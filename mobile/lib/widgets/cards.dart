@@ -76,7 +76,7 @@ class _AppCardHoverState extends State<AppCardHover> {
   bool _isHovered = false;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 

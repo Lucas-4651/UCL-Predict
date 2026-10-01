@@ -166,7 +166,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             ],
                           ),
                         ),
-                        if (user.isAdmin)
+                        if (user.role == 'admin')
                           const PopupMenuItem(
                             value: 'admin',
                             child: Row(
