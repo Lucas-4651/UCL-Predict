@@ -266,7 +266,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.primary(isDark).withOpacity(0.5);
-          return AppColors.onSurfaceVariant(isDark).withOpacity(0.3);
+          return AppColors.onSurfaceVariant(isDark).withOpacity(0.3),
         }),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
@@ -284,7 +284,7 @@ class AppTheme {
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return AppColors.primary(isDark);
-          return AppColors.onSurfaceVariant(isDark);
+          return AppColors.onSurfaceVariant(isDark),
         }),
       ),
 

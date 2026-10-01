@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/common.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -55,6 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final customColors = theme.extension<_AppCustomColors>()!;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -62,7 +66,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -72,7 +76,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
+                    customColors.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -101,7 +105,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                           ),
                         ],
                       ),
-                      child: const Icon(Icons.sports_soccer, size: 40, color: Colors.white),
+                      child: const Icon(Icons.emoji_events, size: 40, color: Colors.white),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     ShaderMask(

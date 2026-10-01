@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/index.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common.dart';
 
-class RegisterScreen extends ConsumerStatefulWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
   @override
-  ConsumerState<RegisterScreen> createState() => _RegisterScreenState();
+  State<RegisterScreen> createState() => _RegisterScreenState();
 }
 
-class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTickerProviderStateMixin {
+class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -51,7 +52,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref.read(authProvider.notifier).register(
+    final success = await context.read<AuthProvider>().register(
       _usernameController.text.trim(),
       _emailController.text.trim(),
       _passwordController.text,
@@ -66,7 +67,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final authState = ref.watch(authProvider);
+    final customColors = theme.extension<_AppCustomColors>()!;
+    final authState = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -74,7 +76,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -84,7 +86,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
+                    customColors.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -142,7 +144,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> with SingleTick
                                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                                 child: AppErrorMessage(
                                   message: authState.error!,
-                                  onDismiss: () => ref.read(authProvider.notifier).clearError(),
+                                  onDismiss: () => context.read<AuthProvider>().clearError(),
                                 ),
                               ),
                             AppInput(
@@ -238,5 +240,5 @@ class _PitchLinesPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false
 }

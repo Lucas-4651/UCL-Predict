@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/auth_provider.dart';
 import '../providers/predictions_provider.dart';
 import '../widgets/common.dart';
+import '../services/api_service.dart';
+import '../services/storage_service.dart';
 import 'predictions_screen.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   String _systemState = 'CHECKING...';
 
@@ -52,7 +55,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final authState = ref.watch(authProvider);
+    final customColors = theme.extension<_AppCustomColors>()!;
+    final authState = context.watch<AuthProvider>();
     final user = authState.user;
 
     return Scaffold(
@@ -61,7 +65,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -71,7 +75,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
+                    customColors.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -86,7 +90,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
+                backgroundColor: customColors.glassNavBg,
                 surfaceTintColor: Colors.transparent,
                 title: Row(
                   children: [
@@ -127,9 +131,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       return ThemeToggle(
                         onChanged: (isDark) async {
                           await StorageService().saveThemeMode(isDark);
-                          if (mounted) {
-                            ref.read(authProvider.notifier);
-                          }
                         },
                       );
                     },
@@ -151,7 +152,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                       ),
                       onSelected: (value) {
                         if (value == 'logout') {
-                          ref.read(authProvider.notifier).logout();
+                          context.read<AuthProvider>().logout();
                         }
                       },
                       itemBuilder: (context) => [
@@ -170,7 +171,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with SingleTickerProvid
                             value: 'admin',
                             child: Row(
                               children: [
-                                Icon(Icons.admin_panel_settings_outlined, size: 18),
+                                const Icon(Icons.admin_panel_settings_outlined, size: 18),
                                 const SizedBox(width: 8),
                                 Text('Admin Panel'),
                               ],

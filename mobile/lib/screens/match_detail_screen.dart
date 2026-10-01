@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
-import '../providers/predictions_provider.dart';
-import '../widgets/prediction_widgets.dart';
+import '../providers/predictions_provider.dart'
+import '../widgets/prediction_widgets.dart'
 import '../models/prediction.dart';
 
-class MatchDetailScreen extends ConsumerWidget {
+class MatchDetailScreen extends StatelessWidget {
   final String matchId;
 
   const MatchDetailScreen({super.key, required this.matchId});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final predictionsState = ref.watch(predictionsProvider);
+    final customColors = theme.extension<_AppCustomColors>()!;
+    final predictionsState = context.watch<PredictionsProvider>();
     final prediction = predictionsState.predictions.firstWhere(
       (p) => (p.matchId ?? p.match) == matchId,
       orElse: () => throw StateError('Prediction not found'),
@@ -26,7 +28,7 @@ class MatchDetailScreen extends ConsumerWidget {
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -36,7 +38,7 @@ class MatchDetailScreen extends ConsumerWidget {
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
+                    customColors.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -51,7 +53,7 @@ class MatchDetailScreen extends ConsumerWidget {
                 floating: true,
                 snap: true,
                 elevation: 0,
-                backgroundColor: theme.extension<_AppCustomColors>()!.glassNavBg,
+                backgroundColor: customColors.glassNavBg,
                 surfaceTintColor: Colors.transparent,
                 leading: IconButton(
                   icon: Icon(Icons.arrow_back, color: theme.colorScheme.onSurface),

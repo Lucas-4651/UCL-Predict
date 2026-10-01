@@ -1,19 +1,21 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/index.dart';
 import '../providers/chat_provider.dart';
-import '../widgets/chat_widgets.dart';
+import '../providers/auth_provider.dart'
+import '../widgets/chat_widgets.dart'
 import '../models/chat_message.dart';
 
-class ChatScreen extends ConsumerStatefulWidget {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
-  ConsumerState<ChatScreen> createState() => _ChatScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProviderStateMixin {
+class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateMixin {
   final _inputController = TextEditingController();
   final _scrollController = ScrollController();
   Timer? _sseTimer;
@@ -36,13 +38,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
   }
 
   Future<void> _loadMessages() async {
-    await ref.read(chatProvider.notifier).loadMessages();
+    await context.read<ChatProvider>().loadMessages();
   }
 
   void _connectSSE() {
     _sseTimer = Timer.periodic(const Duration(seconds: 4), (_) {
       if (mounted) {
-        ref.read(chatProvider.notifier).loadMessages();
+        context.read<ChatProvider>().loadMessages();
       }
     });
   }
@@ -65,7 +67,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
     setState(() => _showEmojiPicker = false);
 
     try {
-      await ref.read(chatProvider.notifier).sendMessage(content);
+      await context.read<ChatProvider>().sendMessage(content);
       _scrollToBottom();
     } catch (_) {}
   }
@@ -78,7 +80,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
   }
 
   void _handleReaction(int messageId, String emoji) async {
-    await ref.read(chatProvider.notifier).toggleReaction(messageId, emoji);
+    await context.read<ChatProvider>().toggleReaction(messageId, emoji);
     setState(() {
       _showEmojiPicker = false;
       _activeMessageId = null;
@@ -89,8 +91,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final chatState = ref.watch(chatProvider);
-    final authState = ref.watch(authProvider);
+    final customColors = theme.extension<_AppCustomColors>()!;
+    final chatState = context.watch<ChatProvider>();
+    final authState = context.watch<AuthProvider>();
     final currentUsername = authState.user?.username;
 
     return Scaffold(
@@ -147,7 +150,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Column(
@@ -192,7 +195,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surface,
                   border: Border(
-                    top: BorderSide(color: theme.extension<_AppCustomColors>()!.scorecardBorder, width: 1),
+                    top: BorderSide(color: customColors.scorecardBorder, width: 1),
                   ),
                 ),
                 child: SafeArea(
@@ -220,7 +223,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with SingleTickerProvid
                             ),
                           ),
                           onSubmitted: (_) => _sendMessage(),
-                          onChanged: (_) => ref.read(chatProvider.notifier).sendTyping(),
+                          onChanged: (_) => context.read<ChatProvider>().sendTyping(),
                         ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -261,13 +264,14 @@ class _EmojiPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final customColors = theme.extension<_AppCustomColors>()!;
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          top: BorderSide(color: theme.extension<_AppCustomColors>()!.scorecardBorder, width: 1),
+          top: BorderSide(color: customColors.scorecardBorder, width: 1),
         ),
         boxShadow: [
           BoxShadow(

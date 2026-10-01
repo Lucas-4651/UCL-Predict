@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import '../../theme/index.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/common.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProviderStateMixin {
+class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -49,7 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final success = await ref.read(authProvider.notifier).login(
+    final success = await context.read<AuthProvider>().login(
       _emailController.text.trim(),
       _passwordController.text,
     );
@@ -63,7 +64,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final authState = ref.watch(authProvider);
+    final customColors = theme.extension<_AppCustomColors>()!;
+    final authState = context.watch<AuthProvider>();
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
@@ -71,7 +73,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
         children: [
           Positioned.fill(
             child: CustomPaint(
-              painter: _PitchLinesPainter(theme.extension<_AppCustomColors>()!.pitchLineColor),
+              painter: _PitchLinesPainter(customColors.pitchLineColor),
             ),
           ),
           Positioned.fill(
@@ -81,7 +83,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                   center: Alignment.topCenter,
                   radius: 1.5,
                   colors: [
-                    theme.extension<_AppCustomColors>()!.floodlightGlowColor,
+                    customColors.floodlightGlowColor,
                     Colors.transparent,
                   ],
                 ),
@@ -139,7 +141,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with SingleTickerProv
                                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                                 child: AppErrorMessage(
                                   message: authState.error!,
-                                  onDismiss: () => ref.read(authProvider.notifier).clearError(),
+                                  onDismiss: () => context.read<AuthProvider>().clearError(),
                                 ),
                               ),
                             AppInput(

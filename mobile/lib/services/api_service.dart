@@ -4,7 +4,7 @@ import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import '../models/prediction.dart';
 import '../models/user.dart';
-import '../models/chat_message.dart';
+import '../models/chat_message.dart'
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
@@ -38,16 +38,18 @@ class ApiService {
     _dio.interceptors.add(CookieManager(_cookieJar));
     _dio.interceptors.add(InterceptorsWrapper(
       onRequest: (options, handler) async {
-        final cookie = await StorageService.getAuthCookie();
+        final storage = StorageService();
+        final cookie = await storage.getAuthCookie();
         if (cookie != null) {
           options.headers['Cookie'] = cookie;
         }
         handler.next(options);
       },
       onResponse: (response, handler) async {
+        final storage = StorageService();
         final setCookie = response.headers.map['set-cookie'];
         if (setCookie != null && setCookie.isNotEmpty) {
-          await StorageService.saveAuthCookie(setCookie.first);
+          await storage.saveAuthCookie(setCookie.first);
         }
         handler.next(response);
       },
@@ -63,7 +65,6 @@ class ApiService {
     _dio.options.baseUrl = url;
   }
 
-  // Generic request helpers
   Future<T> _get<T>(String path, {Map<String, dynamic>? queryParameters, T Function(Map<String, dynamic>)? parser}) async {
     final response = await _dio.get(path, queryParameters: queryParameters);
     _checkResponse(response);
@@ -87,7 +88,6 @@ class ApiService {
     }
   }
 
-  // Auth endpoints
   Future<AuthResponse> login(String email, String password) async {
     return await _post(
       '/auth/login',
@@ -106,10 +106,9 @@ class ApiService {
 
   Future<void> logout() async {
     await _post('/auth/logout');
-    await StorageService.clearAuth();
+    await StorageService().clearAuth();
   }
 
-  // Predictions endpoints
   Future<PredictionsResponse> getPredictions() async {
     return await _get(
       '/predictions/api',
@@ -124,7 +123,6 @@ class ApiService {
     );
   }
 
-  // Chat endpoints
   Future<List<ChatMessage>> getChatMessages({int limit = 50}) async {
     return await _get(
       '/api/chat/messages',
@@ -153,7 +151,6 @@ class ApiService {
     );
   }
 
-  // Health check
   Future<bool> healthCheck() async {
     try {
       final response = await _dio.get('/metrics');
@@ -163,7 +160,6 @@ class ApiService {
     }
   }
 
-  // Update result (for learning)
   Future<void> updateResult({
     required String matchId,
     required int homeGoals,
