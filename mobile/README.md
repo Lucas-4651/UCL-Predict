@@ -210,4 +210,4 @@ flutter build apk --release --split-per-abi
 
 ## 📄 Licence
 
-Projet privé - UCL-Predict / Lucas46 Tech Studio
+Projet privé - UCL-Predict / Lucas46 Tech Studio# trigger
