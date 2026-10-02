@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 env:
-  FLUTTER_VERSION: '3.29.0'
-  FLUTTER_CHANNEL: 'beta'
+  FLUTTER_VERSION: '3.24.5'
+  FLUTTER_CHANNEL: 'stable'
 
 jobs:
   analyze:
