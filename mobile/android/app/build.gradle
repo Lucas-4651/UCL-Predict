@@ -100,15 +100,12 @@ dependencies {
     
     // MANUAL FLUTTER EMBEDDING DEPENDENCY (bypasses flutter.gradle resolution issue)
     def flutterBuildMode = "release" // matches build type
-    def engineVersion = System.getenv('ENGINE_VERSION')
-    if (!engineVersion) {
-        // Fallback: read from Flutter SDK if env var not set
-        def engineVersionFile = file("$FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt")
-        if (engineVersionFile.exists()) {
-            engineVersion = engineVersionFile.text.trim()
-        } else {
-            engineVersion = "1.0.0-" + file("$FLUTTER_ROOT/bin/internal/engine.version").text.trim()
-        }
+    def engineVersion = "1.0.0" // default fallback
+    def engineVersionFile = file("../flutter_engine_version.properties")
+    if (engineVersionFile.exists()) {
+        Properties props = new Properties()
+        engineVersionFile.withInputStream { stream -> props.load(stream) }
+        engineVersion = props.getProperty("engine.version", "1.0.0")
     }
     // Add embedding for current build type (debug/release/profile)
     implementation "io.flutter:flutter_embedding_${flutterBuildMode}:${engineVersion}"
