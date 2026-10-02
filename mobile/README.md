@@ -222,3 +222,4 @@ Projet privé - UCL-Predict / Lucas46 Tech Studio# trigger
 # trigger workflow with fixed Gradle dependency
 # trigger workflow with flutter maven repo
 # trigger with engine version debug
+# trigger with robust engine version detection
