@@ -118,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> with SingleTickerProvid
                                     color: theme.colorScheme.primaryContainer,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: theme.colorScheme.primary.withValues(opacity: 0.2),
+                                      color: theme.colorScheme.primary.withAlpha((0.2 * 255).round()),
                                     ),
                                   ),
                                   child: const Icon(Icons.rocket_launch, size: 32, color: Colors.orange),

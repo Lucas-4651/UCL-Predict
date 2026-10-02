@@ -46,5 +46,5 @@ class AppColors {
   static Color warning(bool isDark) => isDark ? warningDark : warningLight;
   static Color info(bool isDark) => isDark ? infoDark : infoLight;
 
-  static Color shadow(bool isDark) => Colors.black.withValues(opacity: isDark ? 0.3 : 0.1);
+  static Color shadow(bool isDark) => Colors.black.withAlpha((isDark ? 0.3 : 0.1 * 255).round());
 }

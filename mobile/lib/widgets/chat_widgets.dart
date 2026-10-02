@@ -98,7 +98,7 @@ class ChatBubble extends StatelessWidget {
                           message.formattedTime,
                           style: AppTextStyles.monoXSmall(isDark).copyWith(
                             color: isMe
-                                ? Colors.white.withValues(opacity: 0.7)
+                                ? Colors.white.withAlpha((0.7 * 255).round())
                                 : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
@@ -133,7 +133,7 @@ class ChatBubble extends StatelessWidget {
 
   Color _getBubbleColor(ThemeData theme, bool isDark, bool isMe, bool isAdminMsg) {
     if (isAdminMsg) {
-      return isDark ? theme.colorScheme.primaryContainer.withValues(opacity: 0.3) : const Color(0xFFE7F3FF);
+      return isDark ? theme.colorScheme.primaryContainer.withAlpha((0.3 * 255).round()) : const Color(0xFFE7F3FF);
     }
     if (isMe) {
       return theme.colorScheme.primary;
@@ -165,7 +165,7 @@ class ChatBubble extends StatelessWidget {
   Border? _getBubbleBorder(ThemeData theme, bool isAdminMsg) {
     if (isAdminMsg) {
       return Border.all(
-        color: theme.colorScheme.primary.withValues(opacity: 0.3),
+        color: theme.colorScheme.primary.withAlpha((0.3 * 255).round()),
         width: 1,
       );
     }
@@ -301,7 +301,7 @@ class _AddReactionButtonState extends State<_AddReactionButton> {
               border: Border.all(color: theme.customColors.scorecardBorder),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(opacity: isDark ? 0.3 : 0.1),
+                  color: Colors.black.withAlpha((isDark ? 0.3 : 0.1 * 255).round()),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -403,7 +403,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProv
                     height: 6,
                     transform: Matrix4.diagonal3Values(scale, scale, 1),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurfaceVariant.withValues(opacity: 0.6),
+                      color: theme.colorScheme.onSurfaceVariant.withAlpha((0.6 * 255).round()),
                       shape: BoxShape.circle,
                     ),
                   );

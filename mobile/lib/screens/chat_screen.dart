@@ -103,7 +103,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: theme.colorScheme.primary.withValues(opacity: 0.2),
+                color: theme.colorScheme.primary.withAlpha((0.2 * 255).round()),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.chat_bubble_outline, size: 18, color: Colors.white),
@@ -116,7 +116,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
-              color: chatState.isConnected ? theme.colorScheme.primary.withValues(opacity: 0.15) : Colors.grey.withValues(opacity: 0.15),
+              color: chatState.isConnected ? theme.colorScheme.primary.withAlpha((0.15 * 255).round()) : Colors.grey.withAlpha((0.15 * 255).round()),
               borderRadius: BorderRadius.circular(AppRadius.round),
             ),
             child: Row(
@@ -207,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
                           decoration: InputDecoration(
                             hintText: 'Écrivez un message...',
                             hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(
-                              color: theme.colorScheme.onSurfaceVariant.withValues(opacity: 0.5),
+                              color: theme.colorScheme.onSurfaceVariant.withAlpha((0.5 * 255).round()),
                             ),
                             filled: true,
                             fillColor: theme.colorScheme.surfaceContainerHighest,
@@ -273,7 +273,7 @@ class _EmojiPicker extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(opacity: isDark ? 0.3 : 0.1),
+            color: Colors.black.withAlpha((isDark ? 0.3 : 0.1 * 255).round()),
             blurRadius: 12,
             offset: const Offset(0, -4),
           ),

@@ -23,13 +23,13 @@ class AppRadius {
 class AppShadows {
   static List<BoxShadow> cardShadow(bool isDark) => [
         BoxShadow(
-          color: Colors.black.withValues(opacity: isDark ? 0.2 : 0.06),
+          color: Colors.black.withAlpha((isDark ? 0.2 : 0.06 * 255).round()),
           offset: const Offset(0, 2),
           blurRadius: 8,
           spreadRadius: 0,
         ),
         BoxShadow(
-          color: Colors.black.withValues(opacity: isDark ? 0.1 : 0.04),
+          color: Colors.black.withAlpha((isDark ? 0.1 : 0.04 * 255).round()),
           offset: const Offset(0, 1),
           blurRadius: 3,
           spreadRadius: -1,
@@ -38,7 +38,7 @@ class AppShadows {
 
   static List<BoxShadow> cardHoverShadow(bool isDark) => [
         BoxShadow(
-          color: Colors.black.withValues(opacity: isDark ? 0.3 : 0.1),
+          color: Colors.black.withAlpha((isDark ? 0.3 : 0.1 * 255).round()),
           offset: const Offset(0, 8),
           blurRadius: 25,
           spreadRadius: -5,
@@ -47,7 +47,7 @@ class AppShadows {
 
   static List<BoxShadow> glowShadow(bool isDark, {Color? color}) => [
         BoxShadow(
-          color: (color ?? (isDark ? Colors.white : Colors.black)).withValues(opacity: 0.15),
+          color: (color ?? (isDark ? Colors.white : Colors.black)).withAlpha((0.15 * 255).round()),
           offset: Offset.zero,
           blurRadius: 30,
           spreadRadius: -10,

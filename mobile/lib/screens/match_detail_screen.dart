@@ -92,12 +92,12 @@ class MatchDetailScreen extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [
                       theme.colorScheme.primaryContainer,
-                      theme.colorScheme.primaryContainer.withValues(opacity: 0.5),
+                      theme.colorScheme.primaryContainer.withAlpha((0.5 * 255).round()),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(AppRadius.xxl),
                   border: Border.all(
-                    color: theme.colorScheme.primary.withValues(opacity: 0.2),
+                    color: theme.colorScheme.primary.withAlpha((0.2 * 255).round()),
                   ),
                 ),
                 child: Column(
@@ -259,7 +259,7 @@ class _DetailStat extends StatelessWidget {
         children: [
           Text(value, style: AppTextStyles.monoMedium(isDark).copyWith(color: color, fontWeight: FontWeight.bold)),
           const SizedBox(height: 2),
-          Text(label, style: AppTextStyles.monoXSmall(isDark).copyWith(color: color.withValues(opacity: 0.7))),
+          Text(label, style: AppTextStyles.monoXSmall(isDark).copyWith(color: color.withAlpha((0.7 * 255).round()))),
         ],
       ),
     );
@@ -303,7 +303,7 @@ class _MarketDetailCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: predictionColor.withValues(opacity: 0.15),
+                  color: predictionColor.withAlpha((0.15 * 255).round()),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, size: 22, color: predictionColor),
@@ -415,7 +415,7 @@ class _ProbabilityBar extends StatelessWidget {
                   child: Container(
                     height: 8,
                     decoration: BoxDecoration(
-                      color: isPredicted ? color : theme.colorScheme.onSurfaceVariant.withValues(opacity: 0.4),
+                      color: isPredicted ? color : theme.colorScheme.onSurfaceVariant.withAlpha((0.4 * 255).round()),
                       borderRadius: BorderRadius.circular(AppRadius.round),
                     ),
                   ),
