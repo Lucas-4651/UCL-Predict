@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 env:
-  FLUTTER_VERSION: '3.22.2'
+  FLUTTER_VERSION: '3.27.1'
   FLUTTER_CHANNEL: 'stable'
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
-          cache: true
+          cache: false
 
       - name: Install dependencies
         run: flutter pub get
@@ -67,7 +67,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
-          cache: true
+          cache: false
 
       - name: Install dependencies
         run: flutter pub get
@@ -79,7 +79,7 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build APK (release)
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --verbose
 
       - name: Verify APK outputs
         run: |
@@ -121,7 +121,7 @@ jobs:
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: ${{ env.FLUTTER_CHANNEL }}
-          cache: true
+          cache: false
 
       - name: Install dependencies
         run: flutter pub get
@@ -133,7 +133,7 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Build App Bundle (release)
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --verbose
 
       - name: Verify AAB output
         run: |
