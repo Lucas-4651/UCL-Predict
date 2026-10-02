@@ -6,7 +6,7 @@
     </style>
 
     <!-- Theme applied to the Android Window as soon as the process has started. -->
-    <style name="NormalTheme" parent="@android:style/Theme.MaterialComponents.Light.NoActionBar">
+    <style name="NormalTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowBackground">@android:color/white</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/white</item>
