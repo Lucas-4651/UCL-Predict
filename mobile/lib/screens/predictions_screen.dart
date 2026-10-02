@@ -111,10 +111,10 @@ class _PredictionsScreenState extends State<PredictionsScreen> {
         title: Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
           decoration: BoxDecoration(
-            color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.15),
+            color: _getStateColor(predictionsState.systemState, theme).withValues(opacity: 0.15),
             borderRadius: BorderRadius.circular(AppRadius.round),
             border: Border.all(
-              color: _getStateColor(predictionsState.systemState, theme).withOpacity(0.3),
+              color: _getStateColor(predictionsState.systemState, theme).withValues(opacity: 0.3),
             ),
           ),
           child: Row(

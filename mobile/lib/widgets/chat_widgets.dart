@@ -98,7 +98,7 @@ class ChatBubble extends StatelessWidget {
                           message.formattedTime,
                           style: AppTextStyles.monoXSmall(isDark).copyWith(
                             color: isMe
-                                ? Colors.white.withOpacity(0.7)
+                                ? Colors.white.withValues(opacity: 0.7)
                                 : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
@@ -133,7 +133,7 @@ class ChatBubble extends StatelessWidget {
 
   Color _getBubbleColor(ThemeData theme, bool isDark, bool isMe, bool isAdminMsg) {
     if (isAdminMsg) {
-      return isDark ? theme.colorScheme.primaryContainer.withOpacity(0.3) : const Color(0xFFE7F3FF);
+      return isDark ? theme.colorScheme.primaryContainer.withValues(opacity: 0.3) : const Color(0xFFE7F3FF);
     }
     if (isMe) {
       return theme.colorScheme.primary;
@@ -165,7 +165,7 @@ class ChatBubble extends StatelessWidget {
   Border? _getBubbleBorder(ThemeData theme, bool isAdminMsg) {
     if (isAdminMsg) {
       return Border.all(
-        color: theme.colorScheme.primary.withOpacity(0.3),
+        color: theme.colorScheme.primary.withValues(opacity: 0.3),
         width: 1,
       );
     }
@@ -301,7 +301,7 @@ class _AddReactionButtonState extends State<_AddReactionButton> {
               border: Border.all(color: theme.customColors.scorecardBorder),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                  color: Colors.black.withValues(opacity: isDark ? 0.3 : 0.1),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -403,7 +403,7 @@ class _TypingIndicatorState extends State<TypingIndicator> with SingleTickerProv
                     height: 6,
                     transform: Matrix4.diagonal3Values(scale, scale, 1),
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
+                      color: theme.colorScheme.onSurfaceVariant.withValues(opacity: 0.6),
                       shape: BoxShape.circle,
                     ),
                   );

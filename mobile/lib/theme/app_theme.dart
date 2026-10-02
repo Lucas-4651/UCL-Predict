@@ -23,9 +23,9 @@ class AppTheme {
       onSurface: AppColors.onSurface(isDark),
       onSurfaceVariant: AppColors.onSurfaceVariant(isDark),
       outline: AppColors.border(isDark),
-      outlineVariant: AppColors.border(isDark).withOpacity(0.5),
-      shadow: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
-      scrim: Colors.black.withOpacity(0.5),
+      outlineVariant: AppColors.border(isDark).withValues(opacity: 0.5),
+      shadow: Colors.black.withValues(opacity: isDark ? 0.3 : 0.1),
+      scrim: Colors.black.withValues(opacity: 0.5),
       inverseSurface: isDark ? AppColors.surfaceLight : AppColors.surfaceDark,
       onInverseSurface: isDark ? AppColors.onSurface(false) : AppColors.onSurface(true),
       inversePrimary: isDark ? AppColors.primaryLight : AppColors.primaryDark,
@@ -60,7 +60,7 @@ class AppTheme {
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 1,
-        backgroundColor: AppColors.surface(isDark).withOpacity(0.8),
+        backgroundColor: AppColors.surface(isDark).withValues(opacity: 0.8),
         surfaceTintColor: Colors.transparent,
         foregroundColor: AppColors.onSurface(isDark),
         titleTextStyle: AppTextStyles.titleLarge(isDark),
@@ -85,8 +85,8 @@ class AppTheme {
           elevation: 0,
           backgroundColor: AppColors.primary(isDark),
           foregroundColor: Colors.white,
-          disabledBackgroundColor: AppColors.primary(isDark).withOpacity(0.5),
-          disabledForegroundColor: Colors.white.withOpacity(0.7),
+          disabledBackgroundColor: AppColors.primary(isDark).withValues(opacity: 0.5),
+          disabledForegroundColor: Colors.white.withValues(opacity: 0.7),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -122,7 +122,7 @@ class AppTheme {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.background(isDark).withOpacity(0.5),
+        fillColor: AppColors.background(isDark).withValues(opacity: 0.5),
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
@@ -146,10 +146,10 @@ class AppTheme {
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.lg),
-          borderSide: BorderSide(color: AppColors.border(isDark).withOpacity(0.5), width: 1),
+          borderSide: BorderSide(color: AppColors.border(isDark).withValues(opacity: 0.5), width: 1),
         ),
         labelStyle: AppTextStyles.bodyMedium(isDark).copyWith(color: AppColors.onSurfaceVariant(isDark)),
-        hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(color: AppColors.onSurfaceVariant(isDark).withOpacity(0.6)),
+        hintStyle: AppTextStyles.bodyMedium(isDark).copyWith(color: AppColors.onSurfaceVariant(isDark).withValues(opacity: 0.6)),
         floatingLabelStyle: AppTextStyles.labelMedium(isDark).copyWith(color: AppColors.primary(isDark)),
         errorStyle: AppTextStyles.bodySmall(isDark).copyWith(color: AppColors.error(isDark)),
         prefixIconColor: AppColors.onSurfaceVariant(isDark),
@@ -158,9 +158,9 @@ class AppTheme {
 
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface(isDark),
-        disabledColor: AppColors.surface(isDark).withOpacity(0.5),
-        selectedColor: AppColors.primary(isDark).withOpacity(0.15),
-        secondarySelectedColor: AppColors.primary(isDark).withOpacity(0.15),
+        disabledColor: AppColors.surface(isDark).withValues(opacity: 0.5),
+        selectedColor: AppColors.primary(isDark).withValues(opacity: 0.15),
+        secondarySelectedColor: AppColors.primary(isDark).withValues(opacity: 0.15),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         labelStyle: AppTextStyles.labelMedium(isDark),
         secondaryLabelStyle: AppTextStyles.labelMedium(isDark).copyWith(color: Colors.white),
@@ -187,8 +187,8 @@ class AppTheme {
         leadingAndTrailingTextStyle: AppTextStyles.bodyMedium(isDark),
         iconColor: AppColors.onSurfaceVariant(isDark),
         textColor: AppColors.onSurface(isDark),
-        selectedColor: AppColors.primary(isDark).withOpacity(0.1),
-        selectedTileColor: AppColors.primary(isDark).withOpacity(0.1),
+        selectedColor: AppColors.primary(isDark).withValues(opacity: 0.1),
+        selectedTileColor: AppColors.primary(isDark).withValues(opacity: 0.1),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
       ),
 
@@ -209,15 +209,15 @@ class AppTheme {
           borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
         ),
         modalBackgroundColor: AppColors.surface(isDark),
-        dragHandleColor: AppColors.onSurfaceVariant(isDark).withOpacity(0.5),
+        dragHandleColor: AppColors.onSurfaceVariant(isDark).withValues(opacity: 0.5),
         showDragHandle: true,
       ),
 
       navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: AppColors.surface(isDark).withOpacity(0.9),
+        backgroundColor: AppColors.surface(isDark).withValues(opacity: 0.9),
         surfaceTintColor: Colors.transparent,
         elevation: 8,
-        indicatorColor: AppColors.primary(isDark).withOpacity(0.15),
+        indicatorColor: AppColors.primary(isDark).withValues(opacity: 0.15),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return AppTextStyles.labelSmall(isDark).copyWith(color: AppColors.primary(isDark));
@@ -240,20 +240,20 @@ class AppTheme {
         labelStyle: AppTextStyles.labelLarge(isDark),
         unselectedLabelStyle: AppTextStyles.labelLarge(isDark),
         dividerColor: Colors.transparent,
-        overlayColor: WidgetStateProperty.all(AppColors.primary(isDark).withOpacity(0.1)),
+        overlayColor: WidgetStateProperty.all(AppColors.primary(isDark).withValues(opacity: 0.1)),
       ),
 
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.primary(isDark),
-        linearTrackColor: AppColors.primary(isDark).withOpacity(0.2),
-        circularTrackColor: AppColors.primary(isDark).withOpacity(0.2),
+        linearTrackColor: AppColors.primary(isDark).withValues(opacity: 0.2),
+        circularTrackColor: AppColors.primary(isDark).withValues(opacity: 0.2),
       ),
 
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.primary(isDark),
-        inactiveTrackColor: AppColors.primary(isDark).withOpacity(0.2),
+        inactiveTrackColor: AppColors.primary(isDark).withValues(opacity: 0.2),
         thumbColor: AppColors.primary(isDark),
-        overlayColor: AppColors.primary(isDark).withOpacity(0.15),
+        overlayColor: AppColors.primary(isDark).withValues(opacity: 0.15),
         valueIndicatorColor: AppColors.primary(isDark),
         valueIndicatorTextStyle: AppTextStyles.labelSmall(isDark).copyWith(color: Colors.white),
       ),
@@ -262,12 +262,12 @@ class AppTheme {
         thumbColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected) 
               ? AppColors.primary(isDark) 
-              : AppColors.onSurfaceVariant(isDark).withOpacity(0.5),
+              : AppColors.onSurfaceVariant(isDark).withValues(opacity: 0.5),
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) => states.contains(WidgetState.selected) 
-              ? AppColors.primary(isDark).withOpacity(0.5)
-              : AppColors.onSurfaceVariant(isDark).withOpacity(0.3),
+              ? AppColors.primary(isDark).withValues(opacity: 0.5)
+              : AppColors.onSurfaceVariant(isDark).withValues(opacity: 0.3),
         ),
         trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
@@ -333,12 +333,12 @@ class AppCustomColors extends ThemeExtension<AppCustomColors> {
   final bool isDark;
   AppCustomColors(this.isDark);
 
-  Color get pitchLineColor => AppColors.primary(isDark).withOpacity(0.05);
-  Color get floodlightGlowColor => AppColors.primary(isDark).withOpacity(0.1);
-  Color get glassNavBg => AppColors.background(isDark).withOpacity(0.8);
+  Color get pitchLineColor => AppColors.primary(isDark).withValues(opacity: 0.05);
+  Color get floodlightGlowColor => AppColors.primary(isDark).withValues(opacity: 0.1);
+  Color get glassNavBg => AppColors.background(isDark).withValues(opacity: 0.8);
   Color get scorecardBorder => AppColors.cardBorder(isDark);
   Color get scorecardHoverBorder => AppColors.primary(isDark);
-  Color get scorecardHoverBg => AppColors.primary(isDark).withOpacity(0.05);
+  Color get scorecardHoverBg => AppColors.primary(isDark).withValues(opacity: 0.05);
 
   @override
   AppCustomColors copyWith({bool? isDark}) => AppCustomColors(isDark ?? this.isDark);

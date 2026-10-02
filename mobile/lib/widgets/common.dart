@@ -298,7 +298,7 @@ class AppErrorMessage extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.error.withValues(opacity: 0.3)),
       ),
       child: Row(
         children: [
@@ -343,7 +343,7 @@ class AppSuccessMessage extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: theme.colorScheme.primary.withOpacity(0.3)),
+        border: Border.all(color: theme.colorScheme.primary.withValues(opacity: 0.3)),
       ),
       child: Row(
         children: [
@@ -445,7 +445,7 @@ class LoadingOverlay extends StatelessWidget {
         child,
         if (isLoading)
           Container(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(opacity: 0.3),
             child: Center(
               child: Container(
                 padding: const EdgeInsets.all(AppSpacing.xl),

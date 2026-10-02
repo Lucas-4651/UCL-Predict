@@ -94,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                         borderRadius: BorderRadius.circular(12),
                         boxShadow: [
                           BoxShadow(
-                            color: theme.colorScheme.primary.withOpacity(0.4),
+                            color: theme.colorScheme.primary.withValues(opacity: 0.4),
                             blurRadius: 15,
                             spreadRadius: -2,
                           ),
@@ -211,7 +211,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                           color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(AppRadius.round),
                           border: Border.all(
-                            color: theme.colorScheme.primary.withOpacity(0.2),
+                            color: theme.colorScheme.primary.withValues(opacity: 0.2),
                           ),
                         ),
                         child: Row(
@@ -378,7 +378,7 @@ class _FeatureCard extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(opacity: 0.15),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(icon, size: 28, color: color),

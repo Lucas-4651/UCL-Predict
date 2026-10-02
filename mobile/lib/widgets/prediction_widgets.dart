@@ -24,7 +24,7 @@ class ConfidenceBar extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final barColor = color ?? theme.colorScheme.primary;
-    final bgColor = barColor.withOpacity(0.15);
+    final bgColor = barColor.withValues(opacity: 0.15);
     final percentage = (confidence * 100).round();
 
     return Row(
@@ -97,7 +97,7 @@ class MarketChip extends StatelessWidget {
         vertical: compact ? AppSpacing.xs : AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(opacity: 0.5),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: theme.customColors.scorecardBorder, width: 1),
       ),
@@ -158,7 +158,7 @@ class OddsRow extends StatelessWidget {
         vertical: compact ? AppSpacing.xs : AppSpacing.sm,
       ),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: theme.colorScheme.surfaceContainerHighest.withValues(opacity: 0.3),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: theme.customColors.scorecardBorder, width: 1),
       ),

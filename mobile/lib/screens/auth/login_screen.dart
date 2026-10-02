@@ -115,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> with SingleTickerProviderStat
                                     color: theme.colorScheme.primaryContainer,
                                     borderRadius: BorderRadius.circular(20),
                                     border: Border.all(
-                                      color: theme.colorScheme.primary.withOpacity(0.2),
+                                      color: theme.colorScheme.primary.withValues(opacity: 0.2),
                                     ),
                                   ),
                                   child: Icon(Icons.emoji_events, size: 32, color: theme.colorScheme.primary),
