@@ -213,3 +213,4 @@ flutter build apk --release --split-per-abi
 Projet privé - UCL-Predict / Lucas46 Tech Studio# trigger
 # trigger
 # trigger
+# trigger
