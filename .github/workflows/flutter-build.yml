@@ -81,6 +81,7 @@ jobs:
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/app/local.properties
           cat android/local.properties
         shell: bash
 
@@ -144,6 +145,7 @@ jobs:
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          echo "flutter.sdk=$FLUTTER_ROOT" > android/app/local.properties
           cat android/local.properties
         shell: bash
 
