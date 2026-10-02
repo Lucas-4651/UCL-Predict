@@ -18,3 +18,9 @@ allprojects {
         mavenCentral()
     }
 }
+
+// Apply Flutter Gradle plugin from Flutter SDK
+def flutterRoot = System.getenv('FLUTTER_ROOT') ?: localProperties.getProperty('flutter.sdk')
+if (flutterRoot) {
+    apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter_plugin_loader.gradle"
+}
