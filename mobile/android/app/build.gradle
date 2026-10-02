@@ -100,13 +100,13 @@ dependencies {
     
     // MANUAL FLUTTER EMBEDDING DEPENDENCY (bypasses flutter.gradle resolution issue)
     def flutterBuildMode = "release" // matches build type
-    def engineVersion = "1.0.0" // default fallback
-    def engineVersionFile = file("../flutter_engine_version.properties")
-    if (engineVersionFile.exists()) {
-        Properties props = new Properties()
-        engineVersionFile.withInputStream { stream -> props.load(stream) }
-        engineVersion = props.getProperty("engine.version", "1.0.0")
-    }
-    // Add embedding for current build type (debug/release/profile)
+    def engineVersion = System.getenv("ENGINE_VERSION") ?: "1.0.0"
+    // Embedding
     implementation "io.flutter:flutter_embedding_${flutterBuildMode}:${engineVersion}"
+    // libflutter.so for common ABIs
+    def archList = ["android-arm64", "android-armeabi-v7a", "android-x86_64"]
+    archList.each { arch ->
+        def archName = arch.replace("-", "_")
+        implementation "io.flutter:${archName}_${flutterBuildMode}:${engineVersion}"
+    }
 }
