@@ -221,3 +221,4 @@ Projet privé - UCL-Predict / Lucas46 Tech Studio# trigger
 # trigger workflow with manual embedding fix
 # trigger workflow with fixed Gradle dependency
 # trigger workflow with flutter maven repo
+# trigger with engine version debug
