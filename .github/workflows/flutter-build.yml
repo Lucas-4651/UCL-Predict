@@ -85,6 +85,10 @@ jobs:
           echo "ENGINE_VERSION=$(grep -oP '(?<=version=)[0-9a-f]{40}' $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt)" >> $GITHUB_ENV
           echo "Engine version: $ENGINE_VERSION"
           echo "engine.version=$ENGINE_VERSION" > flutter_engine_version.properties
+          echo "Flutter engine version file content:"
+          cat $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt
+          echo "Flutter engine version properties:"
+          cat flutter_engine_version.properties
 
       - name: Create local.properties
         run: |
@@ -158,6 +162,10 @@ jobs:
           echo "ENGINE_VERSION=$(grep -oP '(?<=version=)[0-9a-f]{40}' $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt)" >> $GITHUB_ENV
           echo "Engine version: $ENGINE_VERSION"
           echo "engine.version=$ENGINE_VERSION" > flutter_engine_version.properties
+          echo "Flutter engine version file content:"
+          cat $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt
+          echo "Flutter engine version properties:"
+          cat flutter_engine_version.properties
 
       - name: Create local.properties
         run: |
