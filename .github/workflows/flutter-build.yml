@@ -50,6 +50,7 @@ jobs:
         with:
           directory: ./mobile/coverage
           flags: flutter
+        continue-on-error: true
 
   build-apk:
     name: Build Release APK
@@ -78,18 +79,26 @@ jobs:
       - name: Generate code (freezed, json_serializable)
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Get Flutter engine version
+        id: flutter_version
+        run: |
+          echo "ENGINE_VERSION=$(grep -oP '(?<=version=)[0-9a-f]{40}' $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt)" >> $GITHUB_ENV
+          echo "Engine version: $ENGINE_VERSION"
+
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/app/local.properties
           cat android/local.properties
-        shell: bash
 
       - name: Precache Flutter artifacts
         run: flutter precache --android
 
       - name: Build APK (release)
-        run: flutter build apk --release --split-per-abi --verbose
+        run: |
+          echo "Running flutter doctor"
+          flutter doctor
+          echo "Building APK"
+          flutter build apk --release --verbose
 
       - name: Verify APK outputs
         run: |
@@ -142,18 +151,26 @@ jobs:
       - name: Generate code (freezed, json_serializable)
         run: dart run build_runner build --delete-conflicting-outputs
 
+      - name: Get Flutter engine version
+        id: flutter_version
+        run: |
+          echo "ENGINE_VERSION=$(grep -oP '(?<=version=)[0-9a-f]{40}' $FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt)" >> $GITHUB_ENV
+          echo "Engine version: $ENGINE_VERSION"
+
       - name: Create local.properties
         run: |
           echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/app/local.properties
           cat android/local.properties
-        shell: bash
 
       - name: Precache Flutter artifacts
         run: flutter precache --android
 
       - name: Build App Bundle (release)
-        run: flutter build appbundle --release --verbose
+        run: |
+          echo "Running flutter doctor"
+          flutter doctor
+          echo "Building App Bundle"
+          flutter build appbundle --release --verbose
 
       - name: Verify AAB output
         run: |

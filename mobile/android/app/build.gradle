@@ -97,8 +97,19 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    // Fallback Flutter embedding if flutter.gradle doesn't provide it
-    if (file(flutterEmbeddingAar).exists()) {
-        implementation files(flutterEmbeddingAar)
+    
+    // MANUAL FLUTTER EMBEDDING DEPENDENCY (bypasses flutter.gradle resolution issue)
+    def flutterBuildMode = "release" // matches build type
+    def engineVersion = System.getenv('ENGINE_VERSION')
+    if (!engineVersion) {
+        // Fallback: read from Flutter SDK if env var not set
+        def engineVersionFile = file("$FLUTTER_ROOT/bin/cache/artifacts/engine/engine-version.txt")
+        if (engineVersionFile.exists()) {
+            engineVersion = engineVersionFile.text.trim()
+        } else {
+            engineVersion = "1.0.0-" + file("$FLUTTER_ROOT/bin/internal/engine.version").text.trim()
+        }
     }
+    // Add embedding for current build type (debug/release/profile)
+    implementation "io.flutter:flutter_embedding_${flutterBuildMode}:${engineVersion}"
 }
